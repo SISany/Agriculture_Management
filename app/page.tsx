@@ -239,56 +239,6 @@ export default function AgricultureManagementSystem() {
           </p>
         </div>
 
-      {/* Search Section */}
-      <div className="mb-6">
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Quick Search</CardTitle>
-            <CardDescription className="text-sm">Search across products, stakeholders, and
-              transactions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Search Products</label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
-                  <Input
-                      type="search"
-                      placeholder="Search products..."
-                      className="pl-10 text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Search Stakeholders</label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
-                  <Input
-                      type="search"
-                      placeholder="Search stakeholders..."
-                      className="pl-10 text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Search Transactions</label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
-                  <Input
-                      type="search"
-                      placeholder="Search transactions..."
-                      className="pl-10 text-sm"
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
@@ -334,52 +284,6 @@ export default function AgricultureManagementSystem() {
           <CardContent>
             <div className="text-xl font-bold">{stakeholders.length}</div>
             <p className="text-xs text-green-600">Registered users</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="mb-8">
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Quick Actions</CardTitle>
-            <CardDescription className="text-sm">Access frequently used features</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Button
-                  variant="outline"
-                  className="h-12 text-sm"
-                  onClick={() => setActiveSection("products")}
-              >
-                <Plus className="w-4 h-4 mr-2"/>
-                Add Product
-              </Button>
-              <Button
-                  variant="outline"
-                  className="h-12 text-sm"
-                  onClick={() => setActiveSection("production")}
-              >
-                <Factory className="w-4 h-4 mr-2"/>
-                Add Production
-              </Button>
-              <Button
-                  variant="outline"
-                  className="h-12 text-sm"
-                  onClick={() => setActiveSection("transactions")}
-              >
-                <ShoppingCart className="w-4 h-4 mr-2"/>
-                Add Transaction
-              </Button>
-              <Button
-                  variant="outline"
-                  className="h-12 text-sm"
-                  onClick={() => setActiveSection("stakeholders")}
-              >
-                <Users className="w-4 h-4 mr-2"/>
-                Add Stakeholder
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </div>
@@ -525,59 +429,69 @@ export default function AgricultureManagementSystem() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Product Management</h1>
             <p className="mt-2 text-gray-600">Manage agricultural products and their specifications</p>
+          </div>
+          <div className="flex gap-4 items-center">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
+              <Input
+                  type="search"
+                  placeholder="Search products..."
+                  className="pl-10 w-64"
+              />
+            </div>
+            <Button>
+              <Plus className="w-4 h-4 mr-2"/>
+              Add Product
+            </Button>
+          </div>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2"/>
-          Add Product
-        </Button>
-      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Products</CardTitle>
-          <CardDescription>List of all agricultural products</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Product ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Variety</TableHead>
-                <TableHead>Sowing Time</TableHead>
-                <TableHead>Harvest Time</TableHead>
-                <TableHead>Seed Requirement</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map((product) => (
-                  <TableRow key={product.product_id}>
-                    <TableCell className="font-medium">{product.product_id}</TableCell>
-                    <TableCell>{product.product_name}</TableCell>
-                    <TableCell>{product.product_type}</TableCell>
-                    <TableCell>{product.variety}</TableCell>
-                    <TableCell>{product.sowing_time}</TableCell>
-                    <TableCell>{product.harvest_time}</TableCell>
-                    <TableCell>{product.seed_requirement_per_acre}</TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
-                          <Edit className="w-4 h-4"/>
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="w-4 h-4"/>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Products</CardTitle>
+            <CardDescription>List of all agricultural products</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Variety</TableHead>
+                  <TableHead>Sowing Time</TableHead>
+                  <TableHead>Harvest Time</TableHead>
+                  <TableHead>Seed Requirement</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {products.map((product) => (
+                    <TableRow key={product.product_id}>
+                      <TableCell className="font-medium">{product.product_id}</TableCell>
+                      <TableCell>{product.product_name}</TableCell>
+                      <TableCell>{product.product_type}</TableCell>
+                      <TableCell>{product.variety}</TableCell>
+                      <TableCell>{product.sowing_time}</TableCell>
+                      <TableCell>{product.harvest_time}</TableCell>
+                      <TableCell>{product.seed_requirement_per_acre}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm">
+                            <Edit className="w-4 h-4"/>
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Trash2 className="w-4 h-4"/>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
   )
 
   const renderProduction = () => (
@@ -586,61 +500,71 @@ export default function AgricultureManagementSystem() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Production Management</h1>
             <p className="mt-2 text-gray-600">Track agricultural production across regions</p>
+          </div>
+          <div className="flex gap-4 items-center">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
+              <Input
+                  type="search"
+                  placeholder="Search production records..."
+                  className="pl-10 w-64"
+              />
+            </div>
+            <Button>
+              <Plus className="w-4 h-4 mr-2"/>
+              Add Production Record
+            </Button>
+          </div>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2"/>
-          Add Production Record
-        </Button>
-      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Production Records</CardTitle>
-          <CardDescription>Regional production data</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Production ID</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>District/Division</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Quantity Produced</TableHead>
-                <TableHead>Surplus/Deficit</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {production.map((record) => (
-                  <TableRow key={record.production_id}>
-                    <TableCell className="font-medium">{record.production_id}</TableCell>
-                    <TableCell>{record.product_name}</TableCell>
-                    <TableCell>{record.district_division}</TableCell>
-                    <TableCell>{record.date}</TableCell>
-                    <TableCell>{record.quantity_produced.toLocaleString()} tons</TableCell>
-                    <TableCell>
-                      <Badge variant={record.surplus_deficit > 0 ? "default" : "destructive"}>
-                        {record.surplus_deficit > 0 ? '+' : ''}{record.surplus_deficit} tons
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
-                          <Edit className="w-4 h-4"/>
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="w-4 h-4"/>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Production Records</CardTitle>
+            <CardDescription>Regional production data</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Production ID</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead>District/Division</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Quantity Produced</TableHead>
+                  <TableHead>Surplus/Deficit</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {production.map((record) => (
+                    <TableRow key={record.production_id}>
+                      <TableCell className="font-medium">{record.production_id}</TableCell>
+                      <TableCell>{record.product_name}</TableCell>
+                      <TableCell>{record.district_division}</TableCell>
+                      <TableCell>{record.date}</TableCell>
+                      <TableCell>{record.quantity_produced.toLocaleString()} tons</TableCell>
+                      <TableCell>
+                        <Badge variant={record.surplus_deficit > 0 ? "default" : "destructive"}>
+                          {record.surplus_deficit > 0 ? '+' : ''}{record.surplus_deficit} tons
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm">
+                            <Edit className="w-4 h-4"/>
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Trash2 className="w-4 h-4"/>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
   )
 
   const renderPriceHistory = () => (
@@ -758,65 +682,75 @@ export default function AgricultureManagementSystem() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Transaction Management</h1>
             <p className="mt-2 text-gray-600">Track all agricultural transactions</p>
+          </div>
+          <div className="flex gap-4 items-center">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
+              <Input
+                  type="search"
+                  placeholder="Search transactions..."
+                  className="pl-10 w-64"
+              />
+            </div>
+            <Button>
+              <Plus className="w-4 h-4 mr-2"/>
+              Add Transaction
+            </Button>
+          </div>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2"/>
-          Add Transaction
-        </Button>
-      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Transaction Records</CardTitle>
-          <CardDescription>All stakeholder transactions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Transaction ID</TableHead>
-                <TableHead>Stakeholder</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Quantity</TableHead>
-                <TableHead>Price/Unit</TableHead>
-                <TableHead>Total Amount</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {transactions.map((transaction) => (
-                  <TableRow key={transaction.transaction_id}>
-                    <TableCell className="font-medium">{transaction.transaction_id}</TableCell>
-                    <TableCell>{transaction.stakeholder_name}</TableCell>
-                    <TableCell>{transaction.product_name}</TableCell>
-                    <TableCell>{transaction.transaction_date}</TableCell>
-                    <TableCell>{transaction.quantity} tons</TableCell>
-                    <TableCell>${transaction.price_per_unit}</TableCell>
-                    <TableCell>${transaction.total_amount.toLocaleString()}</TableCell>
-                    <TableCell>
-                      <Badge variant={transaction.transaction_type === "Sale" ? "default" : "secondary"}>
-                        {transaction.transaction_type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
-                          <Edit className="w-4 h-4"/>
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="w-4 h-4"/>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Transaction Records</CardTitle>
+            <CardDescription>All stakeholder transactions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Transaction ID</TableHead>
+                  <TableHead>Stakeholder</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Quantity</TableHead>
+                  <TableHead>Price/Unit</TableHead>
+                  <TableHead>Total Amount</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {transactions.map((transaction) => (
+                    <TableRow key={transaction.transaction_id}>
+                      <TableCell className="font-medium">{transaction.transaction_id}</TableCell>
+                      <TableCell>{transaction.stakeholder_name}</TableCell>
+                      <TableCell>{transaction.product_name}</TableCell>
+                      <TableCell>{transaction.transaction_date}</TableCell>
+                      <TableCell>{transaction.quantity} tons</TableCell>
+                      <TableCell>${transaction.price_per_unit}</TableCell>
+                      <TableCell>${transaction.total_amount.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <Badge variant={transaction.transaction_type === "Sale" ? "default" : "secondary"}>
+                          {transaction.transaction_type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm">
+                            <Edit className="w-4 h-4"/>
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Trash2 className="w-4 h-4"/>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
   )
 
   const renderStakeholders = () => (
@@ -825,107 +759,130 @@ export default function AgricultureManagementSystem() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Stakeholder Management</h1>
             <p className="mt-2 text-gray-600">Manage farmers, retailers, and wholesalers</p>
+          </div>
+          <div className="flex gap-4 items-center">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
+              <Input
+                  type="search"
+                  placeholder="Search stakeholders..."
+                  className="pl-10 w-64"
+              />
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  Filter by Type
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>All</DropdownMenuItem>
+                <DropdownMenuItem>Farmers</DropdownMenuItem>
+                <DropdownMenuItem>Retailers</DropdownMenuItem>
+                <DropdownMenuItem>Wholesalers</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button>
+              <Plus className="w-4 h-4 mr-2"/>
+              Add Stakeholder
+            </Button>
+          </div>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2"/>
-          Add Stakeholder
-        </Button>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Farmers</CardTitle>
+              <CardDescription>Registered farmers</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {stakeholders.filter(s => s.stakeholder_type === "Farmer").length}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Retailers</CardTitle>
+              <CardDescription>Retail partners</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {stakeholders.filter(s => s.stakeholder_type === "Retailer").length}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Wholesalers</CardTitle>
+              <CardDescription>Wholesale partners</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {stakeholders.filter(s => s.stakeholder_type === "Wholesaler").length}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>All Stakeholders</CardTitle>
+            <CardDescription>Complete stakeholder directory</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Stakeholder ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Additional Info</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {stakeholders.map((stakeholder) => (
+                    <TableRow key={stakeholder.stakeholder_id}>
+                      <TableCell className="font-medium">{stakeholder.stakeholder_id}</TableCell>
+                      <TableCell>{stakeholder.stakeholder_name}</TableCell>
+                      <TableCell>
+                        <Badge>{stakeholder.stakeholder_type}</Badge>
+                      </TableCell>
+                      <TableCell>{stakeholder.location}</TableCell>
+                      <TableCell>{stakeholder.contact_info}</TableCell>
+                      <TableCell>
+                        {stakeholder.stakeholder_type === "Farmer" && stakeholder.farm_size && (
+                            <span>{stakeholder.farm_size}</span>
+                        )}
+                        {stakeholder.stakeholder_type === "Retailer" && stakeholder.shop_type && (
+                            <span>{stakeholder.shop_type}</span>
+                        )}
+                        {stakeholder.stakeholder_type === "Wholesaler" && stakeholder.storage_capacity && (
+                            <span>{stakeholder.storage_capacity}</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm">
+                            <Edit className="w-4 h-4"/>
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Trash2 className="w-4 h-4"/>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Farmers</CardTitle>
-            <CardDescription>Registered farmers</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stakeholders.filter(s => s.stakeholder_type === "Farmer").length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Retailers</CardTitle>
-            <CardDescription>Retail partners</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stakeholders.filter(s => s.stakeholder_type === "Retailer").length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Wholesalers</CardTitle>
-            <CardDescription>Wholesale partners</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stakeholders.filter(s => s.stakeholder_type === "Wholesaler").length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>All Stakeholders</CardTitle>
-          <CardDescription>Complete stakeholder directory</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Stakeholder ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Additional Info</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {stakeholders.map((stakeholder) => (
-                  <TableRow key={stakeholder.stakeholder_id}>
-                    <TableCell className="font-medium">{stakeholder.stakeholder_id}</TableCell>
-                    <TableCell>{stakeholder.stakeholder_name}</TableCell>
-                    <TableCell>
-                      <Badge>{stakeholder.stakeholder_type}</Badge>
-                    </TableCell>
-                    <TableCell>{stakeholder.location}</TableCell>
-                    <TableCell>{stakeholder.contact_info}</TableCell>
-                    <TableCell>
-                      {stakeholder.stakeholder_type === "Farmer" && stakeholder.farm_size && (
-                          <span>{stakeholder.farm_size}</span>
-                      )}
-                      {stakeholder.stakeholder_type === "Retailer" && stakeholder.shop_type && (
-                          <span>{stakeholder.shop_type}</span>
-                      )}
-                      {stakeholder.stakeholder_type === "Wholesaler" && stakeholder.storage_capacity && (
-                          <span>{stakeholder.storage_capacity}</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
-                          <Edit className="w-4 h-4"/>
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="w-4 h-4"/>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
   )
 
   const renderWeather = () => (
@@ -934,95 +891,95 @@ export default function AgricultureManagementSystem() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Weather Data</h1>
             <p className="mt-2 text-gray-600">Monitor weather conditions affecting agriculture</p>
+          </div>
+          <Button>
+            <Plus className="w-4 h-4 mr-2"/>
+            Add Weather Record
+          </Button>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2"/>
-          Add Weather Record
-        </Button>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Average Temperature</CardTitle>
+              <CardDescription>Current regional average</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {(weather.reduce((sum, w) => sum + w.temperature, 0) / weather.length).toFixed(1)}°C
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Rainfall</CardTitle>
+              <CardDescription>This month</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {weather.reduce((sum, w) => sum + w.rainfall, 0).toFixed(1)}mm
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Active Locations</CardTitle>
+              <CardDescription>Weather monitoring stations</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{weather.length}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Weather Records</CardTitle>
+            <CardDescription>Regional weather data</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Weather ID</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Date Recorded</TableHead>
+                  <TableHead>Rainfall (mm)</TableHead>
+                  <TableHead>Temperature (°C)</TableHead>
+                  <TableHead>Season</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {weather.map((record) => (
+                    <TableRow key={record.weather_id}>
+                      <TableCell className="font-medium">{record.weather_id}</TableCell>
+                      <TableCell>{record.location}</TableCell>
+                      <TableCell>{record.date_recorded}</TableCell>
+                      <TableCell>{record.rainfall}</TableCell>
+                      <TableCell>{record.temperature}</TableCell>
+                      <TableCell>
+                        <Badge>{record.season}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm">
+                            <Edit className="w-4 h-4"/>
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Trash2 className="w-4 h-4"/>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Average Temperature</CardTitle>
-            <CardDescription>Current regional average</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {(weather.reduce((sum, w) => sum + w.temperature, 0) / weather.length).toFixed(1)}°C
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Rainfall</CardTitle>
-            <CardDescription>This month</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {weather.reduce((sum, w) => sum + w.rainfall, 0).toFixed(1)}mm
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Active Locations</CardTitle>
-            <CardDescription>Weather monitoring stations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{weather.length}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Weather Records</CardTitle>
-          <CardDescription>Regional weather data</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Weather ID</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Date Recorded</TableHead>
-                <TableHead>Rainfall (mm)</TableHead>
-                <TableHead>Temperature (°C)</TableHead>
-                <TableHead>Season</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {weather.map((record) => (
-                  <TableRow key={record.weather_id}>
-                    <TableCell className="font-medium">{record.weather_id}</TableCell>
-                    <TableCell>{record.location}</TableCell>
-                    <TableCell>{record.date_recorded}</TableCell>
-                    <TableCell>{record.rainfall}</TableCell>
-                    <TableCell>{record.temperature}</TableCell>
-                    <TableCell>
-                      <Badge>{record.season}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
-                          <Edit className="w-4 h-4"/>
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="w-4 h-4"/>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
   )
 
   const renderContent = () => {
