@@ -1,0 +1,414 @@
+"use client"
+
+import {useState} from "react"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Badge} from "@/components/ui/badge"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
+import {
+    LineChart,
+    Line,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell,
+    Legend
+} from "recharts"
+import {Search, Download, Plus, Edit2, Trash2, TrendingUp, MapPin, DollarSign, Package} from "lucide-react"
+
+// TypeScript interfaces
+interface ConsumptionPattern {
+    consumption_id: string
+    stakeholder_id: string
+    stakeholder_name: string
+    product_id: string
+    product_name: string
+    consumption_date: string
+    quantity_consumed: number
+    amount_spent: number
+    purchase_location: string
+    season: string
+    demographic_group: string
+    household_size: number
+}
+
+// Mock data
+const consumptionPatterns: ConsumptionPattern[] = [
+    {
+        consumption_id: "CP001",
+        stakeholder_id: "S004",
+        stakeholder_name: "Rahman Family",
+        product_id: "P001",
+        product_name: "Wheat",
+        consumption_date: "2024-01-15",
+        quantity_consumed: 25,
+        amount_spent: 1250,
+        purchase_location: "Local Market",
+        season: "Winter",
+        demographic_group: "Middle Class",
+        household_size: 5
+    },
+    {
+        consumption_id: "CP002",
+        stakeholder_id: "S005",
+        stakeholder_name: "Khan Household",
+        product_id: "P002",
+        product_name: "Rice",
+        consumption_date: "2024-01-14",
+        quantity_consumed: 30,
+        amount_spent: 1950,
+        purchase_location: "Supermarket",
+        season: "Winter",
+        demographic_group: "Upper Middle Class",
+        household_size: 4
+    },
+    {
+        consumption_id: "CP003",
+        stakeholder_id: "S006",
+        stakeholder_name: "Ali Family",
+        product_id: "P003",
+        product_name: "Corn",
+        consumption_date: "2024-01-13",
+        quantity_consumed: 15,
+        amount_spent: 300,
+        purchase_location: "Local Vendor",
+        season: "Winter",
+        demographic_group: "Lower Middle Class",
+        household_size: 6
+    },
+    {
+        consumption_id: "CP004",
+        stakeholder_id: "S007",
+        stakeholder_name: "Begum Household",
+        product_id: "P001",
+        product_name: "Wheat",
+        consumption_date: "2024-01-12",
+        quantity_consumed: 20,
+        amount_spent: 1000,
+        purchase_location: "Wholesale Market",
+        season: "Winter",
+        demographic_group: "Middle Class",
+        household_size: 3
+    },
+    {
+        consumption_id: "CP005",
+        stakeholder_id: "S008",
+        stakeholder_name: "Hasan Family",
+        product_id: "P002",
+        product_name: "Rice",
+        consumption_date: "2024-01-11",
+        quantity_consumed: 35,
+        amount_spent: 2275,
+        purchase_location: "Local Market",
+        season: "Winter",
+        demographic_group: "Upper Class",
+        household_size: 7
+    }
+]
+
+// Chart data
+const monthlyConsumptionData = [
+    {month: "Jan", wheat: 2400, rice: 4000, corn: 1200},
+    {month: "Feb", wheat: 2200, rice: 3800, corn: 1100},
+    {month: "Mar", wheat: 2600, rice: 4200, corn: 1300},
+    {month: "Apr", wheat: 2800, rice: 4500, corn: 1400},
+    {month: "May", wheat: 3000, rice: 4800, corn: 1500},
+    {month: "Jun", wheat: 2700, rice: 4300, corn: 1350}
+]
+
+const demographicConsumption = [
+    {name: "Upper Class", value: 35, color: "#8884d8"},
+    {name: "Upper Middle Class", value: 28, color: "#82ca9d"},
+    {name: "Middle Class", value: 25, color: "#ffc658"},
+    {name: "Lower Middle Class", value: 12, color: "#ff7300"}
+]
+
+const seasonalTrends = [
+    {season: "Spring", consumption: 3200, spending: 156000},
+    {season: "Summer", consumption: 2800, spending: 142000},
+    {season: "Monsoon", consumption: 3600, spending: 178000},
+    {season: "Winter", consumption: 4200, spending: 195000}
+]
+
+export default function ConsumptionPattern() {
+    const [searchTerm, setSearchTerm] = useState("")
+    const [selectedSeason, setSelectedSeason] = useState("all")
+    const [selectedDemographic, setSelectedDemographic] = useState("all")
+    const [selectedProduct, setSelectedProduct] = useState("all")
+
+    const filteredData = consumptionPatterns.filter(pattern => {
+        const matchesSearch = pattern.stakeholder_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            pattern.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            pattern.purchase_location.toLowerCase().includes(searchTerm.toLowerCase())
+        const matchesSeason = selectedSeason === "all" || pattern.season === selectedSeason
+        const matchesDemographic = selectedDemographic === "all" || pattern.demographic_group === selectedDemographic
+        const matchesProduct = selectedProduct === "all" || pattern.product_name === selectedProduct
+
+        return matchesSearch && matchesSeason && matchesDemographic && matchesProduct
+    })
+
+    const totalConsumption = filteredData.reduce((sum, pattern) => sum + pattern.quantity_consumed, 0)
+    const totalSpending = filteredData.reduce((sum, pattern) => sum + pattern.amount_spent, 0)
+    const avgHouseholdSize = filteredData.reduce((sum, pattern) => sum + pattern.household_size, 0) / filteredData.length || 0
+
+    return (
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Consumption Pattern Analysis</h1>
+                    <p className="text-sm text-gray-600">Track and analyze consumer consumption patterns and
+                        behaviors</p>
+                </div>
+                <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                        <Download className="w-4 h-4 mr-2"/>
+                        Export Data
+                    </Button>
+                    <Button size="sm">
+                        <Plus className="w-4 h-4 mr-2"/>
+                        Add Pattern
+                    </Button>
+                </div>
+            </div>
+
+            {/* Key Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Consumption</CardTitle>
+                        <Package className="h-4 w-4 text-blue-600"/>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{totalConsumption.toLocaleString()} kg</div>
+                        <p className="text-xs text-green-600 mt-1">+12% from last month</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Spending</CardTitle>
+                        <DollarSign className="h-4 w-4 text-green-600"/>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">৳{totalSpending.toLocaleString()}</div>
+                        <p className="text-xs text-blue-600 mt-1">Average per household</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Avg Household Size</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-purple-600"/>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{avgHouseholdSize.toFixed(1)}</div>
+                        <p className="text-xs text-gray-600 mt-1">Members per household</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Active Consumers</CardTitle>
+                        <MapPin className="h-4 w-4 text-orange-600"/>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{filteredData.length}</div>
+                        <p className="text-xs text-green-600 mt-1">Tracked patterns</p>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Monthly Consumption Trends</CardTitle>
+                        <CardDescription>Product consumption over time</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={{}} className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={monthlyConsumptionData}>
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis dataKey="month"/>
+                                    <YAxis/>
+                                    <ChartTooltip content={<ChartTooltipContent/>}/>
+                                    <Legend/>
+                                    <Line type="monotone" dataKey="wheat" stroke="#8884d8" strokeWidth={2}/>
+                                    <Line type="monotone" dataKey="rice" stroke="#82ca9d" strokeWidth={2}/>
+                                    <Line type="monotone" dataKey="corn" stroke="#ffc658" strokeWidth={2}/>
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Demographic Distribution</CardTitle>
+                        <CardDescription>Consumption by demographic groups</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={{}} className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={demographicConsumption}
+                                        cx="50%"
+                                        cy="50%"
+                                        labelLine={false}
+                                        label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                        outerRadius={80}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                    >
+                                        {demographicConsumption.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color}/>
+                                        ))}
+                                    </Pie>
+                                    <ChartTooltip content={<ChartTooltipContent/>}/>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Seasonal Consumption Analysis</CardTitle>
+                    <CardDescription>Consumption patterns across different seasons</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <ChartContainer config={{}} className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={seasonalTrends}>
+                                <CartesianGrid strokeDasharray="3 3"/>
+                                <XAxis dataKey="season"/>
+                                <YAxis yAxisId="left"/>
+                                <YAxis yAxisId="right" orientation="right"/>
+                                <ChartTooltip content={<ChartTooltipContent/>}/>
+                                <Legend/>
+                                <Bar yAxisId="left" dataKey="consumption" fill="#8884d8" name="Consumption (kg)"/>
+                                <Bar yAxisId="right" dataKey="spending" fill="#82ca9d" name="Spending (৳)"/>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </ChartContainer>
+                </CardContent>
+            </Card>
+
+            {/* Filters */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Consumption Pattern Data</CardTitle>
+                    <CardDescription>Filter and view detailed consumption patterns</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col md:flex-row gap-4 mb-6">
+                        <div className="relative flex-1">
+                            <Search
+                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
+                            <Input
+                                placeholder="Search consumers, products, locations..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-10"
+                            />
+                        </div>
+                        <Select value={selectedSeason} onValueChange={setSelectedSeason}>
+                            <SelectTrigger className="w-full md:w-48">
+                                <SelectValue placeholder="Select Season"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Seasons</SelectItem>
+                                <SelectItem value="Spring">Spring</SelectItem>
+                                <SelectItem value="Summer">Summer</SelectItem>
+                                <SelectItem value="Monsoon">Monsoon</SelectItem>
+                                <SelectItem value="Winter">Winter</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Select value={selectedDemographic} onValueChange={setSelectedDemographic}>
+                            <SelectTrigger className="w-full md:w-48">
+                                <SelectValue placeholder="Select Demographic"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Demographics</SelectItem>
+                                <SelectItem value="Upper Class">Upper Class</SelectItem>
+                                <SelectItem value="Upper Middle Class">Upper Middle Class</SelectItem>
+                                <SelectItem value="Middle Class">Middle Class</SelectItem>
+                                <SelectItem value="Lower Middle Class">Lower Middle Class</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                            <SelectTrigger className="w-full md:w-48">
+                                <SelectValue placeholder="Select Product"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Products</SelectItem>
+                                <SelectItem value="Wheat">Wheat</SelectItem>
+                                <SelectItem value="Rice">Rice</SelectItem>
+                                <SelectItem value="Corn">Corn</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="rounded-md border">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Consumer</TableHead>
+                                    <TableHead>Product</TableHead>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Quantity</TableHead>
+                                    <TableHead>Amount Spent</TableHead>
+                                    <TableHead>Location</TableHead>
+                                    <TableHead>Season</TableHead>
+                                    <TableHead>Demographic</TableHead>
+                                    <TableHead>Household Size</TableHead>
+                                    <TableHead>Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredData.map((pattern) => (
+                                    <TableRow key={pattern.consumption_id}>
+                                        <TableCell className="font-medium">{pattern.stakeholder_name}</TableCell>
+                                        <TableCell>{pattern.product_name}</TableCell>
+                                        <TableCell>{new Date(pattern.consumption_date).toLocaleDateString()}</TableCell>
+                                        <TableCell>{pattern.quantity_consumed} kg</TableCell>
+                                        <TableCell>৳{pattern.amount_spent.toLocaleString()}</TableCell>
+                                        <TableCell>{pattern.purchase_location}</TableCell>
+                                        <TableCell>
+                                            <Badge variant="outline">{pattern.season}</Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant="secondary">{pattern.demographic_group}</Badge>
+                                        </TableCell>
+                                        <TableCell>{pattern.household_size}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center space-x-1">
+                                                <Button variant="ghost" size="sm" className="hover:bg-blue-50">
+                                                    <Edit2 className="w-4 h-4 text-blue-600"/>
+                                                </Button>
+                                                <Button variant="ghost" size="sm" className="hover:bg-red-50">
+                                                    <Trash2 className="w-4 h-4 text-red-600"/>
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    )
+}
