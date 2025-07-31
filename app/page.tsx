@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import {useState, useEffect} from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -90,7 +90,7 @@ const production = [
     production_id: "PR001",
     product_id: "P001",
     product_name: "Wheat",
-    district_division: "Punjab",
+    district_division: "Dhaka",
     date: "2024-01-15",
     quantity_produced: 5000,
     surplus_deficit: 500
@@ -99,7 +99,7 @@ const production = [
     production_id: "PR002",
     product_id: "P002",
     product_name: "Rice",
-    district_division: "Sindh",
+    district_division: "Chittagong",
     date: "2024-01-10",
     quantity_produced: 3000,
     surplus_deficit: -200
@@ -113,7 +113,7 @@ const priceHistory = [
     product_id: "P001",
     product_name: "Wheat",
     date_recorded: "2024-01-15",
-    location: "Punjab",
+    location: "Dhaka",
     wholesale_price: 40,
     retail_price: 45,
     harvest_season_price: 38
@@ -123,7 +123,7 @@ const priceHistory = [
     product_id: "P002",
     product_name: "Rice",
     date_recorded: "2024-01-15",
-    location: "Sindh",
+    location: "Chittagong",
     wholesale_price: 60,
     retail_price: 68,
     harvest_season_price: 55
@@ -135,7 +135,7 @@ const stakeholders = [
   {
     stakeholder_id: "S001",
     stakeholder_name: "Ahmed Farms",
-    location: "Punjab",
+    location: "Dhaka",
     contact_info: "ahmed@farms.com",
     stakeholder_type: "Farmer",
     farm_size: "50 acres",
@@ -144,7 +144,7 @@ const stakeholders = [
   {
     stakeholder_id: "S002",
     stakeholder_name: "City Retail Store",
-    location: "Karachi",
+    location: "Chittagong",
     contact_info: "info@citystore.com",
     stakeholder_type: "Retailer",
     shop_type: "Grocery Store",
@@ -153,7 +153,7 @@ const stakeholders = [
   {
     stakeholder_id: "S003",
     stakeholder_name: "Grain Wholesale Co",
-    location: "Lahore",
+    location: "Dhaka",
     contact_info: "contact@grainwholesale.com",
     stakeholder_type: "Wholesaler",
     business_license: "WH-2023-001",
@@ -190,22 +190,104 @@ const transactions = [
 ]
 
 // Weather data
-const weather = [
+const weather: WeatherData[] = [
   {
     weather_id: "W001",
-    location: "Punjab",
+    location: "Dhaka",
     date_recorded: "2024-01-15",
-    rainfall: 25.5,
-    temperature: 18.2,
-    season: "Winter"
+    rainfall: 15.2,
+    temperature: 25.8,
+    season: "Winter",
+    humidity: 72,
+    pressure: 1015,
+    wind_speed: 2.8,
+    weather_description: "partly cloudy",
+    weather_main: "Clouds",
+    feels_like: 27.2
   },
   {
     weather_id: "W002",
-    location: "Sindh",
+    location: "Chittagong",
     date_recorded: "2024-01-15",
-    rainfall: 5.2,
+    rainfall: 8.5,
+    temperature: 24.2,
+    season: "Winter",
+    humidity: 75,
+    pressure: 1012,
+    wind_speed: 3.5,
+    weather_description: "clear sky",
+    weather_main: "Clear",
+    feels_like: 25.8
+  },
+  {
+    weather_id: "W003",
+    location: "Sylhet",
+    date_recorded: "2024-01-15",
+    rainfall: 22.1,
+    temperature: 23.5,
+    season: "Winter",
+    humidity: 78,
+    pressure: 1010,
+    wind_speed: 2.2,
+    weather_description: "light rain",
+    weather_main: "Rain",
+    feels_like: 24.8
+  },
+  {
+    weather_id: "W004",
+    location: "Rajshahi",
+    date_recorded: "2024-01-15",
+    rainfall: 3.2,
     temperature: 22.8,
-    season: "Winter"
+    season: "Winter",
+    humidity: 65,
+    pressure: 1018,
+    wind_speed: 1.8,
+    weather_description: "clear sky",
+    weather_main: "Clear",
+    feels_like: 23.5
+  },
+  {
+    weather_id: "W005",
+    location: "Khulna",
+    date_recorded: "2024-01-15",
+    rainfall: 12.8,
+    temperature: 24.5,
+    season: "Winter",
+    humidity: 70,
+    pressure: 1014,
+    wind_speed: 2.5,
+    weather_description: "scattered clouds",
+    weather_main: "Clouds",
+    feels_like: 26.1
+  },
+  {
+    weather_id: "W006",
+    location: "Barisal",
+    date_recorded: "2024-01-15",
+    rainfall: 18.7,
+    temperature: 25.1,
+    season: "Winter",
+    humidity: 74,
+    pressure: 1013,
+    wind_speed: 3.1,
+    weather_description: "moderate rain",
+    weather_main: "Rain",
+    feels_like: 26.8
+  },
+  {
+    weather_id: "W007",
+    location: "Rangpur",
+    date_recorded: "2024-01-15",
+    rainfall: 5.8,
+    temperature: 21.9,
+    season: "Winter",
+    humidity: 68,
+    pressure: 1016,
+    wind_speed: 2.0,
+    weather_description: "few clouds",
+    weather_main: "Clouds",
+    feels_like: 22.8
   }
 ]
 
@@ -227,8 +309,76 @@ const cropDistribution = [
   { name: "Others", value: 8, color: "#00ff88" },
 ]
 
+interface WeatherData {
+  weather_id: string
+  location: string
+  date_recorded: string
+  rainfall: number
+  temperature: number
+  season: string
+  humidity?: number
+  pressure?: number
+  wind_speed?: number
+  weather_description?: string
+  weather_main?: string
+  feels_like?: number
+}
+
 export default function AgricultureManagementSystem() {
   const [activeSection, setActiveSection] = useState("dashboard")
+
+  // Weather API state management with proper typing
+  const [weatherData, setWeatherData] = useState<WeatherData[]>([])
+  const [weatherLoading, setWeatherLoading] = useState(false)
+  const [weatherError, setWeatherError] = useState<string | null>(null)
+
+  // Function to fetch weather data
+  const fetchWeatherData = async () => {
+    setWeatherLoading(true)
+    setWeatherError(null)
+
+    try {
+      const response = await fetch('/api/weather', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        }
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        if (result.fallback) {
+          // API key not configured, use fallback data
+          setWeatherError(result.error)
+          setWeatherData(weather)
+        } else {
+          throw new Error(result.error || 'Failed to fetch weather data')
+        }
+      } else {
+        // Successfully got data from API
+        setWeatherData(result.data)
+        setWeatherError(null)
+      }
+    } catch (error) {
+      console.error('Error fetching weather data:', error)
+      setWeatherError('Failed to load weather data. Using fallback data.')
+      // Fallback to demo data if API fails
+      setWeatherData(weather)
+    } finally {
+      setWeatherLoading(false)
+    }
+  }
+
+  // Fetch weather data when weather section is active
+  useEffect(() => {
+    if (activeSection === "weather") {
+      fetchWeatherData()
+    }
+  }, [activeSection])
+
+  // Use weather data from API or fallback to mock data
+  const currentWeatherData = weatherData.length > 0 ? weatherData : weather
 
   const renderDashboard = () => (
       <div className="space-y-6">
@@ -396,7 +546,7 @@ export default function AgricultureManagementSystem() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {weather.slice(0, 2).map((record) => (
+              {currentWeatherData.slice(0, 2).map((record) => (
                   <div key={record.weather_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
                       <p className="text-sm font-medium">{record.location}</p>
@@ -889,96 +1039,347 @@ export default function AgricultureManagementSystem() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Weather Data</h1>
-            <p className="mt-2 text-gray-600">Monitor weather conditions affecting agriculture</p>
+            <h1 className="text-2xl font-bold text-gray-900">Weather Data - Bangladesh</h1>
+            <p className="mt-2 text-gray-600">Real-time weather monitoring for agricultural regions across
+              Bangladesh</p>
           </div>
-          <Button>
-            <Plus className="w-4 h-4 mr-2"/>
-            Add Weather Record
-          </Button>
+          <div className="flex gap-4">
+            <Button onClick={fetchWeatherData} disabled={weatherLoading}>
+              {weatherLoading ? "Loading..." : "Refresh Weather"}
+            </Button>
+            <Button>
+              <Plus className="w-4 h-4 mr-2"/>
+              Add Weather Station
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Weather Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader>
-              <CardTitle>Average Temperature</CardTitle>
-              <CardDescription>Current regional average</CardDescription>
+              <CardTitle className="text-sm font-medium">Average Temperature</CardTitle>
+              <CloudRain className="h-4 w-4 text-blue-600"/>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {(weather.reduce((sum, w) => sum + w.temperature, 0) / weather.length).toFixed(1)}°C
+                {weatherLoading ? "Loading..." :
+                    currentWeatherData.length > 0 ?
+                        (currentWeatherData.reduce((sum, w) => sum + w.temperature, 0) / currentWeatherData.length).toFixed(1) + "°C" :
+                        "N/A"
+                }
               </div>
+              <p className="text-xs text-gray-600">Across all regions</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Total Rainfall</CardTitle>
-              <CardDescription>This month</CardDescription>
+              <CardTitle className="text-sm font-medium">Total Rainfall</CardTitle>
+              <CloudRain className="h-4 w-4 text-blue-600"/>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {weather.reduce((sum, w) => sum + w.rainfall, 0).toFixed(1)}mm
+                {weatherLoading ? "Loading..." :
+                    currentWeatherData.length > 0 ?
+                        currentWeatherData.reduce((sum, w) => sum + w.rainfall, 0).toFixed(1) + "mm" :
+                        "N/A"
+                }
               </div>
+              <p className="text-xs text-gray-600">Current hour total</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Active Locations</CardTitle>
-              <CardDescription>Weather monitoring stations</CardDescription>
+              <CardTitle className="text-sm font-medium">Average Humidity</CardTitle>
+              <CloudRain className="h-4 w-4 text-green-600"/>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{weather.length}</div>
+              <div className="text-2xl font-bold">
+                {weatherLoading ? "Loading..." :
+                    currentWeatherData.length > 0 ?
+                        Math.round(currentWeatherData.reduce((sum, w) => sum + (w.humidity || 0), 0) / currentWeatherData.length) + "%" :
+                        "N/A"
+                }
+              </div>
+              <p className="text-xs text-gray-600">Regional average</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">Active Stations</CardTitle>
+              <Package className="h-4 w-4 text-yellow-600"/>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {weatherLoading ? "Loading..." : currentWeatherData.length}
+              </div>
+              <p className="text-xs text-gray-600">Weather monitoring stations</p>
             </CardContent>
           </Card>
         </div>
 
-        <Card>
+        {/* Weather Alerts */}
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Weather Records</CardTitle>
-            <CardDescription>Regional weather data</CardDescription>
+            <CardTitle className="text-lg">Weather Alerts & Advisories</CardTitle>
+            <CardDescription>Important weather information for agricultural planning</CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Weather ID</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Date Recorded</TableHead>
-                  <TableHead>Rainfall (mm)</TableHead>
-                  <TableHead>Temperature (°C)</TableHead>
-                  <TableHead>Season</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {weather.map((record) => (
-                    <TableRow key={record.weather_id}>
-                      <TableCell className="font-medium">{record.weather_id}</TableCell>
-                      <TableCell>{record.location}</TableCell>
-                      <TableCell>{record.date_recorded}</TableCell>
-                      <TableCell>{record.rainfall}</TableCell>
-                      <TableCell>{record.temperature}</TableCell>
-                      <TableCell>
-                        <Badge>{record.season}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm">
-                            <Edit className="w-4 h-4"/>
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Trash2 className="w-4 h-4"/>
-                          </Button>
+            <div className="space-y-3">
+              {currentWeatherData.filter(w => w.rainfall > 15).length > 0 && (
+                  <div className="flex items-center p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <Bell className="h-5 w-5 text-yellow-600 mr-3"/>
+                    <div>
+                      <p className="font-medium text-yellow-800">Heavy Rainfall Alert</p>
+                      <p className="text-sm text-yellow-700">
+                        High rainfall detected
+                        in {currentWeatherData.filter(w => w.rainfall > 15).map(w => w.location).join(', ')}.
+                        Consider crop protection measures.
+                      </p>
+                    </div>
+                  </div>
+              )}
+
+              {currentWeatherData.filter(w => w.temperature > 30).length > 0 && (
+                  <div className="flex items-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                    <Bell className="h-5 w-5 text-orange-600 mr-3"/>
+                    <div>
+                      <p className="font-medium text-orange-800">High Temperature Warning</p>
+                      <p className="text-sm text-orange-700">
+                        Elevated temperatures
+                        in {currentWeatherData.filter(w => w.temperature > 30).map(w => w.location).join(', ')}.
+                        Ensure adequate irrigation.
+                      </p>
+                    </div>
+                  </div>
+              )}
+
+              {currentWeatherData.filter(w => (w.humidity || 0) > 80).length > 0 && (
+                  <div className="flex items-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <Bell className="h-5 w-5 text-blue-600 mr-3"/>
+                    <div>
+                      <p className="font-medium text-blue-800">High Humidity Notice</p>
+                      <p className="text-sm text-blue-700">
+                        High humidity levels
+                        in {currentWeatherData.filter(w => (w.humidity || 0) > 80).map(w => w.location).join(', ')}.
+                        Monitor for fungal diseases.
+                      </p>
+                    </div>
+                  </div>
+              )}
+
+              {currentWeatherData.filter(w => w.rainfall > 15).length === 0 &&
+                  currentWeatherData.filter(w => w.temperature > 30).length === 0 &&
+                  currentWeatherData.filter(w => (w.humidity || 0) > 80).length === 0 && (
+                      <div className="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <Bell className="h-5 w-5 text-green-600 mr-3"/>
+                        <div>
+                          <p className="font-medium text-green-800">Weather Conditions Normal</p>
+                          <p className="text-sm text-green-700">
+                            All regions showing favorable weather conditions for agricultural activities.
+                          </p>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                      </div>
+                  )}
+            </div>
           </CardContent>
         </Card>
+
+        {/* Regional Weather Comparison */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Temperature Distribution</CardTitle>
+              <CardDescription>Temperature across Bangladesh regions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer
+                  config={{temperature: {label: "Temperature (°C)", color: "#ff7300"}}}
+                  className="h-[300px]"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={currentWeatherData}>
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis dataKey="location" angle={-45} textAnchor="end" height={80}/>
+                    <YAxis/>
+                    <ChartTooltip content={<ChartTooltipContent/>}/>
+                    <Bar dataKey="temperature" fill="#ff7300"/>
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Rainfall Distribution</CardTitle>
+              <CardDescription>Precipitation levels by region</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer
+                  config={{rainfall: {label: "Rainfall (mm)", color: "#1e40af"}}}
+                  className="h-[300px]"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={currentWeatherData}>
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis dataKey="location" angle={-45} textAnchor="end" height={80}/>
+                    <YAxis/>
+                    <ChartTooltip content={<ChartTooltipContent/>}/>
+                    <Bar dataKey="rainfall" fill="#1e40af"/>
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Detailed Weather Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Detailed Weather Records - Bangladesh</CardTitle>
+            <CardDescription>Comprehensive weather data from all monitoring stations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {weatherLoading ? (
+                <div className="flex justify-center items-center p-8">
+                  <div className="text-gray-500">Loading weather data...</div>
+                </div>
+            ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Date Recorded</TableHead>
+                      <TableHead>Temperature (°C)</TableHead>
+                      <TableHead>Feels Like (°C)</TableHead>
+                      <TableHead>Humidity (%)</TableHead>
+                      <TableHead>Pressure (hPa)</TableHead>
+                      <TableHead>Rainfall (mm/h)</TableHead>
+                      <TableHead>Wind Speed (m/s)</TableHead>
+                      <TableHead>Condition</TableHead>
+                      <TableHead>Season</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentWeatherData.map((record) => (
+                        <TableRow key={record.weather_id}>
+                          <TableCell className="font-medium">{record.location}</TableCell>
+                          <TableCell>{record.date_recorded}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center">
+                              <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
+                                  record.temperature > 30 ? 'bg-red-500' :
+                                      record.temperature > 25 ? 'bg-orange-500' :
+                                          record.temperature > 20 ? 'bg-yellow-500' : 'bg-blue-500'
+                              }`}></span>
+                              {record.temperature}°C
+                            </div>
+                          </TableCell>
+                          <TableCell>{record.feels_like || record.temperature}°C</TableCell>
+                          <TableCell>
+                            <div className="flex items-center">
+                              <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
+                                  (record.humidity || 0) > 80 ? 'bg-blue-500' :
+                                      (record.humidity || 0) > 60 ? 'bg-green-500' : 'bg-yellow-500'
+                              }`}></span>
+                              {record.humidity || 'N/A'}%
+                            </div>
+                          </TableCell>
+                          <TableCell>{record.pressure || 'N/A'} hPa</TableCell>
+                          <TableCell>
+                            <div className="flex items-center">
+                              <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
+                                  record.rainfall > 15 ? 'bg-red-500' :
+                                      record.rainfall > 5 ? 'bg-orange-500' : 'bg-green-500'
+                              }`}></span>
+                              {record.rainfall}
+                            </div>
+                          </TableCell>
+                          <TableCell>{record.wind_speed || 'N/A'}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={`${
+                                record.weather_main === 'Rain' ? 'bg-blue-50 text-blue-700' :
+                                    record.weather_main === 'Clear' ? 'bg-green-50 text-green-700' :
+                                        'bg-gray-50 text-gray-700'
+                            }`}>
+                              {record.weather_description || record.weather_main || 'Clear'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge>{record.season}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button variant="outline" size="sm">
+                                <Edit className="w-4 h-4"/>
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                <Bell className="w-4 h-4"/>
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Weather Tips for Farmers */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Agricultural Weather Insights</CardTitle>
+            <CardDescription>Weather-based recommendations for farming activities</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h4 className="font-semibold text-green-800 mb-2">Optimal Planting Conditions</h4>
+                <p className="text-sm text-green-700">
+                  {currentWeatherData.filter(w => w.temperature >= 20 && w.temperature <= 30 && w.rainfall < 10).length} regions
+                  showing ideal conditions for planting activities.
+                </p>
+              </div>
+
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-semibold text-blue-800 mb-2">Irrigation Needs</h4>
+                <p className="text-sm text-blue-700">
+                  {currentWeatherData.filter(w => w.rainfall < 5).length} regions may require additional irrigation
+                  due to low rainfall levels.
+                </p>
+              </div>
+
+              <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <h4 className="font-semibold text-orange-800 mb-2">Harvest Readiness</h4>
+                <p className="text-sm text-orange-700">
+                  {currentWeatherData.filter(w => w.rainfall < 10 && (w.humidity || 0) < 70).length} regions
+                  showing favorable conditions for harvesting activities.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Weather Error Message - Moved to Bottom */}
+        {weatherError && (
+            <Card className="border-red-200 bg-red-50">
+              <CardContent className="p-4">
+                <div className="flex items-center">
+                  <Bell className="h-5 w-5 text-red-600 mr-3"/>
+                  <div>
+                    <p className="font-medium text-red-800">API Configuration Notice</p>
+                    <p className="text-red-700">{weatherError}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+        )}
       </div>
   )
 
