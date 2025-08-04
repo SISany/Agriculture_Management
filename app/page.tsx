@@ -22,14 +22,6 @@ import WholesalerManagement from "@/components/wholesaler/WholesalerManagement"
 import {useState} from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -62,6 +54,10 @@ import {
   Utensils,
   BarChart2,
   TrendingUp,
+    ChevronDown,
+    ChevronRight,
+    Menu,
+    X,
 } from "lucide-react"
 
 // Mock data for dashboard only
@@ -288,8 +284,115 @@ const weather = [
 
 export default function AgricultureManagementSystem() {
   const [activeSection, setActiveSection] = useState("dashboard")
+    const [sidebarOpen, setSidebarOpen] = useState(true)
+    const [stakeholderExpanded, setStakeholderExpanded] = useState(false)
 
-  const renderDashboard = () => (
+    // Navigation items configuration
+    const navigationItems = [
+        {
+            id: "dashboard",
+            label: "Dashboard",
+            icon: Home,
+            category: "main"
+        },
+        {
+            id: "products",
+            label: "Product",
+            icon: Package,
+            category: "main"
+        },
+        {
+            id: "production",
+            label: "Production",
+            icon: Factory,
+            category: "main"
+        },
+        {
+            id: "prices",
+            label: "Price History",
+            icon: BarChart3,
+            category: "main"
+        },
+        {
+            id: "demand-forecast",
+            label: "Demand Forecast",
+            icon: TrendingUp,
+            category: "main"
+        },
+        {
+            id: "consumption",
+            label: "Consumption",
+            icon: Utensils,
+            category: "main"
+        },
+        {
+            id: "supply-demand-analysis",
+            label: "Supply Analysis",
+            icon: BarChart3,
+            category: "main"
+        },
+        {
+            id: "nutrition-intake",
+            label: "Nutrition",
+            icon: BarChart2,
+            category: "main"
+        },
+        {
+            id: "inventory",
+            label: "Inventory",
+            icon: Package,
+            category: "main"
+        },
+        {
+            id: "shipments",
+            label: "Shipment",
+            icon: Truck,
+            category: "main"
+        },
+        {
+            id: "warehouses",
+            label: "Warehouse",
+            icon: WarehouseIcon,
+            category: "main"
+        },
+        {
+            id: "transactions",
+            label: "Transaction",
+            icon: ShoppingCart,
+            category: "main"
+        },
+        {
+            id: "weather",
+            label: "Weather",
+            icon: CloudRain,
+            category: "additional"
+        }
+    ]
+
+    const stakeholderItems = [
+        {
+            id: "farmer-management",
+            label: "Farmer",
+            icon: Users
+        },
+        {
+            id: "retailer-management",
+            label: "Retailer",
+            icon: Users
+        },
+        {
+            id: "wholesaler-management",
+            label: "Wholesaler",
+            icon: Users
+        },
+        {
+            id: "consumers",
+            label: "Consumer",
+            icon: Users
+        }
+    ]
+
+    const renderDashboard = () => (
       <div className="space-y-6">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Agriculture Management Dashboard</h1>
@@ -539,228 +642,151 @@ export default function AgricultureManagementSystem() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation Bar */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* First Row - Main Navigation */}
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 flex items-center">
-                <Wheat className="h-8 w-8 text-green-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">AgriManagement</span>
+      <div className="min-h-screen bg-gray-50 flex">
+          {/* Left Sidebar */}
+          <div
+              className={`${sidebarOpen ? 'w-64' : 'w-16'} bg-white shadow-lg transition-all duration-300 ease-in-out flex-shrink-0`}>
+              {/* Sidebar Header */}
+              <div
+                  className={`flex items-center ${sidebarOpen ? 'justify-between p-4' : 'justify-center p-2'} border-b`}>
+                  <div className={`flex items-center ${sidebarOpen ? '' : 'justify-center'}`}>
+                      <Wheat className="h-8 w-8 text-green-600 flex-shrink-0"/>
+                      {sidebarOpen && (
+                          <span className="ml-2 text-lg font-bold text-gray-900 truncate">AgriManagement</span>
+                      )}
               </div>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className={`${sidebarOpen ? 'p-1.5' : 'p-2 mt-2'} hover:bg-gray-100`}
+                >
+                    {sidebarOpen ? <X className="h-5 w-5"/> : <Menu className="h-5 w-5"/>}
+                </Button>
+            </div>
 
-              {/* Horizontal Scrollable Navigation */}
-              <div className="hidden md:ml-6 md:flex md:items-center">
-                <div
-                    className="flex overflow-x-auto scrollbar-hide scroll-smooth-x nav-scroll-container space-x-2 px-2 py-1 max-w-4xl">
+              {/* Navigation Menu */}
+              <nav className="flex-1 overflow-y-auto py-4">
+                  <div className={`${sidebarOpen ? 'px-3' : 'px-2'} space-y-1`}>
+                      {/* Main Navigation Items */}
+                      {navigationItems.map((item) => {
+                          const Icon = item.icon
+                          const isActive = activeSection === item.id
+
+                          return (
+                              <Button
+                                  key={item.id}
+                                  variant={isActive ? "default" : "ghost"}
+                                  onClick={() => setActiveSection(item.id)}
+                                  className={`w-full justify-start h-9 text-sm font-medium transition-all duration-200 ${
+                                      sidebarOpen ? 'px-3' : 'px-0 justify-center'
+                                  } ${isActive ?
+                                      'bg-green-600 text-white shadow-sm' :
+                                      'text-gray-700 hover:bg-green-50 hover:text-green-700'
+                                  }`}
+                                  title={!sidebarOpen ? item.label : undefined}
+                              >
+                                  <Icon className={`h-4 w-4 flex-shrink-0 ${sidebarOpen ? 'mr-3' : ''}`}/>
+                                  {sidebarOpen && <span className="truncate">{item.label}</span>}
+                              </Button>
+                          )
+                      })}
+
+                  {/* Stakeholder Section */}
+                  <div className="pt-2">
                   <Button
-                      variant={activeSection === "dashboard" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("dashboard")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
+                      variant="ghost"
+                      onClick={() => {
+                          if (!sidebarOpen) {
+                              setSidebarOpen(true)
+                          }
+                          setStakeholderExpanded(!stakeholderExpanded)
+                      }}
+                      className={`w-full justify-start h-9 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-all duration-200 ${
+                          sidebarOpen ? 'px-3' : 'px-0 justify-center'
+                      } ${stakeholderItems.some(item => activeSection === item.id) ? 'bg-green-50 text-green-700' : ''}`}
+                      title={!sidebarOpen ? 'Stakeholder' : undefined}
                   >
-                    <Home className="w-4 h-4 mr-1"/>
-                    Dashboard
+                      <Users className={`h-4 w-4 flex-shrink-0 ${sidebarOpen ? 'mr-3' : ''}`}/>
+                      {sidebarOpen && (
+                          <>
+                              <span className="truncate flex-1 text-left">Stakeholder</span>
+                              {stakeholderExpanded ?
+                                  <ChevronDown className="h-4 w-4 ml-auto"/> :
+                                  <ChevronRight className="h-4 w-4 ml-auto"/>
+                              }
+                          </>
+                      )}
                   </Button>
 
-                  <Button
-                      variant={activeSection === "products" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("products")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <Package className="w-4 h-4 mr-1"/>
-                    Product
-                  </Button>
+                    {/* Stakeholder Submenu */}
+                    {sidebarOpen && stakeholderExpanded && (
+                    <div className="ml-4 mt-1 space-y-1">
+                        {stakeholderItems.map((item) => {
+                            const Icon = item.icon
+                            const isActive = activeSection === item.id
 
-                  <Button
-                      variant={activeSection === "production" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("production")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <Factory className="w-4 h-4 mr-1"/>
-                    Production
-                  </Button>
-
-                  <Button
-                      variant={activeSection === "prices" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("prices")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <BarChart3 className="w-4 h-4 mr-1"/>
-                    Price History
-                  </Button>
-
-                  <Button
-                      variant={activeSection === "demand-forecast" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("demand-forecast")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <TrendingUp className="w-4 h-4 mr-1"/>
-                    Demand Forecast
-                  </Button>
-
-                  <Button
-                      variant={activeSection === "consumption" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("consumption")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <Utensils className="w-4 h-4 mr-1"/>
-                    Consumption
-                  </Button>
-
-                  <Button
-                      variant={activeSection === "supply-demand-analysis" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("supply-demand-analysis")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <BarChart3 className="w-4 h-4 mr-1"/>
-                    Supply Analysis
-                  </Button>
-
-                  <Button
-                      variant={activeSection === "nutrition-intake" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("nutrition-intake")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <BarChart2 className="w-4 h-4 mr-1"/>
-                    Nutrition
-                  </Button>
-
-                  <Button
-                      variant={activeSection === "inventory" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("inventory")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <Package className="w-4 h-4 mr-1"/>
-                    Inventory
-                  </Button>
-
-                  <Button
-                      variant={activeSection === "shipments" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("shipments")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <Truck className="w-4 h-4 mr-1"/>
-                    Shipment
-                  </Button>
-
-                  <Button
-                      variant={activeSection === "warehouses" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("warehouses")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <WarehouseIcon className="w-4 h-4 mr-1"/>
-                    Warehouse
-                  </Button>
-
-                  <Button
-                      variant={activeSection === "transactions" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("transactions")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <ShoppingCart className="w-4 h-4 mr-1"/>
-                    Transaction
-                  </Button>
-
-                  <div className="h-8 w-px bg-gray-300 mx-2 flex-shrink-0"></div>
-
-                  <div className="h-8 w-px bg-gray-300 mx-2 flex-shrink-0"></div>
-
-                  {/* Stakeholder Dropdown Menu */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                          variant={["retailer-management", "wholesaler-management", "consumers", "farmer-management"].includes(activeSection) ? "default" : "ghost"}
-                          className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                      >
-                        <Users className="w-4 h-4 mr-1"/>
-                        Stakeholder
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
-                      <DropdownMenuLabel>Stakeholder Management</DropdownMenuLabel>
-                      <DropdownMenuSeparator/>
-                      <DropdownMenuItem
-                          onClick={() => setActiveSection("farmer-management")}
-                          className="cursor-pointer"
-                      >
-                        <Users className="w-4 h-4 mr-2"/>
-                        Farmer
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                          onClick={() => setActiveSection("retailer-management")}
-                          className="cursor-pointer"
-                      >
-                        <Users className="w-4 h-4 mr-2"/>
-                        Retailer
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                          onClick={() => setActiveSection("wholesaler-management")}
-                          className="cursor-pointer"
-                      >
-                        <Users className="w-4 h-4 mr-2"/>
-                        Wholesaler
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                          onClick={() => setActiveSection("consumers")}
-                          className="cursor-pointer"
-                      >
-                        <Users className="w-4 h-4 mr-2"/>
-                        Consumer
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  <div className="h-8 w-px bg-gray-300 mx-2 flex-shrink-0"></div>
-
-                  <Button
-                      variant={activeSection === "weather" ? "default" : "ghost"}
-                      onClick={() => setActiveSection("weather")}
-                      className="inline-flex items-center px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 hover:scale-105 transition-transform"
-                  >
-                    <CloudRain className="w-4 h-4 mr-1"/>
-                    Weather
-                  </Button>
+                            return (
+                                <Button
+                                    key={item.id}
+                                    variant={isActive ? "default" : "ghost"}
+                                    onClick={() => setActiveSection(item.id)}
+                                    className={`w-full justify-start h-8 text-xs font-medium transition-all duration-200 px-3 ${
+                                        isActive ?
+                                            'bg-green-600 text-white shadow-sm' :
+                                            'text-gray-600 hover:bg-green-50 hover:text-green-700'
+                                    }`}
+                                >
+                                    <Icon className="h-3 w-3 mr-2 flex-shrink-0"/>
+                                    <span className="truncate">{item.label}</span>
+                                </Button>
+                            )
+                        })}
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            </nav>
+          </div>
 
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
-                <Input type="search" placeholder="Search..." className="pl-10 w-64"/>
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Top Header */}
+              <header className="bg-white shadow-sm border-b px-6 py-4">
+                  <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                  <h1 className="text-xl font-semibold text-gray-900">
+                      {navigationItems.find(item => item.id === activeSection)?.label ||
+                          stakeholderItems.find(item => item.id === activeSection)?.label ||
+                          'Agriculture Management'}
+                  </h1>
               </div>
 
-              <Button variant="ghost" size="icon">
-                <Bell className="w-5 h-5"/>
-              </Button>
+                        <div className="flex items-center space-x-4">
+                            <div className="relative">
+                                <Search
+                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
+                                <Input type="search" placeholder="Search..." className="pl-10 w-64 h-9"/>
+                            </div>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Settings className="w-5 h-5"/>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Settings</DropdownMenuLabel>
-                  <DropdownMenuSeparator/>
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Preferences</DropdownMenuItem>
-                  <DropdownMenuItem>Logout</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <Button variant="ghost" size="sm" className="p-2">
+                        <Bell className="w-4 h-4"/>
+                    </Button>
+
+                    <Button variant="ghost" size="sm" className="p-2">
+                        <Settings className="w-4 h-4"/>
+                    </Button>
+              </div>
+                    </div>
+                </header>
+
+                {/* Main Content */}
+                <main className="flex-1 overflow-auto">
+                    <div className="p-6">
+                        {renderContent()}
+                    </div>
+                </main>
             </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {renderContent()}
-        </div>
-      </main>
-    </div>
+      </div>
   )
 }
