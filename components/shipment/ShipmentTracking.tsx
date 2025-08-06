@@ -4,9 +4,24 @@ import {useState} from "react"
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {Badge} from "@/components/ui/badge"
-import {Search, Plus, Edit2, Trash2, Truck, Activity, Target, TrendingUp} from "lucide-react"
+import {
+    Search,
+    Plus,
+    Edit2,
+    Trash2,
+    Truck,
+    Activity,
+    Target,
+    TrendingUp,
+    Calendar,
+    Package,
+    MapPin,
+    User
+} from "lucide-react"
 
 interface Shipment {
     shipment_id: string
@@ -104,8 +119,94 @@ const shipments: Shipment[] = [
 
 export default function ShipmentTracking() {
     const [searchTerm, setSearchTerm] = useState("")
+    const [shipmentData, setShipmentData] = useState<Shipment[]>(shipments)
 
-    const filteredShipments = shipments.filter(shipment =>
+    // Form state
+    const [formData, setFormData] = useState({
+        shipment_id: "",
+        sender_stakeholder_id: "",
+        sender_name: "",
+        receiver_stakeholder_id: "",
+        receiver_name: "",
+        product_id: "",
+        product_name: "",
+        source_warehouse_id: "",
+        destination_warehouse_id: "",
+        shipment_date: "",
+        expected_delivery_date: "",
+        quantity_shipped: "",
+        shipping_cost: "",
+        shipment_status: "" as "Pending" | "In Transit" | "Delivered" | "Delayed" | "",
+        transport_mode: ""
+    })
+
+    const handleInputChange = (field: string, value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+
+        // Validate form
+        if (!formData.shipment_id || !formData.sender_name || !formData.receiver_name || !formData.product_name || !formData.quantity_shipped) {
+            alert("Please fill in all required fields")
+            return
+        }
+
+        // Create new shipment
+        const newShipment: Shipment = {
+            shipment_id: formData.shipment_id,
+            sender_stakeholder_id: formData.sender_stakeholder_id,
+            sender_name: formData.sender_name,
+            receiver_stakeholder_id: formData.receiver_stakeholder_id,
+            receiver_name: formData.receiver_name,
+            product_id: formData.product_id || `P${String(shipmentData.length + 1).padStart(3, '0')}`,
+            product_name: formData.product_name,
+            source_warehouse_id: formData.source_warehouse_id,
+            destination_warehouse_id: formData.destination_warehouse_id || null,
+            shipment_date: formData.shipment_date || new Date().toISOString().split('T')[0],
+            expected_delivery_date: formData.expected_delivery_date,
+            actual_delivery_date: null,
+            quantity_shipped: parseFloat(formData.quantity_shipped) || 0,
+            shipping_cost: parseFloat(formData.shipping_cost) || 0,
+            shipment_status: (formData.shipment_status as "Pending" | "In Transit" | "Delivered" | "Delayed") || "Pending",
+            transport_mode: formData.transport_mode
+        }
+
+        setShipmentData(prev => [...prev, newShipment])
+
+        // Reset form
+        setFormData({
+            shipment_id: "",
+            sender_stakeholder_id: "",
+            sender_name: "",
+            receiver_stakeholder_id: "",
+            receiver_name: "",
+            product_id: "",
+            product_name: "",
+            source_warehouse_id: "",
+            destination_warehouse_id: "",
+            shipment_date: "",
+            expected_delivery_date: "",
+            quantity_shipped: "",
+            shipping_cost: "",
+            shipment_status: "",
+            transport_mode: ""
+        })
+
+        alert("Shipment data submitted successfully!")
+    }
+
+    const handleDelete = (shipmentId: string) => {
+        if (confirm("Are you sure you want to delete this shipment?")) {
+            setShipmentData(prev => prev.filter(shipment => shipment.shipment_id !== shipmentId))
+        }
+    }
+
+    const filteredShipments = shipmentData.filter(shipment =>
         shipment.shipment_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         shipment.sender_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         shipment.receiver_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -161,7 +262,7 @@ export default function ShipmentTracking() {
                         <Truck className="h-4 w-4 text-blue-600"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{shipments.length}</div>
+                        <div className="text-2xl font-bold">{shipmentData.length}</div>
                         <p className="text-xs text-gray-600">All shipments</p>
                     </CardContent>
                 </Card>
@@ -173,7 +274,7 @@ export default function ShipmentTracking() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {shipments.filter(s => s.shipment_status === "In Transit").length}
+                            {shipmentData.filter(s => s.shipment_status === "In Transit").length}
                         </div>
                         <p className="text-xs text-gray-600">Active shipments</p>
                     </CardContent>
@@ -186,7 +287,7 @@ export default function ShipmentTracking() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {shipments.filter(s => s.shipment_status === "Delivered").length}
+                            {shipmentData.filter(s => s.shipment_status === "Delivered").length}
                         </div>
                         <p className="text-xs text-gray-600">Completed shipments</p>
                     </CardContent>
@@ -199,7 +300,7 @@ export default function ShipmentTracking() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            ${shipments.reduce((sum, s) => sum + s.shipping_cost, 0).toLocaleString()}
+                            ${shipmentData.reduce((sum, s) => sum + s.shipping_cost, 0).toLocaleString()}
                         </div>
                         <p className="text-xs text-gray-600">Shipping costs</p>
                     </CardContent>
@@ -216,8 +317,8 @@ export default function ShipmentTracking() {
                     <CardContent>
                         <div className="space-y-4">
                             {["Pending", "In Transit", "Delivered", "Delayed"].map((status) => {
-                                const count = shipments.filter(s => s.shipment_status === status).length
-                                const percentage = (count / shipments.length) * 100
+                                const count = shipmentData.filter(s => s.shipment_status === status).length
+                                const percentage = (count / shipmentData.length) * 100
                                 return (
                                     <div key={status} className="flex items-center justify-between">
                                         <div className="flex items-center space-x-3">
@@ -246,11 +347,11 @@ export default function ShipmentTracking() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {Array.from(new Set(shipments.map(s => s.transport_mode))).map((mode) => {
-                                const count = shipments.filter(s => s.transport_mode === mode).length
-                                const avgCost = shipments.filter(s => s.transport_mode === mode)
+                            {Array.from(new Set(shipmentData.map(s => s.transport_mode))).map((mode) => {
+                                const count = shipmentData.filter(s => s.transport_mode === mode).length
+                                const avgCost = shipmentData.filter(s => s.transport_mode === mode)
                                     .reduce((sum, s) => sum + s.shipping_cost, 0) / count
-                                const percentage = (count / shipments.length) * 100
+                                const percentage = (count / shipmentData.length) * 100
                                 return (
                                     <div key={mode} className="space-y-2">
                                         <div className="flex items-center justify-between">
@@ -284,8 +385,8 @@ export default function ShipmentTracking() {
                         <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                             <h4 className="font-semibold text-green-800 mb-2">On-Time Delivery Rate</h4>
                             <p className="text-sm text-green-700">
-                                {((shipments.filter(s => s.shipment_status === "Delivered").length /
-                                    shipments.filter(s => s.shipment_status !== "Pending").length) * 100).toFixed(1)}%
+                                {(shipmentData.filter(s => s.shipment_status === "Delivered").length /
+                                    shipmentData.filter(s => s.shipment_status !== "Pending").length * 100).toFixed(1)}%
                                 of non-pending shipments delivered successfully
                             </p>
                         </div>
@@ -293,7 +394,7 @@ export default function ShipmentTracking() {
                         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                             <h4 className="font-semibold text-blue-800 mb-2">Average Shipping Cost</h4>
                             <p className="text-sm text-blue-700">
-                                ${(shipments.reduce((sum, s) => sum + s.shipping_cost, 0) / shipments.length).toFixed(2)}
+                                ${(shipmentData.reduce((sum, s) => sum + s.shipping_cost, 0) / shipmentData.length).toFixed(2)}
                                 per shipment across all transport modes
                             </p>
                         </div>
@@ -301,11 +402,246 @@ export default function ShipmentTracking() {
                         <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
                             <h4 className="font-semibold text-orange-800 mb-2">Active Routes</h4>
                             <p className="text-sm text-orange-700">
-                                {shipments.filter(s => s.shipment_status === "In Transit" || s.shipment_status === "Pending").length}
+                                {shipmentData.filter(s => s.shipment_status === "In Transit" || s.shipment_status === "Pending").length}
                                 shipments currently in progress or awaiting dispatch
                             </p>
                         </div>
                     </div>
+                </CardContent>
+            </Card>
+
+            {/* Shipment Data Entry Form */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl">Submit Shipment Data</CardTitle>
+                    <CardDescription>Enter new shipment information</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Form Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Shipment ID */}
+                            <div className="space-y-2">
+                                <Label htmlFor="shipment_id" className="flex items-center gap-2 text-blue-600">
+                                    <Truck className="w-4 h-4"/>
+                                    Shipment ID
+                                </Label>
+                                <Input
+                                    id="shipment_id"
+                                    placeholder="Enter shipment ID"
+                                    value={formData.shipment_id}
+                                    onChange={(e) => handleInputChange("shipment_id", e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            {/* Sender Name */}
+                            <div className="space-y-2">
+                                <Label htmlFor="sender_name" className="flex items-center gap-2 text-blue-600">
+                                    <User className="w-4 h-4"/>
+                                    Sender Name
+                                </Label>
+                                <Select value={formData.sender_name}
+                                        onValueChange={(value) => handleInputChange("sender_name", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select sender"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Ahmed Farms">Ahmed Farms</SelectItem>
+                                        <SelectItem value="Grain Wholesale Co">Grain Wholesale Co</SelectItem>
+                                        <SelectItem value="City Retail Store">City Retail Store</SelectItem>
+                                        <SelectItem value="Rahman Family">Rahman Family</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Receiver Name */}
+                            <div className="space-y-2">
+                                <Label htmlFor="receiver_name" className="flex items-center gap-2 text-blue-600">
+                                    <User className="w-4 h-4"/>
+                                    Receiver Name
+                                </Label>
+                                <Select value={formData.receiver_name}
+                                        onValueChange={(value) => handleInputChange("receiver_name", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select receiver"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Ahmed Farms">Ahmed Farms</SelectItem>
+                                        <SelectItem value="Grain Wholesale Co">Grain Wholesale Co</SelectItem>
+                                        <SelectItem value="City Retail Store">City Retail Store</SelectItem>
+                                        <SelectItem value="Rahman Family">Rahman Family</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Product Name */}
+                            <div className="space-y-2">
+                                <Label htmlFor="product_name" className="flex items-center gap-2 text-blue-600">
+                                    <Package className="w-4 h-4"/>
+                                    Product Name
+                                </Label>
+                                <Select value={formData.product_name}
+                                        onValueChange={(value) => handleInputChange("product_name", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select product"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Wheat">Wheat</SelectItem>
+                                        <SelectItem value="Rice">Rice</SelectItem>
+                                        <SelectItem value="Corn">Corn</SelectItem>
+                                        <SelectItem value="Soybeans">Soybeans</SelectItem>
+                                        <SelectItem value="Barley">Barley</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Quantity Shipped */}
+                            <div className="space-y-2">
+                                <Label htmlFor="quantity_shipped" className="flex items-center gap-2 text-blue-600">
+                                    <Activity className="w-4 h-4"/>
+                                    Quantity Shipped (tons)
+                                </Label>
+                                <Input
+                                    id="quantity_shipped"
+                                    type="number"
+                                    placeholder="Quantity shipped"
+                                    value={formData.quantity_shipped}
+                                    onChange={(e) => handleInputChange("quantity_shipped", e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            {/* Shipping Cost */}
+                            <div className="space-y-2">
+                                <Label htmlFor="shipping_cost" className="flex items-center gap-2 text-blue-600">
+                                    <TrendingUp className="w-4 h-4"/>
+                                    Shipping Cost ($)
+                                </Label>
+                                <Input
+                                    id="shipping_cost"
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Shipping cost"
+                                    value={formData.shipping_cost}
+                                    onChange={(e) => handleInputChange("shipping_cost", e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {/* Shipment Date */}
+                            <div className="space-y-2">
+                                <Label htmlFor="shipment_date" className="flex items-center gap-2 text-blue-600">
+                                    <Calendar className="w-4 h-4"/>
+                                    Shipment Date
+                                </Label>
+                                <Input
+                                    id="shipment_date"
+                                    type="date"
+                                    value={formData.shipment_date}
+                                    onChange={(e) => handleInputChange("shipment_date", e.target.value)}
+                                />
+                            </div>
+
+                            {/* Expected Delivery Date */}
+                            <div className="space-y-2">
+                                <Label htmlFor="expected_delivery_date"
+                                       className="flex items-center gap-2 text-blue-600">
+                                    <Target className="w-4 h-4"/>
+                                    Expected Delivery
+                                </Label>
+                                <Input
+                                    id="expected_delivery_date"
+                                    type="date"
+                                    value={formData.expected_delivery_date}
+                                    onChange={(e) => handleInputChange("expected_delivery_date", e.target.value)}
+                                />
+                            </div>
+
+                            {/* Shipment Status */}
+                            <div className="space-y-2">
+                                <Label htmlFor="shipment_status" className="flex items-center gap-2 text-blue-600">
+                                    <Activity className="w-4 h-4"/>
+                                    Shipment Status
+                                </Label>
+                                <Select value={formData.shipment_status}
+                                        onValueChange={(value) => handleInputChange("shipment_status", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select status"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Pending">Pending</SelectItem>
+                                        <SelectItem value="In Transit">In Transit</SelectItem>
+                                        <SelectItem value="Delivered">Delivered</SelectItem>
+                                        <SelectItem value="Delayed">Delayed</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Transport Mode */}
+                            <div className="space-y-2">
+                                <Label htmlFor="transport_mode" className="flex items-center gap-2 text-blue-600">
+                                    <Truck className="w-4 h-4"/>
+                                    Transport Mode
+                                </Label>
+                                <Select value={formData.transport_mode}
+                                        onValueChange={(value) => handleInputChange("transport_mode", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select mode"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Truck">Truck</SelectItem>
+                                        <SelectItem value="Van">Van</SelectItem>
+                                        <SelectItem value="Train">Train</SelectItem>
+                                        <SelectItem value="Ship">Ship</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                            {/* Source Warehouse ID */}
+                            <div className="space-y-2">
+                                <Label htmlFor="source_warehouse_id" className="flex items-center gap-2 text-blue-600">
+                                    <MapPin className="w-4 h-4"/>
+                                    Source Warehouse ID
+                                </Label>
+                                <Input
+                                    id="source_warehouse_id"
+                                    placeholder="Source warehouse ID"
+                                    value={formData.source_warehouse_id}
+                                    onChange={(e) => handleInputChange("source_warehouse_id", e.target.value)}
+                                />
+                            </div>
+
+                            {/* Destination Warehouse ID */}
+                            <div className="space-y-2">
+                                <Label htmlFor="destination_warehouse_id"
+                                       className="flex items-center gap-2 text-blue-600">
+                                    <Target className="w-4 h-4"/>
+                                    Destination Warehouse ID
+                                </Label>
+                                <Input
+                                    id="destination_warehouse_id"
+                                    placeholder="Destination warehouse ID"
+                                    value={formData.destination_warehouse_id}
+                                    onChange={(e) => handleInputChange("destination_warehouse_id", e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="flex justify-start">
+                            <Button type="submit"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 flex items-center gap-2">
+                                <Plus className="w-4 h-4"/>
+                                SUBMIT SHIPMENT DATA
+                            </Button>
+                        </div>
+                    </form>
                 </CardContent>
             </Card>
 
@@ -365,7 +701,8 @@ export default function ShipmentTracking() {
                                             <Button variant="ghost" size="sm" className="hover:bg-blue-50">
                                                 <Edit2 className="w-4 h-4 text-blue-600"/>
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="hover:bg-red-50">
+                                            <Button variant="ghost" size="sm" className="hover:bg-red-50"
+                                                    onClick={() => handleDelete(shipment.shipment_id)}>
                                                 <Trash2 className="w-4 h-4 text-red-600"/>
                                             </Button>
                                         </div>

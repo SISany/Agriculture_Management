@@ -29,7 +29,10 @@ import {
     AlertTriangle,
     Target,
     BarChart3,
-    Trash2
+    Trash2,
+    Package,
+    MapPin,
+    Calendar
 } from "lucide-react"
 
 // TypeScript interfaces
@@ -160,8 +163,87 @@ export default function DemandForecast() {
     const [selectedLocation, setSelectedLocation] = useState("all")
     const [selectedProduct, setSelectedProduct] = useState("all")
     const [selectedPeriod, setSelectedPeriod] = useState("all")
+    const [demandData, setDemandData] = useState<DemandForecast[]>(demandForecasts)
 
-    const filteredData = demandForecasts.filter(forecast => {
+    // Form state
+    const [formData, setFormData] = useState({
+        demand_id: "",
+        product_id: "",
+        product_name: "",
+        location: "",
+        forecast_date: "",
+        projected_demand: "",
+        current_supply: "",
+        forecast_period: "",
+        price_elasticity: "",
+        weather_id: "",
+        accuracy_percentage: "",
+        demand_trend: "" as 'Increasing' | 'Decreasing' | 'Stable' | "",
+        season: ""
+    })
+
+    const handleInputChange = (field: string, value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+
+        // Validate form
+        if (!formData.demand_id || !formData.product_name || !formData.location || !formData.projected_demand) {
+            alert("Please fill in all required fields")
+            return
+        }
+
+        // Create new demand forecast
+        const newForecast: DemandForecast = {
+            demand_id: formData.demand_id,
+            product_id: formData.product_id || `P${String(demandData.length + 1).padStart(3, '0')}`,
+            product_name: formData.product_name,
+            location: formData.location,
+            forecast_date: formData.forecast_date || new Date().toISOString().split('T')[0],
+            projected_demand: parseFloat(formData.projected_demand) || 0,
+            current_supply: parseFloat(formData.current_supply) || 0,
+            forecast_period: formData.forecast_period,
+            price_elasticity: parseFloat(formData.price_elasticity) || 0,
+            weather_id: formData.weather_id,
+            accuracy_percentage: parseFloat(formData.accuracy_percentage) || 85,
+            demand_trend: (formData.demand_trend as 'Increasing' | 'Decreasing' | 'Stable') || 'Stable',
+            season: formData.season
+        }
+
+        setDemandData(prev => [...prev, newForecast])
+
+        // Reset form
+        setFormData({
+            demand_id: "",
+            product_id: "",
+            product_name: "",
+            location: "",
+            forecast_date: "",
+            projected_demand: "",
+            current_supply: "",
+            forecast_period: "",
+            price_elasticity: "",
+            weather_id: "",
+            accuracy_percentage: "",
+            demand_trend: "",
+            season: ""
+        })
+
+        alert("Demand forecast data submitted successfully!")
+    }
+
+    const handleDelete = (demandId: string) => {
+        if (confirm("Are you sure you want to delete this demand forecast?")) {
+            setDemandData(prev => prev.filter(forecast => forecast.demand_id !== demandId))
+        }
+    }
+
+    const filteredData = demandData.filter(forecast => {
         const matchesSearch = forecast.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             forecast.location.toLowerCase().includes(searchTerm.toLowerCase())
         const matchesLocation = selectedLocation === "all" || forecast.location === selectedLocation
@@ -187,10 +269,6 @@ export default function DemandForecast() {
                     <Button variant="outline" size="sm">
                         <Download className="w-4 h-4 mr-2"/>
                         Export Report
-                    </Button>
-                    <Button size="sm">
-                        <Plus className="w-4 h-4 mr-2"/>
-                        New Forecast
                     </Button>
                 </div>
             </div>
@@ -322,6 +400,213 @@ export default function DemandForecast() {
                 </CardContent>
             </Card>
 
+            {/* Demand Forecast Data Entry Form */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl">Submit Demand Forecast Data</CardTitle>
+                    <CardDescription>Enter new demand forecast information</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Form Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Demand ID */}
+                            <div className="space-y-2">
+                                <label htmlFor="demand_id" className="flex items-center gap-2 text-blue-600">
+                                    <Target className="w-4 h-4"/>
+                                    Demand ID
+                                </label>
+                                <Input
+                                    id="demand_id"
+                                    placeholder="Enter demand forecast ID"
+                                    value={formData.demand_id}
+                                    onChange={(e) => handleInputChange("demand_id", e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            {/* Product Name */}
+                            <div className="space-y-2">
+                                <label htmlFor="product_name" className="flex items-center gap-2 text-blue-600">
+                                    <Package className="w-4 h-4"/>
+                                    Product Name
+                                </label>
+                                <Select value={formData.product_name}
+                                        onValueChange={(value) => handleInputChange("product_name", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select product"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Wheat">Wheat</SelectItem>
+                                        <SelectItem value="Rice">Rice</SelectItem>
+                                        <SelectItem value="Corn">Corn</SelectItem>
+                                        <SelectItem value="Soybeans">Soybeans</SelectItem>
+                                        <SelectItem value="Barley">Barley</SelectItem>
+                                        <SelectItem value="Lentils">Lentils</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Location */}
+                            <div className="space-y-2">
+                                <label htmlFor="location" className="flex items-center gap-2 text-blue-600">
+                                    <MapPin className="w-4 h-4"/>
+                                    Location
+                                </label>
+                                <Select value={formData.location}
+                                        onValueChange={(value) => handleInputChange("location", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select location"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Dhaka">Dhaka</SelectItem>
+                                        <SelectItem value="Chittagong">Chittagong</SelectItem>
+                                        <SelectItem value="Sylhet">Sylhet</SelectItem>
+                                        <SelectItem value="Rajshahi">Rajshahi</SelectItem>
+                                        <SelectItem value="Khulna">Khulna</SelectItem>
+                                        <SelectItem value="Barisal">Barisal</SelectItem>
+                                        <SelectItem value="Rangpur">Rangpur</SelectItem>
+                                        <SelectItem value="Mymensingh">Mymensingh</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Projected Demand */}
+                            <div className="space-y-2">
+                                <label htmlFor="projected_demand" className="flex items-center gap-2 text-blue-600">
+                                    <TrendingUp className="w-4 h-4"/>
+                                    Projected Demand (tons)
+                                </label>
+                                <Input
+                                    id="projected_demand"
+                                    type="number"
+                                    placeholder="Projected demand"
+                                    value={formData.projected_demand}
+                                    onChange={(e) => handleInputChange("projected_demand", e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            {/* Current Supply */}
+                            <div className="space-y-2">
+                                <label htmlFor="current_supply" className="flex items-center gap-2 text-blue-600">
+                                    <BarChart3 className="w-4 h-4"/>
+                                    Current Supply (tons)
+                                </label>
+                                <Input
+                                    id="current_supply"
+                                    type="number"
+                                    placeholder="Current supply"
+                                    value={formData.current_supply}
+                                    onChange={(e) => handleInputChange("current_supply", e.target.value)}
+                                />
+                            </div>
+
+                            {/* Forecast Period */}
+                            <div className="space-y-2">
+                                <label htmlFor="forecast_period" className="flex items-center gap-2 text-blue-600">
+                                    <Calendar className="w-4 h-4"/>
+                                    Forecast Period
+                                </label>
+                                <Select value={formData.forecast_period}
+                                        onValueChange={(value) => handleInputChange("forecast_period", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select period"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Next 3 Months">Next 3 Months</SelectItem>
+                                        <SelectItem value="Next 6 Months">Next 6 Months</SelectItem>
+                                        <SelectItem value="Next 12 Months">Next 12 Months</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {/* Price Elasticity */}
+                            <div className="space-y-2">
+                                <label htmlFor="price_elasticity" className="flex items-center gap-2 text-blue-600">
+                                    <TrendingDown className="w-4 h-4"/>
+                                    Price Elasticity
+                                </label>
+                                <Input
+                                    id="price_elasticity"
+                                    type="number"
+                                    step="0.1"
+                                    placeholder="-0.8"
+                                    value={formData.price_elasticity}
+                                    onChange={(e) => handleInputChange("price_elasticity", e.target.value)}
+                                />
+                            </div>
+
+                            {/* Weather ID */}
+                            <div className="space-y-2">
+                                <label htmlFor="weather_id" className="flex items-center gap-2 text-blue-600">
+                                    <AlertTriangle className="w-4 h-4"/>
+                                    Weather ID
+                                </label>
+                                <Input
+                                    id="weather_id"
+                                    placeholder="Weather ID"
+                                    value={formData.weather_id}
+                                    onChange={(e) => handleInputChange("weather_id", e.target.value)}
+                                />
+                            </div>
+
+                            {/* Demand Trend */}
+                            <div className="space-y-2">
+                                <label htmlFor="demand_trend" className="flex items-center gap-2 text-blue-600">
+                                    <TrendingUp className="w-4 h-4"/>
+                                    Demand Trend
+                                </label>
+                                <Select value={formData.demand_trend}
+                                        onValueChange={(value) => handleInputChange("demand_trend", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select trend"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Increasing">Increasing</SelectItem>
+                                        <SelectItem value="Stable">Stable</SelectItem>
+                                        <SelectItem value="Decreasing">Decreasing</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Season */}
+                            <div className="space-y-2">
+                                <label htmlFor="season" className="flex items-center gap-2 text-blue-600">
+                                    <Target className="w-4 h-4"/>
+                                    Season
+                                </label>
+                                <Select value={formData.season}
+                                        onValueChange={(value) => handleInputChange("season", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select season"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Spring">Spring</SelectItem>
+                                        <SelectItem value="Summer">Summer</SelectItem>
+                                        <SelectItem value="Autumn">Autumn</SelectItem>
+                                        <SelectItem value="Winter">Winter</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="flex justify-start">
+                            <Button type="submit"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 flex items-center gap-2">
+                                <Plus className="w-4 h-4"/>
+                                SUBMIT FORECAST DATA
+                            </Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+
             {/* Filters */}
             <Card>
                 <CardHeader>
@@ -438,7 +723,8 @@ export default function DemandForecast() {
                                                     <Button variant="ghost" size="sm" className="hover:bg-blue-50">
                                                         <Edit2 className="w-4 h-4 text-blue-600"/>
                                                     </Button>
-                                                    <Button variant="ghost" size="sm" className="hover:bg-red-50">
+                                                    <Button variant="ghost" size="sm" className="hover:bg-red-50"
+                                                            onClick={() => handleDelete(forecast.demand_id)}>
                                                         <Trash2 className="w-4 h-4 text-red-600"/>
                                                     </Button>
                                                 </div>

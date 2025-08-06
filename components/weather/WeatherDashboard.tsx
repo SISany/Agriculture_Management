@@ -2,13 +2,12 @@
 
 import {useState} from "react"
 import {Button} from "@/components/ui/button"
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {Badge} from "@/components/ui/badge"
 import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
 import {BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer} from "recharts"
-import {CloudRain, Search, Plus, Edit2, Trash2, Bell, Package} from "lucide-react"
+import {CloudRain, Search, Plus, Edit2, Trash2, Bell, Package, Sun, Wind} from "lucide-react"
 
 interface Weather {
     weather_id: number
@@ -86,108 +85,123 @@ export default function WeatherDashboard() {
 
     const refreshWeatherData = () => {
         setWeatherLoading(true)
-        // Simulate API call
         setTimeout(() => {
             setWeatherLoading(false)
         }, 2000)
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Weather Data - Bangladesh</h1>
-                    <p className="mt-2 text-gray-600">Real-time weather monitoring for agricultural regions across
-                        Bangladesh</p>
-                </div>
-                <div className="flex gap-4">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
-                        <Input
-                            type="search"
-                            placeholder="Search locations..."
-                            className="pl-10 w-64"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+        <div className="min-h-screen bg-background p-6">
+            <div className="max-w-7xl mx-auto space-y-8">
+                <div className="bg-card border-2 border-border p-8">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="p-4 bg-secondary border-2 border-border">
+                                <CloudRain className="h-10 w-10 text-foreground"/>
+                            </div>
+                            <div>
+                                <h1 className="text-4xl font-bold text-foreground">
+                                    Weather Dashboard - Bangladesh
+                                </h1>
+                                <p className="text-lg text-muted-foreground mt-2">
+                                    Real-time weather monitoring for agricultural regions across Bangladesh
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <div className="relative">
+                                <Search
+                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4"/>
+                                <Input
+                                    type="search"
+                                    placeholder="Search locations..."
+                                    className="bg-input border-2 border-border text-foreground placeholder-muted-foreground pl-12 w-64"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            <Button onClick={refreshWeatherData} disabled={weatherLoading}
+                                    className="bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary">
+                                {weatherLoading ? "Loading..." : "Refresh Weather"}
+                            </Button>
+                            <Button
+                                className="bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary">
+                                <Plus className="w-4 h-4 mr-2"/>
+                                Add Station
+                            </Button>
+                        </div>
                     </div>
-                    <Button onClick={refreshWeatherData} disabled={weatherLoading}>
-                        {weatherLoading ? "Loading..." : "Refresh Weather"}
-                    </Button>
-                    <Button>
-                        <Plus className="w-4 h-4 mr-2"/>
-                        Add Weather Station
-                    </Button>
                 </div>
-            </div>
 
-            {/* Weather Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Average Temperature</CardTitle>
-                        <CloudRain className="h-4 w-4 text-blue-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {(weatherData.reduce((sum, w) => sum + w.temperature, 0) / weatherData.length).toFixed(1)}°C
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="bg-card border-2 border-border p-6 text-foreground">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-secondary border border-border">
+                                <Sun className="h-6 w-6 text-foreground"/>
+                            </div>
+                            <div className="text-3xl font-bold text-foreground">
+                                {(weatherData.reduce((sum, w) => sum + w.temperature, 0) / weatherData.length).toFixed(1)}°C
+                            </div>
                         </div>
-                        <p className="text-xs text-gray-600">Across all regions</p>
-                    </CardContent>
-                </Card>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">Average Temperature</h3>
+                        <p className="text-muted-foreground text-sm">Across all regions</p>
+                    </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Total Rainfall</CardTitle>
-                        <CloudRain className="h-4 w-4 text-blue-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {weatherData.reduce((sum, w) => sum + w.rainfall, 0).toFixed(1)}mm
+                    <div className="bg-card border-2 border-border p-6 text-foreground">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-secondary border border-border">
+                                <CloudRain className="h-6 w-6 text-foreground"/>
+                            </div>
+                            <div className="text-3xl font-bold text-foreground">
+                                {weatherData.reduce((sum, w) => sum + w.rainfall, 0).toFixed(1)}mm
+                            </div>
                         </div>
-                        <p className="text-xs text-gray-600">Current hour total</p>
-                    </CardContent>
-                </Card>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">Total Rainfall</h3>
+                        <p className="text-muted-foreground text-sm">Current hour total</p>
+                    </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Average Humidity</CardTitle>
-                        <CloudRain className="h-4 w-4 text-green-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {Math.round(weatherData.reduce((sum, w) => sum + w.humidity, 0) / weatherData.length)}%
+                    <div className="bg-card border-2 border-border p-6 text-foreground">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-secondary border border-border">
+                                <Wind className="h-6 w-6 text-foreground"/>
+                            </div>
+                            <div className="text-3xl font-bold text-foreground">
+                                {Math.round(weatherData.reduce((sum, w) => sum + w.humidity, 0) / weatherData.length)}%
+                            </div>
                         </div>
-                        <p className="text-xs text-gray-600">Regional average</p>
-                    </CardContent>
-                </Card>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">Average Humidity</h3>
+                        <p className="text-muted-foreground text-sm">Regional average</p>
+                    </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Active Stations</CardTitle>
-                        <Package className="h-4 w-4 text-yellow-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{weatherData.length}</div>
-                        <p className="text-xs text-gray-600">Weather monitoring stations</p>
-                    </CardContent>
-                </Card>
-            </div>
+                    <div className="bg-card border-2 border-border p-6 text-foreground">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-secondary border border-border">
+                                <Package className="h-6 w-6 text-foreground"/>
+                            </div>
+                            <div className="text-3xl font-bold text-foreground">
+                                {weatherData.length}
+                            </div>
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">Active Stations</h3>
+                        <p className="text-muted-foreground text-sm">Weather monitoring stations</p>
+                    </div>
+                </div>
 
-            {/* Weather Alerts */}
-            <Card className="mb-6">
-                <CardHeader>
-                    <CardTitle className="text-lg">Weather Alerts & Advisories</CardTitle>
-                    <CardDescription>Important weather information for agricultural planning</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-3">
+                <div className="bg-card border-2 border-border p-8">
+                    <div className="mb-6">
+                        <h2 className="text-3xl font-bold text-foreground mb-2">
+                            Weather Alerts & Advisories
+                        </h2>
+                        <p className="text-muted-foreground text-lg">Important weather information for agricultural
+                            planning</p>
+                    </div>
+                    <div className="space-y-4">
                         {weatherData.filter(w => w.rainfall > 15).length > 0 && (
-                            <div className="flex items-center p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                <Bell className="h-5 w-5 text-yellow-600 mr-3"/>
+                            <div className="flex items-center p-4 bg-secondary border-2 border-border">
+                                <Bell className="h-6 w-6 text-foreground mr-4"/>
                                 <div>
-                                    <p className="font-medium text-yellow-800">Heavy Rainfall Alert</p>
-                                    <p className="text-sm text-yellow-700">
+                                    <p className="font-semibold text-foreground text-lg">Heavy Rainfall Alert</p>
+                                    <p className="text-muted-foreground">
                                         High rainfall detected
                                         in {weatherData.filter(w => w.rainfall > 15).map(w => w.location).join(', ')}.
                                         Consider crop protection measures.
@@ -197,11 +211,11 @@ export default function WeatherDashboard() {
                         )}
 
                         {weatherData.filter(w => w.temperature > 30).length > 0 && (
-                            <div className="flex items-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                                <Bell className="h-5 w-5 text-orange-600 mr-3"/>
+                            <div className="flex items-center p-4 bg-secondary border-2 border-border">
+                                <Bell className="h-6 w-6 text-foreground mr-4"/>
                                 <div>
-                                    <p className="font-medium text-orange-800">High Temperature Warning</p>
-                                    <p className="text-sm text-orange-700">
+                                    <p className="font-semibold text-foreground text-lg">High Temperature Warning</p>
+                                    <p className="text-muted-foreground">
                                         Elevated temperatures
                                         in {weatherData.filter(w => w.temperature > 30).map(w => w.location).join(', ')}.
                                         Ensure adequate irrigation.
@@ -211,11 +225,11 @@ export default function WeatherDashboard() {
                         )}
 
                         {weatherData.filter(w => w.humidity > 80).length > 0 && (
-                            <div className="flex items-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                <Bell className="h-5 w-5 text-blue-600 mr-3"/>
+                            <div className="flex items-center p-4 bg-secondary border-2 border-border">
+                                <Bell className="h-6 w-6 text-foreground mr-4"/>
                                 <div>
-                                    <p className="font-medium text-blue-800">High Humidity Notice</p>
-                                    <p className="text-sm text-blue-700">
+                                    <p className="font-semibold text-foreground text-lg">High Humidity Notice</p>
+                                    <p className="text-muted-foreground">
                                         High humidity levels
                                         in {weatherData.filter(w => w.humidity > 80).map(w => w.location).join(', ')}.
                                         Monitor for fungal diseases.
@@ -227,11 +241,12 @@ export default function WeatherDashboard() {
                         {weatherData.filter(w => w.rainfall > 15).length === 0 &&
                             weatherData.filter(w => w.temperature > 30).length === 0 &&
                             weatherData.filter(w => w.humidity > 80).length === 0 && (
-                                <div className="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
-                                    <Bell className="h-5 w-5 text-green-600 mr-3"/>
+                                <div className="flex items-center p-4 bg-secondary border-2 border-border">
+                                    <Bell className="h-6 w-6 text-foreground mr-4"/>
                                     <div>
-                                        <p className="font-medium text-green-800">Weather Conditions Normal</p>
-                                        <p className="text-sm text-green-700">
+                                        <p className="font-semibold text-foreground text-lg">Weather Conditions
+                                            Normal</p>
+                                        <p className="text-muted-foreground">
                                             All regions showing favorable weather conditions for agricultural
                                             activities.
                                         </p>
@@ -239,140 +254,164 @@ export default function WeatherDashboard() {
                                 </div>
                             )}
                     </div>
-                </CardContent>
-            </Card>
+                </div>
 
-            {/* Weather Charts */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Temperature Distribution</CardTitle>
-                        <CardDescription>Temperature across Bangladesh regions</CardDescription>
-                    </CardHeader>
-                    <CardContent>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <div className="bg-card border-2 border-border p-8">
+                        <div className="mb-6">
+                            <h3 className="text-2xl font-bold text-foreground mb-2">
+                                Temperature Distribution
+                            </h3>
+                            <p className="text-muted-foreground">Temperature across Bangladesh regions</p>
+                        </div>
                         <ChartContainer
-                            config={{temperature: {label: "Temperature (°C)", color: "#ff7300"}}}
-                            className="h-[300px]"
+                            config={{temperature: {label: "Temperature (°C)", color: "#000000"}}}
+                            className="h-[350px]"
                         >
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={filteredWeatherData}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="location" angle={-45} textAnchor="end" height={80}/>
-                                    <YAxis/>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
+                                    <XAxis dataKey="location" angle={-45} textAnchor="end" height={80}
+                                           stroke="var(--muted-foreground)"/>
+                                    <YAxis stroke="var(--muted-foreground)"/>
                                     <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Bar dataKey="temperature" fill="#ff7300"/>
+                                    <Bar dataKey="temperature" fill="var(--foreground)" radius={[0, 0, 0, 0]}/>
                                 </BarChart>
                             </ResponsiveContainer>
                         </ChartContainer>
-                    </CardContent>
-                </Card>
+                    </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Rainfall Distribution</CardTitle>
-                        <CardDescription>Precipitation levels by region</CardDescription>
-                    </CardHeader>
-                    <CardContent>
+                    <div className="bg-card border-2 border-border p-8">
+                        <div className="mb-6">
+                            <h3 className="text-2xl font-bold text-foreground mb-2">
+                                Rainfall Distribution
+                            </h3>
+                            <p className="text-muted-foreground">Precipitation levels by region</p>
+                        </div>
                         <ChartContainer
-                            config={{rainfall: {label: "Rainfall (mm)", color: "#1e40af"}}}
-                            className="h-[300px]"
+                            config={{rainfall: {label: "Rainfall (mm)", color: "#666666"}}}
+                            className="h-[350px]"
                         >
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={filteredWeatherData}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="location" angle={-45} textAnchor="end" height={80}/>
-                                    <YAxis/>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
+                                    <XAxis dataKey="location" angle={-45} textAnchor="end" height={80}
+                                           stroke="var(--muted-foreground)"/>
+                                    <YAxis stroke="var(--muted-foreground)"/>
                                     <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Bar dataKey="rainfall" fill="#1e40af"/>
+                                    <Bar dataKey="rainfall" fill="var(--muted-foreground)" radius={[0, 0, 0, 0]}/>
                                 </BarChart>
                             </ResponsiveContainer>
                         </ChartContainer>
-                    </CardContent>
-                </Card>
-            </div>
+                    </div>
+                </div>
 
-            {/* Detailed Weather Table */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Detailed Weather Records - Bangladesh</CardTitle>
-                    <CardDescription>Comprehensive weather data from all monitoring stations</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Weather ID</TableHead>
-                                <TableHead>Location</TableHead>
-                                <TableHead>Date Recorded</TableHead>
-                                <TableHead>Rainfall (mm)</TableHead>
-                                <TableHead>Temperature (°C)</TableHead>
-                                <TableHead>Season</TableHead>
-                                <TableHead>Humidity (%)</TableHead>
-                                <TableHead>Weather Conditions</TableHead>
-                                <TableHead>Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredWeatherData.map((record) => (
-                                <TableRow key={record.weather_id}>
-                                    <TableCell className="font-medium">{record.weather_id}</TableCell>
-                                    <TableCell>{record.location}</TableCell>
-                                    <TableCell>{new Date(record.date_recorded).toLocaleDateString()}</TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center">
-                      <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
-                          record.rainfall > 15 ? 'bg-blue-500' :
-                              record.rainfall > 5 ? 'bg-green-500' : 'bg-yellow-500'
-                      }`}></span>
-                                            {record.rainfall} mm
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center">
-                      <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
-                          record.temperature > 30 ? 'bg-red-500' :
-                              record.temperature > 20 ? 'bg-green-500' : 'bg-blue-500'
-                      }`}></span>
-                                            {record.temperature}°C
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline">{record.season}</Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center">
-                      <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
-                          record.humidity > 80 ? 'bg-blue-500' :
-                              record.humidity > 60 ? 'bg-green-500' : 'bg-yellow-500'
-                      }`}></span>
-                                            {record.humidity}%
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline" className={`${
-                                            record.weather_conditions.includes('Rain') ? 'bg-blue-50 text-blue-700' :
-                                                record.weather_conditions.includes('Clear') ? 'bg-green-50 text-green-700' :
-                                                    'bg-gray-50 text-gray-700'
-                                        }`}>
-                                            {record.weather_conditions}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center space-x-1">
-                                            <Button variant="ghost" size="sm" className="hover:bg-blue-50">
-                                                <Edit2 className="w-4 h-4 text-blue-600"/>
-                                            </Button>
-                                            <Button variant="ghost" size="sm" className="hover:bg-red-50">
-                                                <Trash2 className="w-4 h-4 text-red-600"/>
-                                            </Button>
-                                        </div>
-                                    </TableCell>
+                <div className="bg-card border-2 border-border p-8">
+                    <div className="pb-8">
+                        <h2 className="text-3xl font-bold text-foreground mb-2">
+                            Detailed Weather Records
+                        </h2>
+                        <p className="text-muted-foreground text-lg">Comprehensive weather data from all monitoring
+                            stations</p>
+                    </div>
+                    <div className="border-2 border-border">
+                        <Table>
+                            <TableHeader className="bg-secondary border-b-2 border-border">
+                                <TableRow>
+                                    <TableHead className="text-foreground font-semibold border-r border-border">Weather
+                                        ID</TableHead>
+                                    <TableHead
+                                        className="text-foreground font-semibold border-r border-border">Location</TableHead>
+                                    <TableHead className="text-foreground font-semibold border-r border-border">Date
+                                        Recorded</TableHead>
+                                    <TableHead className="text-foreground font-semibold border-r border-border">Rainfall
+                                        (mm)</TableHead>
+                                    <TableHead className="text-foreground font-semibold border-r border-border">Temperature
+                                        (°C)</TableHead>
+                                    <TableHead
+                                        className="text-foreground font-semibold border-r border-border">Season</TableHead>
+                                    <TableHead className="text-foreground font-semibold border-r border-border">Humidity
+                                        (%)</TableHead>
+                                    <TableHead className="text-foreground font-semibold border-r border-border">Weather
+                                        Conditions</TableHead>
+                                    <TableHead className="text-foreground font-semibold">Actions</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+                            </TableHeader>
+                            <TableBody className="bg-card">
+                                {filteredWeatherData.map((record) => (
+                                    <TableRow key={record.weather_id}
+                                              className="border-b border-border hover:bg-secondary/50">
+                                        <TableCell
+                                            className="font-semibold text-foreground border-r border-border">{record.weather_id}</TableCell>
+                                        <TableCell
+                                            className="font-medium text-foreground border-r border-border">{record.location}</TableCell>
+                                        <TableCell
+                                            className="text-muted-foreground border-r border-border">{new Date(record.date_recorded).toLocaleDateString()}</TableCell>
+                                        <TableCell className="border-r border-border">
+                                            <div className="flex items-center">
+                                                <span className={`inline-block w-3 h-3 mr-2 ${
+                                                    record.rainfall > 15 ? 'bg-foreground' :
+                                                        record.rainfall > 5 ? 'bg-muted-foreground' : 'bg-secondary'
+                                                }`}></span>
+                                                <Badge
+                                                    className="bg-foreground text-background border border-foreground">
+                                                    {record.rainfall} mm
+                                                </Badge>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="border-r border-border">
+                                            <div className="flex items-center">
+                                                <span className={`inline-block w-3 h-3 mr-2 ${
+                                                    record.temperature > 30 ? 'bg-foreground' :
+                                                        record.temperature > 20 ? 'bg-muted-foreground' : 'bg-secondary'
+                                                }`}></span>
+                                                <Badge
+                                                    className="bg-foreground text-background border border-foreground">
+                                                    {record.temperature}°C
+                                                </Badge>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="border-r border-border">
+                                            <Badge className="bg-secondary text-foreground border border-border">
+                                                {record.season}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="border-r border-border">
+                                            <div className="flex items-center">
+                                                <span className={`inline-block w-3 h-3 mr-2 ${
+                                                    record.humidity > 80 ? 'bg-foreground' :
+                                                        record.humidity > 60 ? 'bg-muted-foreground' : 'bg-secondary'
+                                                }`}></span>
+                                                <Badge
+                                                    className="bg-foreground text-background border border-foreground">
+                                                    {record.humidity}%
+                                                </Badge>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="border-r border-border">
+                                            <Badge className="bg-secondary text-foreground border border-border">
+                                                {record.weather_conditions}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center space-x-2">
+                                                <Button variant="ghost" size="sm"
+                                                        className="hover:bg-secondary border border-border">
+                                                    <Edit2 className="w-4 h-4 text-foreground"/>
+                                                </Button>
+                                                <Button variant="ghost" size="sm"
+                                                        className="hover:bg-secondary border border-border">
+                                                    <Trash2 className="w-4 h-4 text-foreground"/>
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }

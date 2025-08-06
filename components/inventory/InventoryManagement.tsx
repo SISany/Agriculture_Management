@@ -4,9 +4,10 @@ import {useState} from "react"
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {Badge} from "@/components/ui/badge"
-import {Search, Plus, Edit2, Trash2, Package, Activity, Target, TrendingUp} from "lucide-react"
+import {Search, Plus, Edit2, Trash2, Package, Activity, Target, TrendingUp, Calendar, Warehouse} from "lucide-react"
 
 interface InventoryItem {
     inventory_id: string
@@ -79,8 +80,79 @@ const inventory: InventoryItem[] = [
 
 export default function InventoryManagement() {
     const [searchTerm, setSearchTerm] = useState("")
+    const [inventoryData, setInventoryData] = useState<InventoryItem[]>(inventory)
 
-    const filteredInventory = inventory.filter(item =>
+    // Form state
+    const [formData, setFormData] = useState({
+        inventory_id: "",
+        warehouse_id: "",
+        warehouse_name: "",
+        product_id: "",
+        product_name: "",
+        quantity_available: "",
+        quantity_reserved: "",
+        expiry_date: "",
+        batch_number: "",
+        unit_cost: ""
+    })
+
+    const handleInputChange = (field: string, value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+
+        // Validate form
+        if (!formData.inventory_id || !formData.product_name || !formData.warehouse_name || !formData.quantity_available) {
+            alert("Please fill in all required fields")
+            return
+        }
+
+        // Create new inventory item
+        const newInventoryItem: InventoryItem = {
+            inventory_id: formData.inventory_id,
+            warehouse_id: formData.warehouse_id,
+            warehouse_name: formData.warehouse_name,
+            product_id: formData.product_id || `P${String(inventoryData.length + 1).padStart(3, '0')}`,
+            product_name: formData.product_name,
+            quantity_available: parseFloat(formData.quantity_available) || 0,
+            quantity_reserved: parseFloat(formData.quantity_reserved) || 0,
+            expiry_date: formData.expiry_date,
+            batch_number: formData.batch_number,
+            unit_cost: parseFloat(formData.unit_cost) || 0,
+            last_updated: new Date().toISOString().split('T')[0]
+        }
+
+        setInventoryData(prev => [...prev, newInventoryItem])
+
+        // Reset form
+        setFormData({
+            inventory_id: "",
+            warehouse_id: "",
+            warehouse_name: "",
+            product_id: "",
+            product_name: "",
+            quantity_available: "",
+            quantity_reserved: "",
+            expiry_date: "",
+            batch_number: "",
+            unit_cost: ""
+        })
+
+        alert("Inventory item submitted successfully!")
+    }
+
+    const handleDelete = (inventoryId: string) => {
+        if (confirm("Are you sure you want to delete this inventory item?")) {
+            setInventoryData(prev => prev.filter(item => item.inventory_id !== inventoryId))
+        }
+    }
+
+    const filteredInventory = inventoryData.filter(item =>
         item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.warehouse_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.batch_number.toLowerCase().includes(searchTerm.toLowerCase())
@@ -138,7 +210,7 @@ export default function InventoryManagement() {
                         <Package className="h-4 w-4 text-blue-600"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{inventory.length}</div>
+                        <div className="text-2xl font-bold">{inventoryData.length}</div>
                         <p className="text-xs text-gray-600">Inventory items</p>
                     </CardContent>
                 </Card>
@@ -150,7 +222,7 @@ export default function InventoryManagement() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {inventory.reduce((sum, inv) => sum + inv.quantity_available, 0).toLocaleString()} tons
+                            {inventoryData.reduce((sum, inv) => sum + inv.quantity_available, 0).toLocaleString()} tons
                         </div>
                         <p className="text-xs text-gray-600">Available stock</p>
                     </CardContent>
@@ -163,7 +235,7 @@ export default function InventoryManagement() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {inventory.reduce((sum, inv) => sum + inv.quantity_reserved, 0).toLocaleString()} tons
+                            {inventoryData.reduce((sum, inv) => sum + inv.quantity_reserved, 0).toLocaleString()} tons
                         </div>
                         <p className="text-xs text-gray-600">Reserved items</p>
                     </CardContent>
@@ -176,7 +248,7 @@ export default function InventoryManagement() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            ${inventory.reduce((sum, inv) => sum + (inv.quantity_available * inv.unit_cost), 0).toLocaleString()}
+                            ${inventoryData.reduce((sum, inv) => sum + (inv.quantity_available * inv.unit_cost), 0).toLocaleString()}
                         </div>
                         <p className="text-xs text-gray-600">Inventory value</p>
                     </CardContent>
@@ -192,7 +264,7 @@ export default function InventoryManagement() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            {inventory.filter(item => item.quantity_available < 1000).map((item) => (
+                            {inventoryData.filter(item => item.quantity_available < 1000).map((item) => (
                                 <div key={item.inventory_id}
                                      className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
                                     <div>
@@ -205,7 +277,7 @@ export default function InventoryManagement() {
                                     </div>
                                 </div>
                             ))}
-                            {inventory.filter(item => item.quantity_available < 1000).length === 0 && (
+                            {inventoryData.filter(item => item.quantity_available < 1000).length === 0 && (
                                 <p className="text-sm text-gray-500 text-center py-4">No low stock items</p>
                             )}
                         </div>
@@ -219,7 +291,7 @@ export default function InventoryManagement() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            {inventory.filter(item => isExpiringSoon(item.expiry_date)).map((item) => (
+                            {inventoryData.filter(item => isExpiringSoon(item.expiry_date)).map((item) => (
                                 <div key={item.inventory_id}
                                      className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                     <div>
@@ -234,7 +306,7 @@ export default function InventoryManagement() {
                                     </div>
                                 </div>
                             ))}
-                            {inventory.filter(item => isExpiringSoon(item.expiry_date)).length === 0 && (
+                            {inventoryData.filter(item => isExpiringSoon(item.expiry_date)).length === 0 && (
                                 <p className="text-sm text-gray-500 text-center py-4">No expiring items</p>
                             )}
                         </div>
@@ -248,7 +320,7 @@ export default function InventoryManagement() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            {inventory
+                            {inventoryData
                                 .sort((a, b) => (b.quantity_available * b.unit_cost) - (a.quantity_available * a.unit_cost))
                                 .slice(0, 3)
                                 .map((item) => (
@@ -279,8 +351,8 @@ export default function InventoryManagement() {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
-                        {Array.from(new Set(inventory.map(item => item.product_name))).map((productName) => {
-                            const productItems = inventory.filter(item => item.product_name === productName)
+                        {Array.from(new Set(inventoryData.map(item => item.product_name))).map((productName) => {
+                            const productItems = inventoryData.filter(item => item.product_name === productName)
                             const totalAvailable = productItems.reduce((sum, item) => sum + item.quantity_available, 0)
                             const totalReserved = productItems.reduce((sum, item) => sum + item.quantity_reserved, 0)
                             const totalValue = productItems.reduce((sum, item) => sum + (item.quantity_available * item.unit_cost), 0)
@@ -315,6 +387,167 @@ export default function InventoryManagement() {
                             )
                         })}
                     </div>
+                </CardContent>
+            </Card>
+
+            {/* Inventory Data Entry Form */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl">Submit Inventory Data</CardTitle>
+                    <CardDescription>Enter new inventory item information</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Form Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Inventory ID */}
+                            <div className="space-y-2">
+                                <Label htmlFor="inventory_id" className="flex items-center gap-2 text-green-600">
+                                    <Package className="w-4 h-4"/>
+                                    Inventory ID
+                                </Label>
+                                <Input
+                                    id="inventory_id"
+                                    placeholder="Enter inventory ID"
+                                    value={formData.inventory_id}
+                                    onChange={(e) => handleInputChange("inventory_id", e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            {/* Warehouse Name */}
+                            <div className="space-y-2">
+                                <Label htmlFor="warehouse_name" className="flex items-center gap-2 text-green-600">
+                                    <Warehouse className="w-4 h-4"/>
+                                    Warehouse Name
+                                </Label>
+                                <Input
+                                    id="warehouse_name"
+                                    placeholder="Enter warehouse name"
+                                    value={formData.warehouse_name}
+                                    onChange={(e) => handleInputChange("warehouse_name", e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            {/* Product Name */}
+                            <div className="space-y-2">
+                                <Label htmlFor="product_name" className="flex items-center gap-2 text-green-600">
+                                    <Package className="w-4 h-4"/>
+                                    Product Name
+                                </Label>
+                                <Input
+                                    id="product_name"
+                                    placeholder="Enter product name"
+                                    value={formData.product_name}
+                                    onChange={(e) => handleInputChange("product_name", e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Quantity Available */}
+                            <div className="space-y-2">
+                                <Label htmlFor="quantity_available" className="flex items-center gap-2 text-green-600">
+                                    <Activity className="w-4 h-4"/>
+                                    Quantity Available (tons)
+                                </Label>
+                                <Input
+                                    id="quantity_available"
+                                    type="number"
+                                    placeholder="Available quantity"
+                                    value={formData.quantity_available}
+                                    onChange={(e) => handleInputChange("quantity_available", e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            {/* Quantity Reserved */}
+                            <div className="space-y-2">
+                                <Label htmlFor="quantity_reserved" className="flex items-center gap-2 text-green-600">
+                                    <Target className="w-4 h-4"/>
+                                    Quantity Reserved (tons)
+                                </Label>
+                                <Input
+                                    id="quantity_reserved"
+                                    type="number"
+                                    placeholder="Reserved quantity"
+                                    value={formData.quantity_reserved}
+                                    onChange={(e) => handleInputChange("quantity_reserved", e.target.value)}
+                                />
+                            </div>
+
+                            {/* Unit Cost */}
+                            <div className="space-y-2">
+                                <Label htmlFor="unit_cost" className="flex items-center gap-2 text-green-600">
+                                    <TrendingUp className="w-4 h-4"/>
+                                    Unit Cost ($)
+                                </Label>
+                                <Input
+                                    id="unit_cost"
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Cost per unit"
+                                    value={formData.unit_cost}
+                                    onChange={(e) => handleInputChange("unit_cost", e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Expiry Date */}
+                            <div className="space-y-2">
+                                <Label htmlFor="expiry_date" className="flex items-center gap-2 text-green-600">
+                                    <Calendar className="w-4 h-4"/>
+                                    Expiry Date
+                                </Label>
+                                <Input
+                                    id="expiry_date"
+                                    type="date"
+                                    value={formData.expiry_date}
+                                    onChange={(e) => handleInputChange("expiry_date", e.target.value)}
+                                />
+                            </div>
+
+                            {/* Batch Number */}
+                            <div className="space-y-2">
+                                <Label htmlFor="batch_number" className="flex items-center gap-2 text-green-600">
+                                    <Package className="w-4 h-4"/>
+                                    Batch Number
+                                </Label>
+                                <Input
+                                    id="batch_number"
+                                    placeholder="Batch number"
+                                    value={formData.batch_number}
+                                    onChange={(e) => handleInputChange("batch_number", e.target.value)}
+                                />
+                            </div>
+
+                            {/* Warehouse ID */}
+                            <div className="space-y-2">
+                                <Label htmlFor="warehouse_id" className="flex items-center gap-2 text-green-600">
+                                    <Warehouse className="w-4 h-4"/>
+                                    Warehouse ID
+                                </Label>
+                                <Input
+                                    id="warehouse_id"
+                                    placeholder="Warehouse ID"
+                                    value={formData.warehouse_id}
+                                    onChange={(e) => handleInputChange("warehouse_id", e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="flex justify-start">
+                            <Button type="submit"
+                                    className="bg-green-600 hover:bg-green-700 text-white px-8 py-2 flex items-center gap-2">
+                                <Plus className="w-4 h-4"/>
+                                SUBMIT INVENTORY DATA
+                            </Button>
+                        </div>
+                    </form>
                 </CardContent>
             </Card>
 
@@ -368,7 +601,8 @@ export default function InventoryManagement() {
                                             <Button variant="ghost" size="sm" className="hover:bg-blue-50">
                                                 <Edit2 className="w-4 h-4 text-blue-600"/>
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="hover:bg-red-50">
+                                            <Button variant="ghost" size="sm" className="hover:bg-red-50"
+                                                    onClick={() => handleDelete(item.inventory_id)}>
                                                 <Trash2 className="w-4 h-4 text-red-600"/>
                                             </Button>
                                         </div>

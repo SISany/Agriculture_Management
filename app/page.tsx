@@ -19,12 +19,24 @@ import RetailerManagement from "@/components/retailer/RetailerManagement"
 import SupplyDemandAnalysis from "@/components/supply-demand-analysis/SupplyDemandAnalysis"
 import WholesalerManagement from "@/components/wholesaler/WholesalerManagement"
 
-import {useState} from "react"
+import {useState, useEffect} from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import {Label} from "@/components/ui/label"
+import {Switch} from "@/components/ui/switch"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {Separator} from "@/components/ui/separator"
 import {
   LineChart,
   Line,
@@ -58,6 +70,8 @@ import {
     ChevronRight,
     Menu,
     X,
+    Sparkles,
+    ArrowRight
 } from "lucide-react"
 
 // Mock data for dashboard only
@@ -241,11 +255,11 @@ const demandSupplyData = [
 ]
 
 const cropDistribution = [
-  {name: "Wheat", value: 35, color: "#8884d8"},
-  {name: "Rice", value: 25, color: "#82ca9d"},
-  {name: "Corn", value: 20, color: "#ffc658"},
-  {name: "Soybeans", value: 12, color: "#ff7300"},
-  {name: "Others", value: 8, color: "#00ff88"},
+    {name: "Wheat", value: 35, color: "#000000"},
+    {name: "Rice", value: 25, color: "#333333"},
+    {name: "Corn", value: 20, color: "#666666"},
+    {name: "Soybeans", value: 12, color: "#999999"},
+    {name: "Others", value: 8, color: "#cccccc"},
 ]
 
 // Mock weather data for dashboard
@@ -286,6 +300,39 @@ export default function AgricultureManagementSystem() {
   const [activeSection, setActiveSection] = useState("dashboard")
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [stakeholderExpanded, setStakeholderExpanded] = useState(false)
+    const [mounted, setMounted] = useState(false)
+    const [theme, setTheme] = useState("light")
+    const [fontSize, setFontSize] = useState(16)
+
+    useEffect(() => {
+        setMounted(true)
+
+        // Initialize theme from localStorage
+        const savedTheme = localStorage.getItem("theme")
+        if (savedTheme === "dark" || savedTheme === "light") {
+            setTheme(savedTheme)
+            document.documentElement.classList.toggle("dark", savedTheme === "dark")
+        } else {
+            // Default to system preference
+            const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+            const defaultTheme = systemDark ? "dark" : "light"
+            setTheme(defaultTheme)
+            document.documentElement.classList.toggle("dark", systemDark)
+            localStorage.setItem("theme", defaultTheme)
+        }
+
+        // Initialize font size from localStorage
+        const savedFontSize = localStorage.getItem("fontSize")
+        if (savedFontSize && !isNaN(parseInt(savedFontSize))) {
+            const size = parseInt(savedFontSize)
+            setFontSize(size)
+            document.documentElement.style.fontSize = `${size}px`
+        } else {
+            // Default font size
+            document.documentElement.style.fontSize = "16px"
+            localStorage.setItem("fontSize", "16")
+        }
+    }, [])
 
     // Navigation items configuration
     const navigationItems = [
@@ -393,210 +440,276 @@ export default function AgricultureManagementSystem() {
     ]
 
     const renderDashboard = () => (
-      <div className="space-y-6">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Agriculture Management Dashboard</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Comprehensive overview of agricultural production, demand, supply and market analytics
-          </p>
+        <div className="space-y-8 animate-fade-in">
+            {/* Square Header */}
+            <div className="bg-card border-2 border-border p-8">
+                <div className="flex items-center gap-4 mb-4">
+                    <div className="p-4 bg-secondary border-2 border-border">
+                        <Sparkles className="h-8 w-8 text-foreground"/>
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-bold text-foreground">
+                            Agriculture Management Dashboard
+                        </h1>
+                        <p className="text-lg text-muted-foreground mt-2">
+                            Comprehensive overview of agricultural production, demand, supply and market analytics
+                        </p>
+                    </div>
+                </div>
+                <div className="mt-6">
+                    <Button
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary px-6 py-3 font-semibold">
+                        View Analytics <ArrowRight className="ml-2 h-4 w-4"/>
+                    </Button>
+                </div>
+            </div>
+
+            {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className="bg-card border-2 border-border p-6 transition-all duration-300 hover:shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-sm font-semibold text-muted-foreground">Total Products</CardTitle>
+                    <div className="p-2 bg-secondary border border-border">
+                        <Package className="h-5 w-5 text-foreground"/>
+                    </div>
+                </CardHeader>
+                <CardContent className="pb-4">
+                    <div className="text-3xl font-bold text-foreground">{products.length}</div>
+                    <p className="text-sm text-muted-foreground mt-1">Active products</p>
+                </CardContent>
+            </div>
+
+            <div className="bg-card border-2 border-border p-6 transition-all duration-300 hover:shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-sm font-semibold text-muted-foreground">Total Production</CardTitle>
+                    <div className="p-2 bg-secondary border border-border">
+                        <Factory className="h-5 w-5 text-foreground"/>
+                    </div>
+                </CardHeader>
+                <CardContent className="pb-4">
+                    <div className="text-3xl font-bold text-foreground">
+                        {production.reduce((sum, p) => sum + p.quantity_produced, 0).toLocaleString()}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">tons this month</p>
+                </CardContent>
+            </div>
+
+            <div className="bg-card border-2 border-border p-6 transition-all duration-300 hover:shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-sm font-semibold text-muted-foreground">Transactions</CardTitle>
+                    <div className="p-2 bg-secondary border border-border">
+                        <ShoppingCart className="h-5 w-5 text-foreground"/>
+                    </div>
+                </CardHeader>
+                <CardContent className="pb-4">
+                    <div className="text-3xl font-bold text-foreground">{transactions.length}</div>
+                    <p className="text-sm text-muted-foreground mt-1">recent activities</p>
+                </CardContent>
+            </div>
+
+            <div className="bg-card border-2 border-border p-6 transition-all duration-300 hover:shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-sm font-semibold text-muted-foreground">Warehouses</CardTitle>
+                    <div className="p-2 bg-secondary border border-border">
+                        <WarehouseIcon className="h-5 w-5 text-foreground"/>
+                    </div>
+                </CardHeader>
+                <CardContent className="pb-4">
+                    <div className="text-3xl font-bold text-foreground">{warehouses.length}</div>
+                    <p className="text-sm text-muted-foreground mt-1">storage facilities</p>
+                </CardContent>
+            </div>
+
+            <div className="bg-card border-2 border-border p-6 transition-all duration-300 hover:shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-sm font-semibold text-muted-foreground">Stakeholders</CardTitle>
+                    <div className="p-2 bg-secondary border border-border">
+                        <Users className="h-5 w-5 text-foreground"/>
+                    </div>
+                </CardHeader>
+                <CardContent className="pb-4">
+                    <div className="text-3xl font-bold text-foreground">{stakeholders.length}</div>
+                    <p className="text-sm text-muted-foreground mt-1">registered users</p>
+                </CardContent>
+            </div>
         </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Products</CardTitle>
-            <Package className="h-4 w-4 text-blue-600"/>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">{products.length}</div>
-            <p className="text-xs text-green-600">Active products</p>
-          </CardContent>
-        </Card>
+            {/* Square Charts Section */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div className="bg-card border-2 border-border p-6 shadow-sm">
+                    <div className="mb-6">
+                        <h3 className="text-2xl font-bold text-foreground mb-2">Demand vs Supply Trends</h3>
+                        <p className="text-muted-foreground">Monthly comparison of demand and supply volumes</p>
+                    </div>
+                    <ChartContainer
+                        config={{
+                            demand: {label: "Demand", color: "#000000"},
+                            supply: {label: "Supply", color: "#666666"},
+                        }}
+                        className="h-[400px]"
+                    >
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={demandSupplyData} margin={{top: 20, right: 30, left: 20, bottom: 60}}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5"/>
+                                <XAxis
+                                    dataKey="month"
+                                    stroke="#666666"
+                                    fontSize={11}
+                                    height={40}
+                                />
+                                <YAxis
+                                    stroke="#666666"
+                                    fontSize={11}
+                                    width={50}
+                                />
+                                <ChartTooltip content={<ChartTooltipContent/>}/>
+                                <Legend
+                                    wrapperStyle={{
+                                        fontSize: '11px',
+                                        paddingTop: '15px'
+                                    }}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="demand"
+                                    stroke="#000000"
+                                    strokeWidth={2}
+                                    dot={{fill: "#000000", strokeWidth: 2, r: 3}}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="supply"
+                                    stroke="#666666"
+                                    strokeWidth={2}
+                                    dot={{fill: "#666666", strokeWidth: 2, r: 3}}
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </ChartContainer>
+                </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Production</CardTitle>
-            <Factory className="h-4 w-4 text-green-600"/>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">
-              {production.reduce((sum, p) => sum + p.quantity_produced, 0).toLocaleString()} tons
+                <div className="bg-card border-2 border-border p-6 shadow-sm">
+                <div className="mb-6">
+                    <h3 className="text-2xl font-bold text-foreground mb-2">Crop Distribution</h3>
+                    <p className="text-muted-foreground">Market share by crop type</p>
+                </div>
+                <ChartContainer
+                    config={{value: {label: "Percentage"}}}
+                    className="h-[400px]"
+                >
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart margin={{top: 20, right: 20, left: 20, bottom: 20}}>
+                            <Pie
+                                data={cropDistribution}
+                                cx="50%"
+                                cy="45%"
+                                labelLine={false}
+                                label={({name, percent}) => `${name}\n${(percent * 100).toFixed(0)}%`}
+                                outerRadius={100}
+                                innerRadius={40}
+                                fill="#000000"
+                                dataKey="value"
+                                paddingAngle={2}
+                                fontSize={10}
+                            >
+                                {cropDistribution.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color}/>
+                                ))}
+                            </Pie>
+                            <ChartTooltip content={<ChartTooltipContent/>}/>
+                        </PieChart>
+                    </ResponsiveContainer>
+                </ChartContainer>
             </div>
-            <p className="text-xs text-green-600">This month</p>
-          </CardContent>
-        </Card>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-purple-600"/>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">{transactions.length}</div>
-            <p className="text-xs text-blue-600">Recent transactions</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Warehouses</CardTitle>
-            <WarehouseIcon className="h-4 w-4 text-purple-600"/>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">{warehouses.length}</div>
-            <p className="text-xs text-blue-600">Storage facilities</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Stakeholders</CardTitle>
-            <Users className="h-4 w-4 text-yellow-600"/>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">{stakeholders.length}</div>
-            <p className="text-xs text-green-600">Registered users</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Demand vs Supply Trends</CardTitle>
-            <CardDescription className="text-sm">Monthly comparison of demand and supply volumes</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer
-                config={{
-                  demand: {label: "Demand", color: "#8884d8"},
-                  supply: {label: "Supply", color: "#82ca9d"},
-                }}
-                className="h-[300px]"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={demandSupplyData}>
-                  <CartesianGrid strokeDasharray="3 3"/>
-                  <XAxis dataKey="month"/>
-                  <YAxis/>
-                  <ChartTooltip content={<ChartTooltipContent/>}/>
-                  <Legend/>
-                  <Line type="monotone" dataKey="demand" stroke="#8884d8" strokeWidth={2}/>
-                  <Line type="monotone" dataKey="supply" stroke="#82ca9d" strokeWidth={2}/>
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Crop Distribution</CardTitle>
-            <CardDescription className="text-sm">Market share by crop type</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer
-                config={{value: {label: "Percentage"}}}
-                className="h-[300px]"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                      data={cropDistribution}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                  >
-                    {cropDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color}/>
-                    ))}
-                  </Pie>
-                  <ChartTooltip content={<ChartTooltipContent/>}/>
-                </PieChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Activity Summary */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Recent Transactions</CardTitle>
-            <CardDescription className="text-sm">Latest transaction activities</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {transactions.slice(0, 3).map((transaction) => (
-                  <div key={transaction.transaction_id}
-                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm font-medium">{transaction.product_name}</p>
-                      <p className="text-xs text-gray-600">{transaction.stakeholder_name}</p>
+            {/* Square Recent Activity */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div className="bg-card border-2 border-border shadow-sm transition-all duration-300 hover:shadow-md">
+                    <CardHeader className="pb-6">
+                        <CardTitle className="text-2xl font-bold text-foreground">Recent Transactions</CardTitle>
+                        <CardDescription className="text-muted-foreground">Latest transaction
+                            activities</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {transactions.slice(0, 3).map((transaction) => (
+                                <div key={transaction.transaction_id}
+                                     className="p-4 bg-muted/20 border border-border transition-colors hover:bg-muted/50">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="p-2 bg-secondary border border-border">
+                                                <Package className="h-4 w-4 text-foreground"/>
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-foreground">{transaction.product_name}</p>
+                                                <p className="text-sm text-muted-foreground">{transaction.stakeholder_name}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-lg font-bold text-foreground">
+                                                ${transaction.total_amount.toLocaleString()}
+                                            </p>
+                                            <Badge
+                                                variant={transaction.transaction_type === "Sale" ? "default" : "secondary"}
+                                                className="text-xs mt-1 border border-border">
+                                                {transaction.transaction_type}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            <Button
+                                variant="outline"
+                                onClick={() => setActiveSection("transactions")}
+                                className="w-full mt-4 bg-secondary text-secondary-foreground border-2 border-border hover:bg-secondary/80"
+                            >
+                                View All Transactions <ArrowRight className="ml-2 h-4 w-4"/>
+                            </Button>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold">${transaction.total_amount.toLocaleString()}</p>
-                      <Badge variant={transaction.transaction_type === "Sale" ? "default" : "secondary"}
-                             className="text-xs">
-                        {transaction.transaction_type}
-                      </Badge>
-                    </div>
-                  </div>
-              ))}
-              <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full text-sm"
-                  onClick={() => setActiveSection("transactions")}
-              >
-                View All Transactions
-              </Button>
+                </CardContent>
             </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Weather Overview</CardTitle>
-            <CardDescription className="text-sm">Current weather conditions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {weather.slice(0, 2).map((record) => (
-                  <div key={record.weather_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm font-medium">{record.location}</p>
-                      <p className="text-xs text-gray-600">{record.season}</p>
+                <div className="bg-card border-2 border-border shadow-sm transition-all duration-300 hover:shadow-md">
+                <CardHeader className="pb-6">
+                    <CardTitle className="text-2xl font-bold text-foreground">Weather Overview</CardTitle>
+                    <CardDescription className="text-muted-foreground">Current weather conditions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        {weather.slice(0, 2).map((record) => (
+                            <div key={record.weather_id}
+                                 className="p-4 bg-muted/20 border border-border transition-colors hover:bg-muted/50">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="p-2 bg-secondary border border-border">
+                                            <CloudRain className="h-4 w-4 text-foreground"/>
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-foreground">{record.location}</p>
+                                            <p className="text-sm text-muted-foreground">{record.season} • {record.weather_conditions}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-lg font-bold text-foreground">{record.temperature}°C</p>
+                                        <p className="text-sm text-muted-foreground">{record.rainfall}mm</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        <Button
+                            variant="outline"
+                            onClick={() => setActiveSection("weather")}
+                            className="w-full mt-4 bg-secondary text-secondary-foreground border-2 border-border hover:bg-secondary/80"
+                        >
+                            View All Weather Data <ArrowRight className="ml-2 h-4 w-4"/>
+                        </Button>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold">{record.temperature}°C</p>
-                      <p className="text-xs text-gray-600">{record.rainfall}mm</p>
-                    </div>
-                  </div>
-              ))}
-              <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full text-sm"
-                  onClick={() => setActiveSection("weather")}
-              >
-                View All Weather Data
-              </Button>
+                </CardContent>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+        </div>
     </div>
   )
-
-
 
   const renderContent = () => {
     switch (activeSection) {
@@ -641,88 +754,42 @@ export default function AgricultureManagementSystem() {
     }
   }
 
-  return (
-      <div className="min-h-screen bg-gray-50 flex">
-          {/* Left Sidebar */}
-          <div
-              className={`${sidebarOpen ? 'w-64' : 'w-16'} bg-white shadow-lg transition-all duration-300 ease-in-out flex-shrink-0`}>
-              {/* Sidebar Header */}
-              <div
-                  className={`flex items-center ${sidebarOpen ? 'justify-between p-4' : 'justify-center p-2'} border-b`}>
-                  <div className={`flex items-center ${sidebarOpen ? '' : 'justify-center'}`}>
-                      <Wheat className="h-8 w-8 text-green-600 flex-shrink-0"/>
-                      {sidebarOpen && (
-                          <span className="ml-2 text-lg font-bold text-gray-900 truncate">AgriManagement</span>
-                      )}
-              </div>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className={`${sidebarOpen ? 'p-1.5' : 'p-2 mt-2'} hover:bg-gray-100`}
-                >
-                    {sidebarOpen ? <X className="h-5 w-5"/> : <Menu className="h-5 w-5"/>}
-                </Button>
-            </div>
+    if (!mounted) return null
 
-              {/* Navigation Menu */}
-              <nav className="flex-1 overflow-y-auto py-4">
-                  <div className={`${sidebarOpen ? 'px-3' : 'px-2'} space-y-1`}>
-                      {/* Main Navigation Items */}
-                      {navigationItems.map((item) => {
-                          const Icon = item.icon
-                          const isActive = activeSection === item.id
+    return (
+        <div className="min-h-screen bg-background flex">
+            {/* Square Left Sidebar */}
+            <div
+                className={`${sidebarOpen ? 'w-72' : 'w-16'} bg-card border-r-2 border-border shadow-sm transition-all duration-300 ease-in-out flex-shrink-0`}>
+                {/* Square Sidebar Header */}
+                <div
+                    className={`flex items-center ${sidebarOpen ? 'justify-between p-6' : 'justify-center p-4'} border-b-2 border-border`}>
+                    <div className={`flex items-center ${sidebarOpen ? '' : 'justify-center'}`}>
+                        <div className="p-2 bg-secondary border-2 border-border">
+                            <Wheat className="h-8 w-8 text-foreground flex-shrink-0"/>
+                        </div>
+                        {sidebarOpen && (
+                            <div className="ml-3">
+                                <span className="text-xl font-bold text-foreground">AgriManagement</span>
+                                <p className="text-xs text-muted-foreground">Smart Agriculture Platform</p>
+                            </div>
+                        )}
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                        className="hover:bg-secondary transition-colors border border-border"
+                    >
+                        {sidebarOpen ? <X className="h-5 w-5 text-muted-foreground"/> :
+                            <Menu className="h-5 w-5 text-muted-foreground"/>}
+                    </Button>
+                </div>
 
-                          return (
-                              <Button
-                                  key={item.id}
-                                  variant={isActive ? "default" : "ghost"}
-                                  onClick={() => setActiveSection(item.id)}
-                                  className={`w-full justify-start h-9 text-sm font-medium transition-all duration-200 ${
-                                      sidebarOpen ? 'px-3' : 'px-0 justify-center'
-                                  } ${isActive ?
-                                      'bg-green-600 text-white shadow-sm' :
-                                      'text-gray-700 hover:bg-green-50 hover:text-green-700'
-                                  }`}
-                                  title={!sidebarOpen ? item.label : undefined}
-                              >
-                                  <Icon className={`h-4 w-4 flex-shrink-0 ${sidebarOpen ? 'mr-3' : ''}`}/>
-                                  {sidebarOpen && <span className="truncate">{item.label}</span>}
-                              </Button>
-                          )
-                      })}
-
-                  {/* Stakeholder Section */}
-                  <div className="pt-2">
-                  <Button
-                      variant="ghost"
-                      onClick={() => {
-                          if (!sidebarOpen) {
-                              setSidebarOpen(true)
-                          }
-                          setStakeholderExpanded(!stakeholderExpanded)
-                      }}
-                      className={`w-full justify-start h-9 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-all duration-200 ${
-                          sidebarOpen ? 'px-3' : 'px-0 justify-center'
-                      } ${stakeholderItems.some(item => activeSection === item.id) ? 'bg-green-50 text-green-700' : ''}`}
-                      title={!sidebarOpen ? 'Stakeholder' : undefined}
-                  >
-                      <Users className={`h-4 w-4 flex-shrink-0 ${sidebarOpen ? 'mr-3' : ''}`}/>
-                      {sidebarOpen && (
-                          <>
-                              <span className="truncate flex-1 text-left">Stakeholder</span>
-                              {stakeholderExpanded ?
-                                  <ChevronDown className="h-4 w-4 ml-auto"/> :
-                                  <ChevronRight className="h-4 w-4 ml-auto"/>
-                              }
-                          </>
-                      )}
-                  </Button>
-
-                    {/* Stakeholder Submenu */}
-                    {sidebarOpen && stakeholderExpanded && (
-                    <div className="ml-4 mt-1 space-y-1">
-                        {stakeholderItems.map((item) => {
+                {/* Square Navigation Menu */}
+                <nav className="flex-1 overflow-y-auto py-6 scrollbar-thin">
+                    <div className={`${sidebarOpen ? 'px-4' : 'px-2'} space-y-2`}>
+                        {navigationItems.map((item) => {
                             const Icon = item.icon
                             const isActive = activeSection === item.id
 
@@ -731,62 +798,203 @@ export default function AgricultureManagementSystem() {
                                     key={item.id}
                                     variant={isActive ? "default" : "ghost"}
                                     onClick={() => setActiveSection(item.id)}
-                                    className={`w-full justify-start h-8 text-xs font-medium transition-all duration-200 px-3 ${
-                                        isActive ?
-                                            'bg-green-600 text-white shadow-sm' :
-                                            'text-gray-600 hover:bg-green-50 hover:text-green-700'
-                                    }`}
+                                    className={`w-full h-12 transition-colors border border-border ${
+                                        sidebarOpen ? 'px-4 justify-start' : 'px-0 justify-center w-12'
+                                    } ${isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                                    title={!sidebarOpen ? item.label : undefined}
                                 >
-                                    <Icon className="h-3 w-3 mr-2 flex-shrink-0"/>
-                                    <span className="truncate">{item.label}</span>
+                                    <Icon className={`h-5 w-5 flex-shrink-0 ${sidebarOpen ? 'mr-3' : ''}`}/>
+                                    {sidebarOpen && <span className="font-medium">{item.label}</span>}
                                 </Button>
                             )
                         })}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </nav>
-          </div>
 
-          {/* Main Content Area */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Top Header */}
-              <header className="bg-white shadow-sm border-b px-6 py-4">
-                  <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                  <h1 className="text-xl font-semibold text-gray-900">
-                      {navigationItems.find(item => item.id === activeSection)?.label ||
-                          stakeholderItems.find(item => item.id === activeSection)?.label ||
-                          'Agriculture Management'}
-                  </h1>
-              </div>
+                        {/* Square Stakeholder Section */}
+                        <div className="pt-4 border-t-2 border-border">
+                            <Button
+                                variant="ghost"
+                                onClick={() => {
+                                    if (!sidebarOpen) {
+                                        setSidebarOpen(true)
+                                    }
+                                    setStakeholderExpanded(!stakeholderExpanded)
+                                }}
+                                className={`w-full h-12 transition-colors border border-border ${
+                                    sidebarOpen ? 'px-4 justify-start' : 'px-0 justify-center w-12'
+                                } ${stakeholderItems.some(item => activeSection === item.id) ?
+                                    'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                                title={!sidebarOpen ? 'Stakeholder' : undefined}
+                            >
+                                <Users className={`h-5 w-5 flex-shrink-0 ${sidebarOpen ? 'mr-3' : ''}`}/>
+                                {sidebarOpen && (
+                                    <>
+                                        <span className="font-medium flex-1 text-left">Stakeholders</span>
+                                        <div
+                                            className={`transition-transform duration-300 ${stakeholderExpanded ? 'rotate-180' : ''}`}>
+                                            {stakeholderExpanded ?
+                                                <ChevronDown className="h-4 w-4 ml-auto"/> :
+                                                <ChevronRight className="h-4 w-4 ml-auto"/>}
+                                        </div>
+                                    </>
+                                )}
+                            </Button>
+
+                            {/* Square Stakeholder Submenu */}
+                            {sidebarOpen && stakeholderExpanded && (
+                                <div className="ml-6 mt-2 space-y-1 animate-fade-in">
+                                    {stakeholderItems.map((item) => {
+                                        const Icon = item.icon
+                                        const isActive = activeSection === item.id
+
+                                        return (
+                                            <Button
+                                                key={item.id}
+                                                variant={isActive ? "default" : "ghost"}
+                                                onClick={() => setActiveSection(item.id)}
+                                                className={`w-full h-10 text-sm transition-colors px-4 justify-start border border-border ${
+                                                    isActive ? 'bg-primary text-primary-foreground' :
+                                                        'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                                            >
+                                                <Icon className="h-4 w-4 mr-3 flex-shrink-0"/>
+                                                <span>{item.label}</span>
+                                            </Button>
+                                        )
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Square Top Header */}
+                <header className="bg-card border-b-2 border-border px-8 py-6">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-6">
+                            <h1 className="text-2xl font-bold text-foreground">
+                                {navigationItems.find(item => item.id === activeSection)?.label ||
+                                    stakeholderItems.find(item => item.id === activeSection)?.label ||
+                                    'Agriculture Management'}
+                            </h1>
+                        </div>
 
                         <div className="flex items-center space-x-4">
                             <div className="relative">
                                 <Search
-                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
-                                <Input type="search" placeholder="Search..." className="pl-10 w-64 h-9"/>
+                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4"/>
+                                <Input
+                                    type="search"
+                                    placeholder="Search everything..."
+                                    className="bg-input border-2 border-border text-foreground placeholder-muted-foreground pl-12 w-80 h-11 text-sm"
+                                />
                             </div>
 
-                    <Button variant="ghost" size="sm" className="p-2">
-                        <Bell className="w-4 h-4"/>
-                    </Button>
+                            <Dialog>
+                                <DialogTrigger
+                                    className="p-3 bg-secondary border-2 border-border hover:bg-secondary/80 transition-colors">
+                                    <Settings className="w-5 h-5 text-muted-foreground hover:text-foreground"/>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[500px] border-2 border-border">
+                                    <DialogHeader>
+                                        <DialogTitle
+                                            className="text-2xl font-bold text-foreground flex items-center gap-3">
+                                            <Settings className="h-6 w-6"/>
+                                            Settings & Preferences
+                                        </DialogTitle>
+                                        <DialogDescription className="text-muted-foreground">
+                                            Customize your agriculture management dashboard experience
+                                        </DialogDescription>
+                                    </DialogHeader>
 
-                    <Button variant="ghost" size="sm" className="p-2">
-                        <Settings className="w-4 h-4"/>
-                    </Button>
-              </div>
+                                    <div className="space-y-6 mt-6">
+                                        <div className="space-y-4">
+                                            <h3 className="text-lg font-semibold text-foreground">Appearance</h3>
+                                            <div
+                                                className="flex items-center justify-between p-4 bg-card border-2 border-border">
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="p-2 bg-secondary border border-border">
+                                                        {theme === "dark" ? "🌙" : "☀️"}
+                                                    </div>
+                                                    <div>
+                                                        <Label htmlFor="theme-toggle"
+                                                               className="text-base font-medium text-foreground">
+                                                            {theme === "dark" ? "Dark Mode" : "Light Mode"}
+                                                        </Label>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Switch between light and dark themes
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <Switch
+                                                    id="theme-toggle"
+                                                    checked={theme === "dark"}
+                                                    onCheckedChange={(checked: boolean) => {
+                                                        const newTheme = checked ? "dark" : "light"
+                                                        setTheme(newTheme)
+                                                        document.documentElement.classList.toggle("dark", checked)
+                                                        localStorage.setItem("theme", newTheme)
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <Separator/>
+
+                                        <div className="space-y-4">
+                                            <h3 className="text-lg font-semibold text-foreground">Typography</h3>
+                                            <div className="p-4 bg-card border-2 border-border">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <Label className="text-base font-medium text-foreground">Font
+                                                            Size</Label>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Current: {fontSize}px
+                                                        </p>
+                                                    </div>
+                                                    <Select
+                                                        value={fontSize.toString()}
+                                                        onValueChange={(value) => {
+                                                            const newFontSize = parseInt(value)
+                                                            setFontSize(newFontSize)
+                                                            document.documentElement.style.fontSize = `${newFontSize}px`
+                                                            localStorage.setItem("fontSize", value)
+                                                        }}
+                                                    >
+                                                        <SelectTrigger className="w-32 border-2 border-border">
+                                                            <SelectValue placeholder="Select size"/>
+                                                        </SelectTrigger>
+                                                        <SelectContent className="border-2 border-border">
+                                                            <SelectItem value="12">Small (12px)</SelectItem>
+                                                            <SelectItem value="14">Default (14px)</SelectItem>
+                                                            <SelectItem value="16">Medium (16px)</SelectItem>
+                                                            <SelectItem value="18">Large (18px)</SelectItem>
+                                                            <SelectItem value="20">Extra Large (20px)</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+
+                            <Button variant="ghost" size="sm"
+                                    className="p-3 bg-secondary border-2 border-border hover:bg-secondary/80 transition-colors">
+                                <Bell className="w-5 h-5 text-muted-foreground hover:text-foreground"/>
+                            </Button>
+                        </div>
                     </div>
                 </header>
 
                 {/* Main Content */}
-                <main className="flex-1 overflow-auto">
-                    <div className="p-6">
+                <main className="flex-1 overflow-auto scrollbar-thin">
+                    <div className="p-8">
                         {renderContent()}
                     </div>
                 </main>
             </div>
-      </div>
-  )
+        </div>
+    )
 }
