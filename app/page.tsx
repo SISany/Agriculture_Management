@@ -18,6 +18,7 @@ import NutritionIntake from "@/components/nutrition-intake/NutritionIntake"
 import RetailerManagement from "@/components/retailer/RetailerManagement"
 import SupplyDemandAnalysis from "@/components/supply-demand-analysis/SupplyDemandAnalysis"
 import WholesalerManagement from "@/components/wholesaler/WholesalerManagement"
+import {DataEntryForm} from "@/components/data-entry-form"
 
 import {useState, useEffect} from "react"
 import { Button } from "@/components/ui/button"
@@ -59,7 +60,8 @@ import {
     Menu,
     X,
     Sparkles,
-    ArrowRight
+    ArrowRight,
+    Edit
 } from "lucide-react"
 
 // Chart data with dynamic colors
@@ -368,6 +370,12 @@ export default function AgricultureManagementSystem() {
             label: "Weather",
             icon: CloudRain,
             category: "additional"
+        },
+        {
+            id: "data-entry",
+            label: "Data Entry",
+            icon: Edit,
+            category: "main"
         }
     ]
 
@@ -680,6 +688,8 @@ export default function AgricultureManagementSystem() {
           return <SupplyDemandAnalysis/>
       case "wholesaler-management":
           return <WholesalerManagement/>
+        case "data-entry":
+            return <DataEntryForm/>
       default:
         return renderDashboard()
     }

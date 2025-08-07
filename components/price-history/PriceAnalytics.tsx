@@ -94,8 +94,62 @@ const priceTrendData = [
 
 export default function PriceAnalytics() {
     const [searchTerm, setSearchTerm] = useState("")
+    const [showAddForm, setShowAddForm] = useState(false)
+    const [priceHistoryData, setPriceHistoryData] = useState<PriceHistory[]>(priceHistory)
+    const [formData, setFormData] = useState({
+        price_id: "",
+        product_name: "",
+        location: "",
+        date_recorded: "",
+        wholesale_price: "",
+        retail_price: "",
+        harvest_season_price: "",
+        season: "",
+        weather_id: ""
+    })
 
-    const filteredPriceHistory = priceHistory.filter(record =>
+    const handleInputChange = (field: string, value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+
+        const newPriceRecord: PriceHistory = {
+            price_id: formData.price_id,
+            product_id: `P${Date.now()}`,
+            product_name: formData.product_name,
+            date_recorded: formData.date_recorded,
+            location: formData.location,
+            wholesale_price: parseFloat(formData.wholesale_price) || 0,
+            retail_price: parseFloat(formData.retail_price) || 0,
+            harvest_season_price: parseFloat(formData.harvest_season_price) || 0,
+            season: formData.season,
+            weather_id: formData.weather_id
+        }
+
+        setPriceHistoryData([...priceHistoryData, newPriceRecord])
+
+        // Reset form
+        setFormData({
+            price_id: "",
+            product_name: "",
+            location: "",
+            date_recorded: "",
+            wholesale_price: "",
+            retail_price: "",
+            harvest_season_price: "",
+            season: "",
+            weather_id: ""
+        })
+        setShowAddForm(false)
+        alert("Price record added successfully!")
+    }
+
+    const filteredPriceHistory = priceHistoryData.filter(record =>
         record.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.price_id.toLowerCase().includes(searchTerm.toLowerCase())
@@ -127,22 +181,22 @@ export default function PriceAnalytics() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <Button>
+                    <Button onClick={() => setShowAddForm(true)}>
                         <Plus className="w-4 h-4 mr-2"/>
                         Add Price Record
                     </Button>
                 </div>
             </div>
 
-            {/* Price Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {/* 1. STATISTICS CARDS */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-sm font-medium">Total Records</CardTitle>
                         <BarChart3 className="h-4 w-4 text-blue-600"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{priceHistory.length}</div>
+                        <div className="text-2xl font-bold">{priceHistoryData.length}</div>
                         <p className="text-xs text-gray-600">Price records</p>
                     </CardContent>
                 </Card>
@@ -154,7 +208,7 @@ export default function PriceAnalytics() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            ${(priceHistory.reduce((sum, p) => sum + p.wholesale_price, 0) / priceHistory.length).toFixed(2)}
+                            ${(priceHistoryData.reduce((sum, p) => sum + p.wholesale_price, 0) / priceHistoryData.length).toFixed(2)}
                         </div>
                         <p className="text-xs text-gray-600">Per unit</p>
                     </CardContent>
@@ -167,7 +221,7 @@ export default function PriceAnalytics() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            ${(priceHistory.reduce((sum, p) => sum + p.retail_price, 0) / priceHistory.length).toFixed(2)}
+                            ${(priceHistoryData.reduce((sum, p) => sum + p.retail_price, 0) / priceHistoryData.length).toFixed(2)}
                         </div>
                         <p className="text-xs text-gray-600">Per unit</p>
                     </CardContent>
@@ -180,114 +234,99 @@ export default function PriceAnalytics() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {(priceHistory.reduce((sum, p) => sum + ((p.retail_price - p.wholesale_price) / p.wholesale_price), 0) / priceHistory.length * 100).toFixed(1)}%
+                            {(priceHistoryData.reduce((sum, p) => sum + ((p.retail_price - p.wholesale_price) / p.wholesale_price), 0) / priceHistoryData.length * 100).toFixed(1)}%
                         </div>
                         <p className="text-xs text-gray-600">Retail markup</p>
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Price Charts */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+            {/* 2. ENTRY DATA FORM */}
+            {showAddForm && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Price Trends Over Time</CardTitle>
-                        <CardDescription>Monthly price variations by product</CardDescription>
+                        <CardTitle>Add Price Record</CardTitle>
+                        <CardDescription>Enter current market pricing information</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ChartContainer
-                            config={{
-                                wheat: {label: "Wheat", color: "#8884d8"},
-                                rice: {label: "Rice", color: "#82ca9d"},
-                                corn: {label: "Corn", color: "#ffc658"}
-                            }}
-                            className="h-[300px]"
-                        >
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={priceTrendData}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="month"/>
-                                    <YAxis/>
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Line type="monotone" dataKey="wheat" stroke="#8884d8" strokeWidth={2}/>
-                                    <Line type="monotone" dataKey="rice" stroke="#82ca9d" strokeWidth={2}/>
-                                    <Line type="monotone" dataKey="corn" stroke="#ffc658" strokeWidth={2}/>
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
+                        <form onSubmit={handleSubmit}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <Input
+                                    type="text"
+                                    placeholder="Price ID"
+                                    className="w-full"
+                                    value={formData.price_id}
+                                    onChange={(e) => handleInputChange("price_id", e.target.value)}
+                                />
+                                <Input
+                                    type="text"
+                                    placeholder="Product Name"
+                                    className="w-full"
+                                    value={formData.product_name}
+                                    onChange={(e) => handleInputChange("product_name", e.target.value)}
+                                />
+                                <Input
+                                    type="text"
+                                    placeholder="Location"
+                                    className="w-full"
+                                    value={formData.location}
+                                    onChange={(e) => handleInputChange("location", e.target.value)}
+                                />
+                                <Input
+                                    type="date"
+                                    placeholder="Date Recorded"
+                                    className="w-full"
+                                    value={formData.date_recorded}
+                                    onChange={(e) => handleInputChange("date_recorded", e.target.value)}
+                                />
+                                <Input
+                                    type="number"
+                                    placeholder="Wholesale Price"
+                                    className="w-full"
+                                    value={formData.wholesale_price}
+                                    onChange={(e) => handleInputChange("wholesale_price", e.target.value)}
+                                />
+                                <Input
+                                    type="number"
+                                    placeholder="Retail Price"
+                                    className="w-full"
+                                    value={formData.retail_price}
+                                    onChange={(e) => handleInputChange("retail_price", e.target.value)}
+                                />
+                                <Input
+                                    type="number"
+                                    placeholder="Harvest Season Price"
+                                    className="w-full"
+                                    value={formData.harvest_season_price}
+                                    onChange={(e) => handleInputChange("harvest_season_price", e.target.value)}
+                                />
+                                <Input
+                                    type="text"
+                                    placeholder="Season"
+                                    className="w-full"
+                                    value={formData.season}
+                                    onChange={(e) => handleInputChange("season", e.target.value)}
+                                />
+                                <Input
+                                    type="text"
+                                    placeholder="Weather ID"
+                                    className="w-full"
+                                    value={formData.weather_id}
+                                    onChange={(e) => handleInputChange("weather_id", e.target.value)}
+                                />
+                            </div>
+                            <div className="flex gap-4">
+                                <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">Add
+                                    Record</Button>
+                                <Button type="button" variant="outline"
+                                        onClick={() => setShowAddForm(false)}>Cancel</Button>
+                            </div>
+                        </form>
                     </CardContent>
                 </Card>
+            )}
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Price Distribution by Location</CardTitle>
-                        <CardDescription>Wholesale vs Retail prices across regions</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer
-                            config={{
-                                wholesale_price: {label: "Wholesale", color: "#82ca9d"},
-                                retail_price: {label: "Retail", color: "#8884d8"}
-                            }}
-                            className="h-[300px]"
-                        >
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={priceHistory}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="location" angle={-45} textAnchor="end" height={80}/>
-                                    <YAxis/>
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Bar dataKey="wholesale_price" fill="#82ca9d"/>
-                                    <Bar dataKey="retail_price" fill="#8884d8"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Price Analysis Insights */}
-            <Card className="mb-8">
-                <CardHeader>
-                    <CardTitle>Market Price Insights</CardTitle>
-                    <CardDescription>Key market indicators and price analysis</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                            <h4 className="font-semibold text-green-800 mb-2">Highest Margin Products</h4>
-                            <p className="text-sm text-green-700">
-                                {priceHistory
-                                    .sort((a, b) => ((b.retail_price - b.wholesale_price) / b.wholesale_price) - ((a.retail_price - a.wholesale_price) / a.wholesale_price))
-                                    .slice(0, 2)
-                                    .map(p => p.product_name)
-                                    .join(', ')} showing highest retail margins
-                            </p>
-                        </div>
-
-                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <h4 className="font-semibold text-blue-800 mb-2">Price Stability</h4>
-                            <p className="text-sm text-blue-700">
-                                {priceHistory.filter(p => Math.abs(p.retail_price - p.harvest_season_price) / p.harvest_season_price < 0.1).length} out
-                                of {priceHistory.length} products
-                                showing stable pricing
-                            </p>
-                        </div>
-
-                        <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                            <h4 className="font-semibold text-orange-800 mb-2">Seasonal Impact</h4>
-                            <p className="text-sm text-orange-700">
-                                Average seasonal price
-                                variation: {(priceHistory.reduce((sum, p) => sum + Math.abs((p.retail_price - p.harvest_season_price) / p.harvest_season_price), 0) / priceHistory.length * 100).toFixed(1)}%
-                            </p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Detailed Price History Table */}
+            {/* 3. TABLE SHOW */}
             <Card>
                 <CardHeader>
                     <CardTitle>Price History Records</CardTitle>
@@ -350,6 +389,107 @@ export default function PriceAnalytics() {
                     </Table>
                 </CardContent>
             </Card>
+
+            {/* 4. CHARTS */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Price Trends Over Time</CardTitle>
+                        <CardDescription>Monthly price variations by product</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer
+                            config={{
+                                wheat: {label: "Wheat", color: "#8884d8"},
+                                rice: {label: "Rice", color: "#82ca9d"},
+                                corn: {label: "Corn", color: "#ffc658"}
+                            }}
+                            className="h-[300px]"
+                        >
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={priceTrendData}>
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis dataKey="month"/>
+                                    <YAxis/>
+                                    <ChartTooltip content={<ChartTooltipContent/>}/>
+                                    <Legend/>
+                                    <Line type="monotone" dataKey="wheat" stroke="#8884d8" strokeWidth={2}/>
+                                    <Line type="monotone" dataKey="rice" stroke="#82ca9d" strokeWidth={2}/>
+                                    <Line type="monotone" dataKey="corn" stroke="#ffc658" strokeWidth={2}/>
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Price Distribution by Location</CardTitle>
+                        <CardDescription>Wholesale vs Retail prices across regions</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer
+                            config={{
+                                wholesale_price: {label: "Wholesale", color: "#82ca9d"},
+                                retail_price: {label: "Retail", color: "#8884d8"}
+                            }}
+                            className="h-[300px]"
+                        >
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={priceHistoryData}>
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis dataKey="location" angle={-45} textAnchor="end" height={80}/>
+                                    <YAxis/>
+                                    <ChartTooltip content={<ChartTooltipContent/>}/>
+                                    <Legend/>
+                                    <Bar dataKey="wholesale_price" fill="#82ca9d"/>
+                                    <Bar dataKey="retail_price" fill="#8884d8"/>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Market Price Insights */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Market Price Insights</CardTitle>
+                    <CardDescription>Key market indicators and price analysis</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <h4 className="font-semibold text-green-800 mb-2">Highest Margin Products</h4>
+                            <p className="text-sm text-green-700">
+                                {priceHistoryData
+                                    .sort((a, b) => ((b.retail_price - b.wholesale_price) / b.wholesale_price) - ((a.retail_price - a.wholesale_price) / a.wholesale_price))
+                                    .slice(0, 2)
+                                    .map(p => p.product_name)
+                                    .join(', ')} showing highest retail margins
+                            </p>
+                        </div>
+
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <h4 className="font-semibold text-blue-800 mb-2">Price Stability</h4>
+                            <p className="text-sm text-blue-700">
+                                {priceHistoryData.filter(p => Math.abs(p.retail_price - p.harvest_season_price) / p.harvest_season_price < 0.1).length} out
+                                of {priceHistoryData.length} products
+                                showing stable pricing
+                            </p>
+                        </div>
+
+                        <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                            <h4 className="font-semibold text-orange-800 mb-2">Seasonal Impact</h4>
+                            <p className="text-sm text-orange-700">
+                                Average seasonal price
+                                variation: {(priceHistoryData.reduce((sum, p) => sum + Math.abs((p.retail_price - p.harvest_season_price) / p.harvest_season_price), 0) / priceHistoryData.length * 100).toFixed(1)}%
+                            </p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
         </div>
     )
 }
