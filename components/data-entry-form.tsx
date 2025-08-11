@@ -80,7 +80,7 @@ export function DataEntryForm() {
       setFormData((prev) => {
           const newData = {...prev}
           fieldsToReset.forEach(field => {
-              newData[field] = ""
+              newData[field as keyof typeof prev] = ""
           })
           return newData
       })
