@@ -67,6 +67,7 @@ export default function FarmerManagement() {
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedDistrict, setSelectedDistrict] = useState("all")
     const [selectedCountry, setSelectedCountry] = useState("all")
+    const [showForm, setShowForm] = useState(false)
     const [formData, setFormData] = useState({
         farmerId: "",
         fullName: "",
@@ -109,6 +110,7 @@ export default function FarmerManagement() {
             experience: "",
             weatherId: ""
         })
+        setShowForm(false)
     }
 
     const handleDelete = (id: number) => {
@@ -251,202 +253,212 @@ export default function FarmerManagement() {
                         <p className="text-muted-foreground text-lg">Enter new farmer information with complete
                             details</p>
                     </div>
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div className="space-y-3">
-                                <Label htmlFor="farmerId"
-                                       className="flex items-center gap-2 text-foreground font-semibold">
-                                    <div className="p-2 bg-secondary border border-border">
-                                        <User className="w-4 h-4 text-foreground"/>
-                                    </div>
-                                    Farmer ID
-                                </Label>
-                                <Input
-                                    id="farmerId"
-                                    placeholder="Enter farmer ID"
-                                    value={formData.farmerId}
-                                    onChange={(e) => handleInputChange("farmerId", e.target.value)}
-                                    className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
-                                    required
-                                />
+                    <Button
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary"
+                        onClick={() => setShowForm(!showForm)}
+                    >
+                        {showForm ? "Hide Form" : "Add Farmer Entry"}
+                    </Button>
+                    {showForm && (
+                        <form onSubmit={handleSubmit} className="space-y-8 mt-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div className="space-y-3">
+                                    <Label htmlFor="farmerId"
+                                           className="flex items-center gap-2 text-foreground font-semibold">
+                                        <div className="p-2 bg-secondary border border-border">
+                                            <User className="w-4 h-4 text-foreground"/>
+                                        </div>
+                                        Farmer ID
+                                    </Label>
+                                    <Input
+                                        id="farmerId"
+                                        placeholder="Enter farmer ID"
+                                        value={formData.farmerId}
+                                        onChange={(e) => handleInputChange("farmerId", e.target.value)}
+                                        className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label htmlFor="fullName"
+                                           className="flex items-center gap-2 text-foreground font-semibold">
+                                        <div className="p-2 bg-secondary border border-border">
+                                            <User className="w-4 h-4 text-foreground"/>
+                                        </div>
+                                        Full Name
+                                    </Label>
+                                    <Input
+                                        id="fullName"
+                                        placeholder="Enter full name"
+                                        value={formData.fullName}
+                                        onChange={(e) => handleInputChange("fullName", e.target.value)}
+                                        className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label htmlFor="road"
+                                           className="flex items-center gap-2 text-foreground font-semibold">
+                                        <div className="p-2 bg-secondary border border-border">
+                                            <MapPin className="w-4 h-4 text-foreground"/>
+                                        </div>
+                                        Road
+                                    </Label>
+                                    <Input
+                                        id="road"
+                                        placeholder="Enter road name"
+                                        value={formData.road}
+                                        onChange={(e) => handleInputChange("road", e.target.value)}
+                                        className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
+                                    />
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label htmlFor="house"
+                                           className="flex items-center gap-2 text-foreground font-semibold">
+                                        <div className="p-2 bg-secondary border border-border">
+                                            <Home className="w-4 h-4 text-foreground"/>
+                                        </div>
+                                        House
+                                    </Label>
+                                    <Input
+                                        id="house"
+                                        placeholder="Enter house number"
+                                        value={formData.house}
+                                        onChange={(e) => handleInputChange("house", e.target.value)}
+                                        className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-3">
-                                <Label htmlFor="fullName"
-                                       className="flex items-center gap-2 text-foreground font-semibold">
-                                    <div className="p-2 bg-secondary border border-border">
-                                        <User className="w-4 h-4 text-foreground"/>
-                                    </div>
-                                    Full Name
-                                </Label>
-                                <Input
-                                    id="fullName"
-                                    placeholder="Enter full name"
-                                    value={formData.fullName}
-                                    onChange={(e) => handleInputChange("fullName", e.target.value)}
-                                    className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
-                                    required
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div className="space-y-3">
+                                    <Label htmlFor="district"
+                                           className="flex items-center gap-2 text-foreground font-semibold">
+                                        <div className="p-2 bg-secondary border border-border">
+                                            <MapPin className="w-4 h-4 text-foreground"/>
+                                        </div>
+                                        District
+                                    </Label>
+                                    <Select value={formData.district}
+                                            onValueChange={(value) => handleInputChange("district", value)}>
+                                        <SelectTrigger className="bg-input border-2 border-border text-foreground">
+                                            <SelectValue placeholder="Select district"/>
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-card border-2 border-border">
+                                            <SelectItem value="Dhaka"
+                                                        className="text-foreground hover:bg-secondary">Dhaka</SelectItem>
+                                            <SelectItem value="Chittagong"
+                                                        className="text-foreground hover:bg-secondary">Chittagong</SelectItem>
+                                            <SelectItem value="Sylhet"
+                                                        className="text-foreground hover:bg-secondary">Sylhet</SelectItem>
+                                            <SelectItem value="Rajshahi"
+                                                        className="text-foreground hover:bg-secondary">Rajshahi</SelectItem>
+                                            <SelectItem value="Khulna"
+                                                        className="text-foreground hover:bg-secondary">Khulna</SelectItem>
+                                            <SelectItem value="Barisal"
+                                                        className="text-foreground hover:bg-secondary">Barisal</SelectItem>
+                                            <SelectItem value="Rangpur"
+                                                        className="text-foreground hover:bg-secondary">Rangpur</SelectItem>
+                                            <SelectItem value="Mymensingh"
+                                                        className="text-foreground hover:bg-secondary">Mymensingh</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label htmlFor="area"
+                                           className="flex items-center gap-2 text-foreground font-semibold">
+                                        <div className="p-2 bg-secondary border border-border">
+                                            <Globe className="w-4 h-4 text-foreground"/>
+                                        </div>
+                                        Area
+                                    </Label>
+                                    <Input
+                                        id="area"
+                                        placeholder="Enter area"
+                                        value={formData.area}
+                                        onChange={(e) => handleInputChange("area", e.target.value)}
+                                        className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
+                                    />
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label htmlFor="country"
+                                           className="flex items-center gap-2 text-foreground font-semibold">
+                                        <div className="p-2 bg-secondary border border-border">
+                                            <Globe className="w-4 h-4 text-foreground"/>
+                                        </div>
+                                        Country
+                                    </Label>
+                                    <Select value={formData.country}
+                                            onValueChange={(value) => handleInputChange("country", value)}>
+                                        <SelectTrigger className="bg-input border-2 border-border text-foreground">
+                                            <SelectValue placeholder="Select country"/>
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-card border-2 border-border">
+                                            <SelectItem value="Bangladesh"
+                                                        className="text-foreground hover:bg-secondary">Bangladesh</SelectItem>
+                                            <SelectItem value="India"
+                                                        className="text-foreground hover:bg-secondary">India</SelectItem>
+                                            <SelectItem value="Pakistan"
+                                                        className="text-foreground hover:bg-secondary">Pakistan</SelectItem>
+                                            <SelectItem value="Other"
+                                                        className="text-foreground hover:bg-secondary">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label htmlFor="experience"
+                                           className="flex items-center gap-2 text-foreground font-semibold">
+                                        <div className="p-2 bg-secondary border border-border">
+                                            <TrendingUp className="w-4 h-4 text-foreground"/>
+                                        </div>
+                                        Experience
+                                    </Label>
+                                    <Input
+                                        id="experience"
+                                        type="number"
+                                        placeholder="Years of experience"
+                                        value={formData.experience}
+                                        onChange={(e) => handleInputChange("experience", e.target.value)}
+                                        className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
+                                        min="0"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-3">
-                                <Label htmlFor="road" className="flex items-center gap-2 text-foreground font-semibold">
-                                    <div className="p-2 bg-secondary border border-border">
-                                        <MapPin className="w-4 h-4 text-foreground"/>
-                                    </div>
-                                    Road
-                                </Label>
-                                <Input
-                                    id="road"
-                                    placeholder="Enter road name"
-                                    value={formData.road}
-                                    onChange={(e) => handleInputChange("road", e.target.value)}
-                                    className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-3">
+                                    <Label htmlFor="weatherId"
+                                           className="flex items-center gap-2 text-foreground font-semibold">
+                                        <div className="p-2 bg-secondary border border-border">
+                                            <Factory className="w-4 h-4 text-foreground"/>
+                                        </div>
+                                        Weather ID
+                                    </Label>
+                                    <Input
+                                        id="weatherId"
+                                        placeholder="Enter weather ID"
+                                        value={formData.weatherId}
+                                        onChange={(e) => handleInputChange("weatherId", e.target.value)}
+                                        className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-3">
-                                <Label htmlFor="house"
-                                       className="flex items-center gap-2 text-foreground font-semibold">
-                                    <div className="p-2 bg-secondary border border-border">
-                                        <Home className="w-4 h-4 text-foreground"/>
-                                    </div>
-                                    House
-                                </Label>
-                                <Input
-                                    id="house"
-                                    placeholder="Enter house number"
-                                    value={formData.house}
-                                    onChange={(e) => handleInputChange("house", e.target.value)}
-                                    className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
-                                />
+                            <div className="flex justify-start pt-6">
+                                <Button type="submit"
+                                        className="bg-primary text-primary-foreground hover:bg-primary/90 px-12 py-4 text-lg font-semibold border-2 border-primary">
+                                    <User className="w-5 h-5 mr-3"/>
+                                    SUBMIT FARMER DATA
+                                </Button>
                             </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div className="space-y-3">
-                                <Label htmlFor="district"
-                                       className="flex items-center gap-2 text-foreground font-semibold">
-                                    <div className="p-2 bg-secondary border border-border">
-                                        <MapPin className="w-4 h-4 text-foreground"/>
-                                    </div>
-                                    District
-                                </Label>
-                                <Select value={formData.district}
-                                        onValueChange={(value) => handleInputChange("district", value)}>
-                                    <SelectTrigger className="bg-input border-2 border-border text-foreground">
-                                        <SelectValue placeholder="Select district"/>
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-card border-2 border-border">
-                                        <SelectItem value="Dhaka"
-                                                    className="text-foreground hover:bg-secondary">Dhaka</SelectItem>
-                                        <SelectItem value="Chittagong"
-                                                    className="text-foreground hover:bg-secondary">Chittagong</SelectItem>
-                                        <SelectItem value="Sylhet"
-                                                    className="text-foreground hover:bg-secondary">Sylhet</SelectItem>
-                                        <SelectItem value="Rajshahi"
-                                                    className="text-foreground hover:bg-secondary">Rajshahi</SelectItem>
-                                        <SelectItem value="Khulna"
-                                                    className="text-foreground hover:bg-secondary">Khulna</SelectItem>
-                                        <SelectItem value="Barisal"
-                                                    className="text-foreground hover:bg-secondary">Barisal</SelectItem>
-                                        <SelectItem value="Rangpur"
-                                                    className="text-foreground hover:bg-secondary">Rangpur</SelectItem>
-                                        <SelectItem value="Mymensingh"
-                                                    className="text-foreground hover:bg-secondary">Mymensingh</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-3">
-                                <Label htmlFor="area" className="flex items-center gap-2 text-foreground font-semibold">
-                                    <div className="p-2 bg-secondary border border-border">
-                                        <Globe className="w-4 h-4 text-foreground"/>
-                                    </div>
-                                    Area
-                                </Label>
-                                <Input
-                                    id="area"
-                                    placeholder="Enter area"
-                                    value={formData.area}
-                                    onChange={(e) => handleInputChange("area", e.target.value)}
-                                    className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
-                                />
-                            </div>
-
-                            <div className="space-y-3">
-                                <Label htmlFor="country"
-                                       className="flex items-center gap-2 text-foreground font-semibold">
-                                    <div className="p-2 bg-secondary border border-border">
-                                        <Globe className="w-4 h-4 text-foreground"/>
-                                    </div>
-                                    Country
-                                </Label>
-                                <Select value={formData.country}
-                                        onValueChange={(value) => handleInputChange("country", value)}>
-                                    <SelectTrigger className="bg-input border-2 border-border text-foreground">
-                                        <SelectValue placeholder="Select country"/>
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-card border-2 border-border">
-                                        <SelectItem value="Bangladesh"
-                                                    className="text-foreground hover:bg-secondary">Bangladesh</SelectItem>
-                                        <SelectItem value="India"
-                                                    className="text-foreground hover:bg-secondary">India</SelectItem>
-                                        <SelectItem value="Pakistan"
-                                                    className="text-foreground hover:bg-secondary">Pakistan</SelectItem>
-                                        <SelectItem value="Other"
-                                                    className="text-foreground hover:bg-secondary">Other</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-3">
-                                <Label htmlFor="experience"
-                                       className="flex items-center gap-2 text-foreground font-semibold">
-                                    <div className="p-2 bg-secondary border border-border">
-                                        <TrendingUp className="w-4 h-4 text-foreground"/>
-                                    </div>
-                                    Experience
-                                </Label>
-                                <Input
-                                    id="experience"
-                                    type="number"
-                                    placeholder="Years of experience"
-                                    value={formData.experience}
-                                    onChange={(e) => handleInputChange("experience", e.target.value)}
-                                    className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
-                                    min="0"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-3">
-                                <Label htmlFor="weatherId"
-                                       className="flex items-center gap-2 text-foreground font-semibold">
-                                    <div className="p-2 bg-secondary border border-border">
-                                        <Factory className="w-4 h-4 text-foreground"/>
-                                    </div>
-                                    Weather ID
-                                </Label>
-                                <Input
-                                    id="weatherId"
-                                    placeholder="Enter weather ID"
-                                    value={formData.weatherId}
-                                    onChange={(e) => handleInputChange("weatherId", e.target.value)}
-                                    className="bg-input border-2 border-border text-foreground placeholder-muted-foreground"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex justify-start pt-6">
-                            <Button type="submit"
-                                    className="bg-primary text-primary-foreground hover:bg-primary/90 px-12 py-4 text-lg font-semibold border-2 border-primary">
-                                <User className="w-5 h-5 mr-3"/>
-                                SUBMIT FARMER DATA
-                            </Button>
-                        </div>
-                    </form>
+                        </form>
+                    )}
                 </div>
 
                 {/* Table */}

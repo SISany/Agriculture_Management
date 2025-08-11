@@ -8,8 +8,6 @@ import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/c
 import {Badge} from "@/components/ui/badge"
 import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
 import {
-    BarChart,
-    Bar,
     LineChart,
     Line,
     XAxis,
@@ -471,7 +469,7 @@ export default function PriceAnalytics() {
             <Card>
                 <CardHeader>
                     <CardTitle>Price History Records</CardTitle>
-                    <CardDescription>Historical pricing data by location and season</CardDescription>
+                    <CardDescription>Historical pricing data by season</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>
@@ -480,7 +478,6 @@ export default function PriceAnalytics() {
                                 <TableHead>Price ID</TableHead>
                                 <TableHead>Product</TableHead>
                                 <TableHead>Date</TableHead>
-                                <TableHead>Location</TableHead>
                                 <TableHead>Wholesale Price</TableHead>
                                 <TableHead>Retail Price</TableHead>
                                 <TableHead>Harvest Price</TableHead>
@@ -496,7 +493,6 @@ export default function PriceAnalytics() {
                                     <TableCell className="font-medium">{record.price_id}</TableCell>
                                     <TableCell>{record.product_name}</TableCell>
                                     <TableCell>{record.date_recorded}</TableCell>
-                                    <TableCell>{record.location}</TableCell>
                                     <TableCell>${record.wholesale_price}</TableCell>
                                     <TableCell>${record.retail_price}</TableCell>
                                     <TableCell>${record.harvest_season_price}</TableCell>
@@ -532,7 +528,7 @@ export default function PriceAnalytics() {
             </Card>
 
             {/* 4. CHARTS */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 gap-8">
                 <Card>
                     <CardHeader>
                         <CardTitle>Price Trends Over Time</CardTitle>
@@ -567,45 +563,6 @@ export default function PriceAnalytics() {
                                     <Line type="monotone" dataKey="rice" stroke="#82ca9d" strokeWidth={2}/>
                                     <Line type="monotone" dataKey="corn" stroke="#ffc658" strokeWidth={2}/>
                                 </LineChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Price Distribution by Location</CardTitle>
-                        <CardDescription>Wholesale vs Retail prices across regions</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer
-                            config={{
-                                wholesale_price: {label: "Wholesale", color: "#82ca9d"},
-                                retail_price: {label: "Retail", color: "#8884d8"}
-                            }}
-                            className="h-[300px]"
-                        >
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={priceHistoryData}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis
-                                        dataKey="location"
-                                        angle={-45}
-                                        textAnchor="end"
-                                        height={80}
-                                        tick={{fontSize: 12}}
-                                        label={{value: 'Location', position: 'insideBottom', offset: -60}}
-                                    />
-                                    <YAxis
-                                        tick={{fontSize: 12}}
-                                        tickFormatter={(tick) => `$${tick}`}
-                                        label={{value: 'Price ($)', angle: -90, position: 'insideLeft'}}
-                                    />
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Bar dataKey="wholesale_price" fill="#82ca9d"/>
-                                    <Bar dataKey="retail_price" fill="#8884d8"/>
-                                </BarChart>
                             </ResponsiveContainer>
                         </ChartContainer>
                     </CardContent>

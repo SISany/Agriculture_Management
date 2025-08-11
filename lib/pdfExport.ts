@@ -167,7 +167,6 @@ export const exportPriceData = (data: Record<string, unknown>[]) => {
         columns: [
             {header: 'Price ID', dataKey: 'price_id', width: 20},
             {header: 'Product', dataKey: 'product_name', width: 25},
-            {header: 'Location', dataKey: 'location', width: 25},
             {header: 'Date', dataKey: 'date_recorded', width: 25},
             {header: 'Wholesale ($)', dataKey: 'wholesale_price', width: 25},
             {header: 'Retail ($)', dataKey: 'retail_price', width: 25},
