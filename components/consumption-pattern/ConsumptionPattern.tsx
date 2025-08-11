@@ -24,6 +24,7 @@ import {
 } from "recharts"
 import {Search, Plus, Edit2, Trash2, TrendingUp, MapPin, DollarSign, Package, FileDown} from "lucide-react"
 import {exportConsumptionData} from "@/lib/pdfExport"
+import {Label} from "@/components/ui/label"
 
 // TypeScript interfaces
 interface ConsumptionPattern {
@@ -144,6 +145,21 @@ export default function ConsumptionPattern() {
     const [selectedSeason, setSelectedSeason] = useState("all")
     const [selectedDemographic, setSelectedDemographic] = useState("all")
     const [selectedProduct, setSelectedProduct] = useState("all")
+    const [showAddForm, setShowAddForm] = useState(false)
+
+    // Form state
+    const [formData, setFormData] = useState({
+        pattern_id: "",
+        consumer_name: "",
+        product_name: "",
+        consumption_date: "",
+        quantity_consumed: 0,
+        amount_spent: 0,
+        location: "",
+        season: "",
+        demographic_group: "",
+        household_size: 0
+    })
 
     const filteredData = consumptionPatterns.filter(pattern => {
         const matchesSearch = pattern.stakeholder_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -160,6 +176,56 @@ export default function ConsumptionPattern() {
     const totalSpending = filteredData.reduce((sum, pattern) => sum + pattern.amount_spent, 0)
     const avgHouseholdSize = filteredData.reduce((sum, pattern) => sum + pattern.household_size, 0) / filteredData.length || 0
 
+    const handleInputChange = (field: string, value: string | number) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+
+        // Add the new record to the data
+        const newConsumptionPattern = {
+            consumption_id: `CP${String(consumptionPatterns.length + 1).padStart(3, '0')}`,
+            stakeholder_id: `S${String(consumptionPatterns.length + 1).padStart(3, '0')}`,
+            stakeholder_name: formData.consumer_name,
+            product_id: `P${String(consumptionPatterns.length + 1).padStart(3, '0')}`,
+            product_name: formData.product_name,
+            consumption_date: formData.consumption_date,
+            quantity_consumed: formData.quantity_consumed,
+            amount_spent: formData.amount_spent,
+            purchase_location: formData.location,
+            season: formData.season,
+            demographic_group: formData.demographic_group,
+            household_size: formData.household_size
+        }
+
+        console.log("New Consumption Pattern Record:", newConsumptionPattern)
+
+        // Reset form and hide it
+        setFormData({
+            pattern_id: "",
+            consumer_name: "",
+            product_name: "",
+            consumption_date: "",
+            quantity_consumed: 0,
+            amount_spent: 0,
+            location: "",
+            season: "",
+            demographic_group: "",
+            household_size: 0
+        })
+        setShowAddForm(false)
+    }
+
+    // Dropdown options
+    const seasons = ["Winter", "Spring", "Summer", "Autumn"]
+    const demographicGroups = ["Upper Class", "Upper Middle Class", "Middle Class", "Lower Middle Class", "Lower Class"]
+    const products = ["Wheat", "Rice", "Corn", "Potato", "Tomato", "Fish", "Chicken", "Beef"]
+    const locations = ["Dhaka", "Chittagong", "Sylhet", "Rajshahi", "Khulna", "Barisal", "Rangpur", "Mymensingh"]
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -173,7 +239,7 @@ export default function ConsumptionPattern() {
                         <FileDown className="w-4 h-4 mr-2"/>
                         Export Data
                     </Button>
-                    <Button size="sm">
+                    <Button size="sm" onClick={() => setShowAddForm(true)}>
                         <Plus className="w-4 h-4 mr-2"/>
                         Add Pattern
                     </Button>
@@ -226,6 +292,177 @@ export default function ConsumptionPattern() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Add Consumption Pattern Form - Positioned above table */}
+            {showAddForm && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Add Consumption Pattern</CardTitle>
+                        <CardDescription>Enter comprehensive consumption pattern data for analysis</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Basic Information Section */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="consumer_name" className="text-gray-700">Consumer Name *</Label>
+                                        <Input
+                                            id="consumer_name"
+                                            type="text"
+                                            placeholder="e.g., Rahman Family"
+                                            value={formData.consumer_name}
+                                            onChange={(e) => handleInputChange("consumer_name", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="product_name" className="text-gray-700">Product *</Label>
+                                        <Select value={formData.product_name}
+                                                onValueChange={(value) => handleInputChange("product_name", value)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Product"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {products.map((product) => (
+                                                    <SelectItem key={product} value={product}>
+                                                        {product}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="consumption_date" className="text-gray-700">Consumption Date
+                                            *</Label>
+                                        <Input
+                                            id="consumption_date"
+                                            type="date"
+                                            value={formData.consumption_date}
+                                            onChange={(e) => handleInputChange("consumption_date", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="location" className="text-gray-700">Location *</Label>
+                                        <Select value={formData.location}
+                                                onValueChange={(value) => handleInputChange("location", value)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Location"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {locations.map((location) => (
+                                                    <SelectItem key={location} value={location}>
+                                                        {location}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="season" className="text-gray-700">Season *</Label>
+                                        <Select value={formData.season}
+                                                onValueChange={(value) => handleInputChange("season", value)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Season"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {seasons.map((season) => (
+                                                    <SelectItem key={season} value={season}>
+                                                        {season}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="demographic_group" className="text-gray-700">Demographic Group
+                                            *</Label>
+                                        <Select value={formData.demographic_group}
+                                                onValueChange={(value) => handleInputChange("demographic_group", value)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Group"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {demographicGroups.map((group) => (
+                                                    <SelectItem key={group} value={group}>
+                                                        {group}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Consumption Data Section */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Consumption Data</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="quantity_consumed" className="text-gray-700">Quantity Consumed
+                                            (kg) *</Label>
+                                        <Input
+                                            id="quantity_consumed"
+                                            type="number"
+                                            step="0.1"
+                                            placeholder="e.g., 5.5"
+                                            value={formData.quantity_consumed}
+                                            onChange={(e) => handleInputChange("quantity_consumed", parseFloat(e.target.value) || 0)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="amount_spent" className="text-gray-700">Amount Spent (৳)
+                                            *</Label>
+                                        <Input
+                                            id="amount_spent"
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="e.g., 450.00"
+                                            value={formData.amount_spent}
+                                            onChange={(e) => handleInputChange("amount_spent", parseFloat(e.target.value) || 0)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="household_size" className="text-gray-700">Household Size
+                                            *</Label>
+                                        <Input
+                                            id="household_size"
+                                            type="number"
+                                            min="1"
+                                            placeholder="e.g., 4"
+                                            value={formData.household_size}
+                                            onChange={(e) => handleInputChange("household_size", parseInt(e.target.value) || 0)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Form Actions */}
+                            <div className="flex gap-4 pt-4 border-t border-gray-200">
+                                <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
+                                    <Plus className="h-4 w-4 mr-2"/>
+                                    Add Consumption Pattern
+                                </Button>
+                                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                                    Cancel
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Filters and Table */}
             <Card>

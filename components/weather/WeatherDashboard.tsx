@@ -1,11 +1,12 @@
 "use client"
 
 import {useState} from "react"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {Badge} from "@/components/ui/badge"
-import {CloudRain, Search, Plus, Edit2, Trash2, Bell, Package, Sun, Wind, FileDown} from "lucide-react"
+import {CloudRain, Search, Plus, Edit2, Trash2, Package, Sun, Wind, FileDown} from "lucide-react"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Label} from "@/components/ui/label"
 import {exportWeatherData} from "@/lib/pdfExport"
@@ -246,75 +247,6 @@ export default function WeatherDashboard() {
                 </div>
 
                 <div className="bg-card border-2 border-border p-8">
-                    <div className="mb-6">
-                        <h2 className="text-3xl font-bold text-foreground mb-2">
-                            Weather Alerts & Advisories
-                        </h2>
-                        <p className="text-muted-foreground text-lg">Important weather information for agricultural
-                            planning</p>
-                    </div>
-                    <div className="space-y-4">
-                        {weatherData.filter(w => w.rainfall > 15).length > 0 && (
-                            <div className="flex items-center p-4 bg-secondary border-2 border-border">
-                                <Bell className="h-6 w-6 text-foreground mr-4"/>
-                                <div>
-                                    <p className="font-semibold text-foreground text-lg">Heavy Rainfall Alert</p>
-                                    <p className="text-muted-foreground">
-                                        High rainfall detected
-                                        in {weatherData.filter(w => w.rainfall > 15).map(w => w.location).join(', ')}.
-                                        Consider crop protection measures.
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {weatherData.filter(w => w.temperature > 30).length > 0 && (
-                            <div className="flex items-center p-4 bg-secondary border-2 border-border">
-                                <Bell className="h-6 w-6 text-foreground mr-4"/>
-                                <div>
-                                    <p className="font-semibold text-foreground text-lg">High Temperature Warning</p>
-                                    <p className="text-muted-foreground">
-                                        Elevated temperatures
-                                        in {weatherData.filter(w => w.temperature > 30).map(w => w.location).join(', ')}.
-                                        Ensure adequate irrigation.
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {weatherData.filter(w => w.humidity > 80).length > 0 && (
-                            <div className="flex items-center p-4 bg-secondary border-2 border-border">
-                                <Bell className="h-6 w-6 text-foreground mr-4"/>
-                                <div>
-                                    <p className="font-semibold text-foreground text-lg">High Humidity Notice</p>
-                                    <p className="text-muted-foreground">
-                                        High humidity levels
-                                        in {weatherData.filter(w => w.humidity > 80).map(w => w.location).join(', ')}.
-                                        Monitor for fungal diseases.
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {weatherData.filter(w => w.rainfall > 15).length === 0 &&
-                            weatherData.filter(w => w.temperature > 30).length === 0 &&
-                            weatherData.filter(w => w.humidity > 80).length === 0 && (
-                                <div className="flex items-center p-4 bg-secondary border-2 border-border">
-                                    <Bell className="h-6 w-6 text-foreground mr-4"/>
-                                    <div>
-                                        <p className="font-semibold text-foreground text-lg">Weather Conditions
-                                            Normal</p>
-                                        <p className="text-muted-foreground">
-                                            All regions showing favorable weather conditions for agricultural
-                                            activities.
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                    </div>
-                </div>
-
-                <div className="bg-card border-2 border-border p-8">
                     <div className="pb-8">
                         <h2 className="text-3xl font-bold text-foreground mb-2">
                             Detailed Weather Records
@@ -322,120 +254,145 @@ export default function WeatherDashboard() {
                         <p className="text-muted-foreground text-lg">Comprehensive weather data from all monitoring
                             stations</p>
                     </div>
+                    {/* Add Weather Data Form - Positioned above table */}
                     {showAddForm && (
-                        <form onSubmit={handleSubmit}
-                              className="bg-secondary/30 border border-border rounded-xl p-6 md:p-8 mb-8 shadow-sm">
-                            <h3 className="text-xl font-bold text-foreground mb-4">Add Weather Data</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Add Weather Data</CardTitle>
+                                <CardDescription>Enter comprehensive weather monitoring data</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    {/* Basic Information Section */}
                                 <div>
-                                    <Label className="mb-1 block">Location</Label>
-                                    <Select
-                                        value={formData.location}
-                                        onValueChange={(value) => handleInputChange("location", value)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select location..."/>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {locations.map((location) => (
-                                                <SelectItem key={location} value={location}>
-                                                    {location}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <h4 className="text-lg font-medium text-gray-900 mb-4">Weather Information</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="location" className="text-gray-700">Location *</Label>
+                                            <Select value={formData.location}
+                                                    onValueChange={(value) => handleInputChange("location", value)}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select location..."/>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {locations.map((location) => (
+                                                        <SelectItem key={location} value={location}>
+                                                            {location}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="date_recorded" className="text-gray-700">Date Recorded
+                                                *</Label>
+                                            <Input
+                                                id="date_recorded"
+                                                type="date"
+                                                value={formData.date_recorded}
+                                                onChange={(e) => handleInputChange("date_recorded", e.target.value)}
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="season" className="text-gray-700">Season *</Label>
+                                            <Select value={formData.season}
+                                                    onValueChange={(value) => handleInputChange("season", value)}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select season..."/>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {seasons.map((season) => (
+                                                        <SelectItem key={season} value={season}>
+                                                            {season}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
                                 </div>
+
+                                {/* Measurement Data Section */}
                                 <div>
-                                    <Label className="mb-1 block">Date Recorded</Label>
-                                    <Input
-                                        type="date"
-                                        value={formData.date_recorded}
-                                        onChange={(e) => handleInputChange("date_recorded", e.target.value)}
-                                    />
+                                    <h4 className="text-lg font-medium text-gray-900 mb-4">Measurements</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="rainfall" className="text-gray-700">Rainfall (mm) *</Label>
+                                            <Input
+                                                id="rainfall"
+                                                type="number"
+                                                step="0.1"
+                                                placeholder="e.g. 12.3"
+                                                value={formData.rainfall}
+                                                onChange={(e) => handleInputChange("rainfall", parseFloat(e.target.value) || 0)}
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="temperature" className="text-gray-700">Temperature (°C)
+                                                *</Label>
+                                            <Input
+                                                id="temperature"
+                                                type="number"
+                                                step="0.1"
+                                                placeholder="e.g. 25.7"
+                                                value={formData.temperature}
+                                                onChange={(e) => handleInputChange("temperature", parseFloat(e.target.value) || 0)}
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="humidity" className="text-gray-700">Humidity (%) *</Label>
+                                            <Input
+                                                id="humidity"
+                                                type="number"
+                                                step="0.1"
+                                                placeholder="e.g. 70"
+                                                value={formData.humidity}
+                                                onChange={(e) => handleInputChange("humidity", parseFloat(e.target.value) || 0)}
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="weather_conditions" className="text-gray-700">Weather
+                                                Conditions *</Label>
+                                            <Select value={formData.weather_conditions}
+                                                    onValueChange={(value) => handleInputChange("weather_conditions", value)}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select condition..."/>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {weatherConditions.map((condition) => (
+                                                        <SelectItem key={condition} value={condition}>
+                                                            {condition}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                                <div>
-                                    <Label className="mb-1 block">Rainfall (mm)</Label>
-                                    <Input
-                                        type="number"
-                                        step="0.1"
-                                        value={formData.rainfall}
-                                        onChange={(e) => handleInputChange("rainfall", parseFloat(e.target.value))}
-                                        placeholder="e.g. 12.3"
-                                    />
+
+                                {/* Form Actions */}
+                                <div className="flex gap-4 pt-4 border-t border-gray-200">
+                                    <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
+                                        <Plus className="h-4 w-4 mr-2"/>
+                                        Add Weather Data
+                                    </Button>
+                                    <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                                        Cancel
+                                    </Button>
                                 </div>
-                                <div>
-                                    <Label className="mb-1 block">Temperature (°C)</Label>
-                                    <Input
-                                        type="number"
-                                        step="0.1"
-                                        value={formData.temperature}
-                                        onChange={(e) => handleInputChange("temperature", parseFloat(e.target.value))}
-                                        placeholder="e.g. 25.7"
-                                    />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                                <div>
-                                    <Label className="mb-1 block">Season</Label>
-                                    <Select
-                                        value={formData.season}
-                                        onValueChange={(value) => handleInputChange("season", value)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select season..."/>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {seasons.map((season) => (
-                                                <SelectItem key={season} value={season}>
-                                                    {season}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div>
-                                    <Label className="mb-1 block">Humidity (%)</Label>
-                                    <Input
-                                        type="number"
-                                        step="0.1"
-                                        value={formData.humidity}
-                                        onChange={(e) => handleInputChange("humidity", parseFloat(e.target.value))}
-                                        placeholder="e.g. 70"
-                                    />
-                                </div>
-                            </div>
-                            <div className="mb-4">
-                                <Label className="mb-1 block">Weather Conditions</Label>
-                                <Select
-                                    value={formData.weather_conditions}
-                                    onValueChange={(value) => handleInputChange("weather_conditions", value)}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select condition..."/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {weatherConditions.map((condition) => (
-                                            <SelectItem key={condition} value={condition}>
-                                                {condition}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="flex gap-3 mt-2">
-                                <Button type="submit"
-                                        className="bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary">
-                                    Add Weather Data
-                                </Button>
-                                <Button type="button" onClick={() => setShowAddForm(false)}
-                                        className="bg-secondary text-foreground hover:bg-secondary/90 border-2 border-border">
-                                    Cancel
-                                </Button>
-                            </div>
-                        </form>
-                    )}
+                            </form>
+                        </CardContent>
+                    </Card>
+                )}
                     <div className="border-2 border-border mt-4">
                         <Table>
                             <TableHeader className="bg-secondary border-b-2 border-border">

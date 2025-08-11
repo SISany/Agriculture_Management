@@ -166,8 +166,10 @@ export default function NutritionIntake() {
         const matchesSearch = intake.stakeholder_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             intake.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             intake.nutrition_type.toLowerCase().includes(searchTerm.toLowerCase())
-        const matchesMonth = selectedMonth === "all" || new Date(intake.intake_date).getMonth() === parseInt(selectedMonth)
-        const matchesYear = selectedYear === "all" || new Date(intake.intake_date).getFullYear() === parseInt(selectedYear)
+
+        const intakeDate = new Date(intake.intake_date)
+        const matchesMonth = selectedMonth === "all" || intakeDate.getMonth() === parseInt(selectedMonth)
+        const matchesYear = selectedYear === "all" || intakeDate.getFullYear() === parseInt(selectedYear)
 
         return matchesSearch && matchesMonth && matchesYear
     })
@@ -362,9 +364,9 @@ export default function NutritionIntake() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Years</SelectItem>
-                                <SelectItem value="2022">2022</SelectItem>
                                 <SelectItem value="2023">2023</SelectItem>
                                 <SelectItem value="2024">2024</SelectItem>
+                                <SelectItem value="2025">2025</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
