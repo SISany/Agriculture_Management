@@ -7,19 +7,14 @@ import {Input} from "@/components/ui/input"
 import {Badge} from "@/components/ui/badge"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
-import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
+import {ChartContainer, ChartTooltip} from "@/components/ui/chart"
 import {
-    Line,
-    BarChart,
-    Bar,
     XAxis,
     YAxis,
     CartesianGrid,
     ResponsiveContainer,
-    ComposedChart,
     Scatter,
-    ScatterChart,
-    Legend
+    ScatterChart
 } from "recharts"
 import {
     Search,
@@ -138,28 +133,6 @@ const supplyDemandAnalyses: SupplyDemandAnalysis[] = [
 ]
 
 // Chart data
-const supplyDemandTrends = [
-    {month: "Jan", wheat_supply: 28000, wheat_demand: 33000, rice_supply: 39000, rice_demand: 38500},
-    {month: "Feb", wheat_supply: 30000, wheat_demand: 34000, rice_supply: 41000, rice_demand: 40000},
-    {month: "Mar", wheat_supply: 32000, wheat_demand: 35000, rice_supply: 43000, rice_demand: 42000},
-    {month: "Apr", wheat_supply: 35000, wheat_demand: 36000, rice_supply: 45000, rice_demand: 44000},
-    {month: "May", wheat_supply: 37000, wheat_demand: 37500, rice_supply: 47000, rice_demand: 46000},
-    {month: "Jun", wheat_supply: 36000, wheat_demand: 36200, rice_supply: 46000, rice_demand: 45500}
-]
-
-const priceImpactData = [
-    {equilibrium: "Surplus", impact: -2.8, efficiency: 85},
-    {equilibrium: "Balanced", impact: 0.5, efficiency: 90},
-    {equilibrium: "Deficit", impact: 6.5, efficiency: 73}
-]
-
-const stakeholderAnalysis = [
-    {type: "Farmer", supply: 26000, demand: 0, impact: 0},
-    {type: "Wholesaler", supply: 25000, demand: 22000, impact: -3.2},
-    {type: "Retailer", supply: 8000, demand: 8200, impact: 1.2},
-    {type: "Consumer", supply: 0, demand: 34500, impact: 5.65}
-]
-
 const elasticityScatter = [
     {elasticity: -0.6, efficiency: 82, product: "Rice"},
     {elasticity: -0.7, efficiency: 77, product: "Rice"},
@@ -266,93 +239,84 @@ export default function SupplyDemandAnalysis() {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Supply vs Demand Trends</CardTitle>
-                        <CardDescription>Monthly supply and demand comparison</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={{}} className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <ComposedChart data={supplyDemandTrends}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="month"/>
-                                    <YAxis/>
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Bar dataKey="wheat_supply" fill="#8884d8" name="Wheat Supply"/>
-                                    <Bar dataKey="rice_supply" fill="#82ca9d" name="Rice Supply"/>
-                                    <Line type="monotone" dataKey="wheat_demand" stroke="#ff7300" strokeWidth={2}
-                                          name="Wheat Demand"/>
-                                    <Line type="monotone" dataKey="rice_demand" stroke="#ffc658" strokeWidth={2}
-                                          name="Rice Demand"/>
-                                </ComposedChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Price Impact by Equilibrium</CardTitle>
-                        <CardDescription>Market equilibrium effects on pricing</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={{}} className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={priceImpactData}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="equilibrium"/>
-                                    <YAxis/>
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Bar dataKey="impact" fill="#8884d8" name="Price Impact %"/>
-                                    <Bar dataKey="efficiency" fill="#82ca9d" name="Market Efficiency %"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Stakeholder Analysis</CardTitle>
-                        <CardDescription>Supply, demand, and price impact by stakeholder type</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={{}} className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <ComposedChart data={stakeholderAnalysis}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="type"/>
-                                    <YAxis yAxisId="left"/>
-                                    <YAxis yAxisId="right" orientation="right"/>
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Bar yAxisId="left" dataKey="supply" fill="#8884d8" name="Supply"/>
-                                    <Bar yAxisId="left" dataKey="demand" fill="#82ca9d" name="Demand"/>
-                                    <Line yAxisId="right" type="monotone" dataKey="impact" stroke="#ff7300"
-                                          strokeWidth={2} name="Price Impact %"/>
-                                </ComposedChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
                         <CardTitle>Elasticity vs Efficiency</CardTitle>
                         <CardDescription>Price elasticity correlation with market efficiency</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ChartContainer config={{}} className="h-[300px]">
+                        <ChartContainer config={{}} className="h-[400px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <ScatterChart data={elasticityScatter}>
-                                    <CartesianGrid/>
-                                    <XAxis type="number" dataKey="elasticity" name="Price Elasticity"/>
-                                    <YAxis type="number" dataKey="efficiency" name="Market Efficiency"/>
-                                    <ChartTooltip cursor={{strokeDasharray: '3 3'}}/>
-                                    <Scatter dataKey="efficiency" fill="#8884d8"/>
+                                <ScatterChart
+                                    data={elasticityScatter}
+                                    margin={{top: 20, right: 20, bottom: 60, left: 80}}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0"/>
+                                    <XAxis
+                                        type="number"
+                                        dataKey="elasticity"
+                                        name="Price Elasticity"
+                                        domain={[-1.3, -0.5]}
+                                        tick={{fontSize: 12, fill: '#64748b'}}
+                                        label={{
+                                            value: 'Price Elasticity',
+                                            position: 'insideBottom',
+                                            offset: -10,
+                                            style: {
+                                                textAnchor: 'middle',
+                                                fontSize: '14px',
+                                                fill: '#374151',
+                                                fontWeight: '500'
+                                            }
+                                        }}
+                                    />
+                                    <YAxis
+                                        type="number"
+                                        dataKey="efficiency"
+                                        name="Market Efficiency"
+                                        domain={[65, 95]}
+                                        tick={{fontSize: 12, fill: '#64748b'}}
+                                        label={{
+                                            value: 'Market Efficiency (%)',
+                                            angle: -90,
+                                            position: 'insideLeft',
+                                            offset: 10,
+                                            style: {
+                                                textAnchor: 'middle',
+                                                fontSize: '14px',
+                                                fill: '#374151',
+                                                fontWeight: '500'
+                                            }
+                                        }}
+                                    />
+                                    <ChartTooltip
+                                        cursor={{strokeDasharray: '3 3'}}
+                                        content={({active, payload}) => {
+                                            if (active && payload && payload.length) {
+                                                const data = payload[0].payload;
+                                                return (
+                                                    <div
+                                                        className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                                                        <p className="font-semibold text-gray-800 mb-1">
+                                                            Product: {data.product}
+                                                        </p>
+                                                        <p className="text-sm text-gray-600">
+                                                            Price Elasticity: {data.elasticity}
+                                                        </p>
+                                                        <p className="text-sm text-gray-600">
+                                                            Market Efficiency: {data.efficiency}%
+                                                        </p>
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        }}
+                                    />
+                                    <Scatter
+                                        dataKey="efficiency"
+                                        fill="#3b82f6"
+                                        stroke="#1d4ed8"
+                                        strokeWidth={2}
+                                        r={6}
+                                    />
                                 </ScatterChart>
                             </ResponsiveContainer>
                         </ChartContainer>

@@ -19,7 +19,8 @@ import {
     ResponsiveContainer,
     Tooltip
 } from "recharts"
-import {TrendingUp, User, MapPin, Globe, Home, Factory, Search, Edit2, Trash2, Download} from "lucide-react"
+import {TrendingUp, User, MapPin, Globe, Home, Factory, Search, Edit2, Trash2, FileDown} from "lucide-react"
+import {exportTableToPDF} from "@/lib/pdfExport"
 
 interface Farmer {
     id: number
@@ -157,6 +158,28 @@ export default function FarmerManagement() {
         value: farmers.filter(f => f.experience >= range.min && f.experience <= range.max).length
     }))
 
+    const handleExport = () => {
+        exportTableToPDF({
+            title: 'Farmer Management Report',
+            subtitle: 'Agriculture Management System - Farmer Directory',
+            filename: 'farmer-management-report.pdf',
+            columns: [
+                {header: 'Farmer ID', dataKey: 'farmerId', width: 25},
+                {header: 'Full Name', dataKey: 'fullName', width: 35},
+                {header: 'Location', dataKey: 'location', width: 50},
+                {header: 'Experience', dataKey: 'experience', width: 25},
+                {header: 'Weather ID', dataKey: 'weatherId', width: 25}
+            ],
+            data: filteredData.map(farmer => ({
+                farmerId: farmer.farmerId,
+                fullName: farmer.fullName,
+                location: [farmer.house, farmer.road, farmer.area, farmer.district, farmer.country].filter(Boolean).join(", "),
+                experience: farmer.experience,
+                weatherId: farmer.weatherId || "N/A"
+            }))
+        })
+    }
+
     return (
         <div className="min-h-screen bg-background p-6">
             <div className="max-w-7xl mx-auto space-y-8">
@@ -177,8 +200,10 @@ export default function FarmerManagement() {
                     </div>
                     <div className="mt-6 flex gap-3">
                         <Button
-                            className="bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary">
-                            <Download className="w-4 h-4 mr-2"/>
+                            className="bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary"
+                            onClick={handleExport}
+                        >
+                            <FileDown className="w-4 h-4 mr-2"/>
                             Export Data
                         </Button>
                     </div>

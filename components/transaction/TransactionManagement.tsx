@@ -8,7 +8,8 @@ import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/c
 import {Badge} from "@/components/ui/badge"
 import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
 import {BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend} from "recharts"
-import {Search, Plus, Edit2, Trash2, ShoppingCart, TrendingUp, DollarSign, Activity} from "lucide-react"
+import {Search, Plus, Edit2, Trash2, ShoppingCart, TrendingUp, DollarSign, Activity, FileDown} from "lucide-react"
+import {exportTransactionData} from "@/lib/pdfExport"
 
 interface Transaction {
     transaction_id: string
@@ -129,6 +130,10 @@ export default function TransactionManagement() {
                         <Plus className="w-4 h-4 mr-2"/>
                         Add Transaction
                     </Button>
+                    <Button variant="outline" onClick={() => exportTransactionData(transactions)}>
+                        <FileDown className="w-4 h-4 mr-2"/>
+                        Export Data
+                    </Button>
                 </div>
             </div>
 
@@ -203,8 +208,17 @@ export default function TransactionManagement() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={monthlyTransactionData}>
                                     <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="month"/>
-                                    <YAxis/>
+                                    <XAxis
+                                        dataKey="month"
+                                        tick={{fontSize: 12}}
+                                        tickFormatter={(tick) => tick}
+                                        label={{value: 'Month', position: 'insideBottom', offset: -5}}
+                                    />
+                                    <YAxis
+                                        tick={{fontSize: 12}}
+                                        tickFormatter={(tick) => `$${tick.toLocaleString()}`}
+                                        label={{value: 'Transaction Amount ($)', angle: -90, position: 'insideLeft'}}
+                                    />
                                     <ChartTooltip content={<ChartTooltipContent/>}/>
                                     <Legend/>
                                     <Bar dataKey="sales" fill="#82ca9d"/>

@@ -280,6 +280,10 @@ git clone <repository-url>
 cd Agriculture_Management
 npm install
 
+# Verify Node.js installation
+node --version
+npm --version
+
 # Development Server
 npm run dev
 # Access at http://localhost:3000

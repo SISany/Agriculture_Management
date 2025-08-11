@@ -18,7 +18,6 @@ import NutritionIntake from "@/components/nutrition-intake/NutritionIntake"
 import RetailerManagement from "@/components/retailer/RetailerManagement"
 import SupplyDemandAnalysis from "@/components/supply-demand-analysis/SupplyDemandAnalysis"
 import WholesalerManagement from "@/components/wholesaler/WholesalerManagement"
-import {DataEntryForm} from "@/components/data-entry-form"
 
 import {useState, useEffect} from "react"
 import { Button } from "@/components/ui/button"
@@ -55,13 +54,10 @@ import {
   Utensils,
   BarChart2,
   TrendingUp,
-    ChevronDown,
-    ChevronRight,
     Menu,
     X,
     Sparkles,
     ArrowRight,
-    Edit
 } from "lucide-react"
 
 // Chart data with dynamic colors
@@ -255,11 +251,34 @@ const transactions = [
 export default function AgricultureManagementSystem() {
     const [activeSection, setActiveSection] = useState("dashboard")
     const [sidebarOpen, setSidebarOpen] = useState(true)
-    const [stakeholderExpanded, setStakeholderExpanded] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [theme, setTheme] = useState("light")
     const [fontSize, setFontSize] = useState(16)
     const [showSettings, setShowSettings] = useState(false)
+    const [stakeholderExpanded, setStakeholderExpanded] = useState(false)
+
+    const stakeholderItems = [
+        {
+            id: "farmer-management",
+            label: "Farmer",
+            icon: Users
+        },
+        {
+            id: "retailer-management",
+            label: "Retailer",
+            icon: Users
+        },
+        {
+            id: "wholesaler-management",
+            label: "Wholesaler",
+            icon: Users
+        },
+        {
+            id: "consumers",
+            label: "Consumer",
+            icon: Users
+        }
+    ]
 
     useEffect(() => {
         setMounted(true)
@@ -300,6 +319,12 @@ export default function AgricultureManagementSystem() {
             category: "main"
         },
         {
+            id: "stakeholders",
+            label: "Stakeholder",
+            icon: Users,
+            category: "main"
+        },
+        {
             id: "products",
             label: "Product",
             icon: Package,
@@ -318,27 +343,33 @@ export default function AgricultureManagementSystem() {
             category: "main"
         },
         {
-            id: "demand-forecast",
-            label: "Demand Forecast",
-            icon: TrendingUp,
-            category: "main"
-        },
-        {
-            id: "consumption",
-            label: "Consumption",
-            icon: Utensils,
-            category: "main"
-        },
-        {
-            id: "supply-demand-analysis",
-            label: "Supply Analysis",
-            icon: BarChart3,
+            id: "weather",
+            label: "Weather",
+            icon: CloudRain,
             category: "main"
         },
         {
             id: "nutrition-intake",
             label: "Nutrition",
             icon: BarChart2,
+            category: "main"
+        },
+        {
+            id: "consumption",
+            label: "Consumption Pattern",
+            icon: Utensils,
+            category: "main"
+        },
+        {
+            id: "supply-demand-analysis",
+            label: "Supply Demand",
+            icon: BarChart3,
+            category: "main"
+        },
+        {
+            id: "demand-forecast",
+            label: "Demand Forecast",
+            icon: TrendingUp,
             category: "main"
         },
         {
@@ -364,43 +395,38 @@ export default function AgricultureManagementSystem() {
             label: "Transaction",
             icon: ShoppingCart,
             category: "main"
-        },
-        {
-            id: "weather",
-            label: "Weather",
-            icon: CloudRain,
-            category: "additional"
-        },
-        {
-            id: "data-entry",
-            label: "Data Entry",
-            icon: Edit,
-            category: "main"
         }
     ]
 
-    const stakeholderItems = [
-        {
-            id: "farmer-management",
-            label: "Farmer",
-            icon: Users
-        },
-        {
-            id: "retailer-management",
-            label: "Retailer",
-            icon: Users
-        },
-        {
-            id: "wholesaler-management",
-            label: "Wholesaler",
-            icon: Users
-        },
-        {
-            id: "consumers",
-            label: "Consumer",
-            icon: Users
+    useEffect(() => {
+        setMounted(true)
+
+        // Initialize theme from localStorage
+        const savedTheme = localStorage.getItem("theme")
+        if (savedTheme === "dark" || savedTheme === "light") {
+            setTheme(savedTheme)
+            document.documentElement.classList.toggle("dark", savedTheme === "dark")
+        } else {
+            // Default to system preference
+            const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+            const defaultTheme = systemDark ? "dark" : "light"
+            setTheme(defaultTheme)
+            document.documentElement.classList.toggle("dark", systemDark)
+            localStorage.setItem("theme", defaultTheme)
         }
-    ]
+
+        // Initialize font size from localStorage
+        const savedFontSize = localStorage.getItem("fontSize")
+        if (savedFontSize && !isNaN(parseInt(savedFontSize))) {
+            const size = parseInt(savedFontSize)
+            setFontSize(size)
+            document.documentElement.style.fontSize = `${size}px`
+        } else {
+            // Default font size
+            document.documentElement.style.fontSize = "16px"
+            localStorage.setItem("fontSize", "16")
+        }
+    }, [])
 
     const renderDashboard = () => (
         <div className="space-y-6 animate-fade-in">
@@ -498,8 +524,29 @@ export default function AgricultureManagementSystem() {
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={demandSupplyData} margin={{top: 20, right: 30, left: 20, bottom: 20}}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
-                                <XAxis dataKey="month" stroke="#64748b" fontSize={12}/>
-                                <YAxis stroke="#64748b" fontSize={12}/>
+                                <XAxis
+                                    dataKey="month"
+                                    stroke="#64748b"
+                                    fontSize={12}
+                                    tick={{fontSize: 12, fill: '#64748b'}}
+                                    label={{
+                                        value: 'Month',
+                                        position: 'insideBottom',
+                                        offset: -10,
+                                        style: {textAnchor: 'middle', fontSize: '12px', fill: '#64748b'}
+                                    }}
+                                />
+                                <YAxis
+                                    stroke="#64748b"
+                                    fontSize={12}
+                                    tick={{fontSize: 12, fill: '#64748b'}}
+                                    label={{
+                                        value: 'Quantity (units)',
+                                        angle: -90,
+                                        position: 'insideLeft',
+                                        style: {textAnchor: 'middle', fontSize: '12px', fill: '#64748b'}
+                                    }}
+                                />
                                 <ChartTooltip content={<ChartTooltipContent/>}/>
                                 <Legend/>
                                 <Line
@@ -654,6 +701,8 @@ export default function AgricultureManagementSystem() {
     switch (activeSection) {
       case "dashboard":
         return renderDashboard()
+        case "stakeholders":
+            return <StakeholderManagement/>
       case "products":
           return <ProductList/>
       case "production":
@@ -662,8 +711,6 @@ export default function AgricultureManagementSystem() {
           return <PriceAnalytics/>
       case "transactions":
           return <TransactionManagement/>
-      case "stakeholders":
-          return <StakeholderManagement/>
       case "weather":
           return <WeatherDashboard/>
       case "warehouses":
@@ -688,8 +735,6 @@ export default function AgricultureManagementSystem() {
           return <SupplyDemandAnalysis/>
       case "wholesaler-management":
           return <WholesalerManagement/>
-        case "data-entry":
-            return <DataEntryForm/>
       default:
         return renderDashboard()
     }
@@ -731,8 +776,63 @@ export default function AgricultureManagementSystem() {
                 <nav className="flex-1 overflow-y-auto py-6 scrollbar-thin">
                     <div className={`${sidebarOpen ? 'px-4' : 'px-2'} space-y-2`}>
                         {navigationItems.map((item) => {
+                            if (item.id === "stakeholders") return (
+                                <div key={item.id} className={`mt-4`}>
+                                    <Button
+                                        variant={stakeholderExpanded ? "default" : "ghost"}
+                                        onClick={() => setStakeholderExpanded(!stakeholderExpanded)}
+                                        className={`w-full h-12 transition-colors ${
+                                            sidebarOpen ? 'px-4 justify-start' : 'px-0 justify-center w-12'
+                                        } ${
+                                            stakeholderExpanded
+                                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                        }`}
+                                        title={!sidebarOpen ? "Stakeholder" : undefined}
+                                    >
+                                        <Users className={`h-5 w-5 flex-shrink-0 ${sidebarOpen ? 'mr-3' : ''}`}/>
+                                        {sidebarOpen && <span className="font-medium">Stakeholder</span>}
+                                        {sidebarOpen && (
+                                            <span className={`ml-auto`}>
+                                                {stakeholderExpanded ? <X className="h-5 w-5"/> :
+                                                    <Menu className="h-5 w-5"/>}
+                                            </span>
+                                        )}
+                                    </Button>
+                                    {stakeholderExpanded && (
+                                        <div className={`${sidebarOpen ? 'pl-8' : 'pl-0'} pt-2 space-y-1`}>
+                                            {stakeholderItems.map(child => {
+                                                const ChildIcon = child.icon
+                                                const isActiveChild = activeSection === child.id
+                                                return (
+                                                    <Button
+                                                        key={child.id}
+                                                        variant={isActiveChild ? "default" : "ghost"}
+                                                        onClick={() => setActiveSection(child.id)}
+                                                        className={`w-full h-10 transition-colors ${
+                                                            sidebarOpen ? 'px-2 justify-start' : 'px-0 justify-center w-12'
+                                                        } ${
+                                                            isActiveChild
+                                                                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                                        }`}
+                                                        title={!sidebarOpen ? child.label : undefined}
+                                                    >
+                                                        <ChildIcon
+                                                            className={`h-4 w-4 flex-shrink-0 ${sidebarOpen ? 'mr-2' : ''}`}/>
+                                                        {sidebarOpen && <span className="text-sm">{child.label}</span>}
+                                                    </Button>
+                                                )
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            )
                             const Icon = item.icon
                             const isActive = activeSection === item.id
+
+                            // Don't render stakeholder as a normal nav item!
+                            if (item.id === "stakeholders") return null
 
                             return (
                                 <Button
@@ -753,66 +853,6 @@ export default function AgricultureManagementSystem() {
                                 </Button>
                             )
                         })}
-
-                        {/* Clean Stakeholder Section */}
-                        <div className="pt-4 border-t border-gray-200">
-                            <Button
-                                variant="ghost"
-                                onClick={() => {
-                                    if (!sidebarOpen) {
-                                        setSidebarOpen(true)
-                                    }
-                                    setStakeholderExpanded(!stakeholderExpanded)
-                                }}
-                                className={`w-full h-12 transition-colors ${
-                                    sidebarOpen ? 'px-4 justify-start' : 'px-0 justify-center w-12'
-                                } ${
-                                    stakeholderItems.some(item => activeSection === item.id)
-                                        ? 'bg-gray-100 text-gray-900'
-                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                                }`}
-                                title={!sidebarOpen ? 'Stakeholder' : undefined}
-                            >
-                                <Users className={`h-5 w-5 flex-shrink-0 ${sidebarOpen ? 'mr-3' : ''}`}/>
-                                {sidebarOpen && (
-                                    <>
-                                        <span className="font-medium flex-1 text-left">Stakeholders</span>
-                                        <div
-                                            className={`transition-transform duration-300 ${stakeholderExpanded ? 'rotate-180' : ''}`}>
-                                            {stakeholderExpanded ?
-                                                <ChevronDown className="h-4 w-4 ml-auto"/> :
-                                                <ChevronRight className="h-4 w-4 ml-auto"/>}
-                                        </div>
-                                    </>
-                                )}
-                            </Button>
-
-                            {/* Clean Stakeholder Submenu */}
-                            {sidebarOpen && stakeholderExpanded && (
-                                <div className="ml-6 mt-2 space-y-1 animate-fade-in">
-                                    {stakeholderItems.map((item) => {
-                                        const Icon = item.icon
-                                        const isActive = activeSection === item.id
-
-                                        return (
-                                            <Button
-                                                key={item.id}
-                                                variant={isActive ? "default" : "ghost"}
-                                                onClick={() => setActiveSection(item.id)}
-                                                className={`w-full h-10 text-sm transition-colors px-4 justify-start ${
-                                                    isActive 
-                                                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                                                }`}
-                                            >
-                                                <Icon className="h-4 w-4 mr-3 flex-shrink-0"/>
-                                                <span>{item.label}</span>
-                                            </Button>
-                                        )
-                                    })}
-                                </div>
-                            )}
-                        </div>
                     </div>
                 </nav>
             </div>
@@ -824,9 +864,12 @@ export default function AgricultureManagementSystem() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
                             <h1 className="text-2xl font-bold text-gray-900">
-                                {navigationItems.find(item => item.id === activeSection)?.label ||
-                                    stakeholderItems.find(item => item.id === activeSection)?.label ||
-                                    'Agriculture Management'}
+                                {activeSection === "farmer-management" ? "Farmer Management" :
+                                    activeSection === "retailer-management" ? "Retailer Management" :
+                                        activeSection === "wholesaler-management" ? "Wholesaler Management" :
+                                            activeSection === "consumers" ? "Consumer Management" :
+                                                navigationItems.find(item => item.id === activeSection)?.label ||
+                                                'Agriculture Management'}
                             </h1>
                         </div>
 

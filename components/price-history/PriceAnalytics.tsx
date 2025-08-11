@@ -18,7 +18,10 @@ import {
     ResponsiveContainer,
     Legend
 } from "recharts"
-import {Search, Plus, Edit2, Trash2, BarChart3, TrendingUp, DollarSign} from "lucide-react"
+import {Search, Plus, Edit2, Trash2, BarChart3, TrendingUp, DollarSign, FileDown} from "lucide-react"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {Label} from "@/components/ui/label"
+import {exportPriceData} from "@/lib/pdfExport"
 
 interface PriceHistory {
     price_id: string
@@ -98,6 +101,7 @@ export default function PriceAnalytics() {
     const [priceHistoryData, setPriceHistoryData] = useState<PriceHistory[]>(priceHistory)
     const [formData, setFormData] = useState({
         price_id: "",
+        product_id: "",
         product_name: "",
         location: "",
         date_recorded: "",
@@ -120,7 +124,7 @@ export default function PriceAnalytics() {
 
         const newPriceRecord: PriceHistory = {
             price_id: formData.price_id,
-            product_id: `P${Date.now()}`,
+            product_id: formData.product_id,
             product_name: formData.product_name,
             date_recorded: formData.date_recorded,
             location: formData.location,
@@ -136,6 +140,7 @@ export default function PriceAnalytics() {
         // Reset form
         setFormData({
             price_id: "",
+            product_id: "",
             product_name: "",
             location: "",
             date_recorded: "",
@@ -163,6 +168,18 @@ export default function PriceAnalytics() {
         return (((current - harvest) / harvest) * 100).toFixed(1)
     }
 
+    const products = [
+        {id: "P001", name: "Wheat"},
+        {id: "P002", name: "Rice"},
+        {id: "P003", name: "Corn"}
+    ]
+    const seasons = [
+        {id: "Winter", name: "Winter"},
+        {id: "Summer", name: "Summer"},
+        {id: "Spring", name: "Spring"},
+        {id: "Autumn", name: "Autumn"}
+    ]
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -184,6 +201,10 @@ export default function PriceAnalytics() {
                     <Button onClick={() => setShowAddForm(true)}>
                         <Plus className="w-4 h-4 mr-2"/>
                         Add Price Record
+                    </Button>
+                    <Button onClick={() => exportPriceData(priceHistoryData)}>
+                        <FileDown className="w-4 h-4 mr-2"/>
+                        Export Data
                     </Button>
                 </div>
             </div>
@@ -249,77 +270,197 @@ export default function PriceAnalytics() {
                         <CardDescription>Enter current market pricing information</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={handleSubmit}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <Input
-                                    type="text"
-                                    placeholder="Price ID"
-                                    className="w-full"
-                                    value={formData.price_id}
-                                    onChange={(e) => handleInputChange("price_id", e.target.value)}
-                                />
-                                <Input
-                                    type="text"
-                                    placeholder="Product Name"
-                                    className="w-full"
-                                    value={formData.product_name}
-                                    onChange={(e) => handleInputChange("product_name", e.target.value)}
-                                />
-                                <Input
-                                    type="text"
-                                    placeholder="Location"
-                                    className="w-full"
-                                    value={formData.location}
-                                    onChange={(e) => handleInputChange("location", e.target.value)}
-                                />
-                                <Input
-                                    type="date"
-                                    placeholder="Date Recorded"
-                                    className="w-full"
-                                    value={formData.date_recorded}
-                                    onChange={(e) => handleInputChange("date_recorded", e.target.value)}
-                                />
-                                <Input
-                                    type="number"
-                                    placeholder="Wholesale Price"
-                                    className="w-full"
-                                    value={formData.wholesale_price}
-                                    onChange={(e) => handleInputChange("wholesale_price", e.target.value)}
-                                />
-                                <Input
-                                    type="number"
-                                    placeholder="Retail Price"
-                                    className="w-full"
-                                    value={formData.retail_price}
-                                    onChange={(e) => handleInputChange("retail_price", e.target.value)}
-                                />
-                                <Input
-                                    type="number"
-                                    placeholder="Harvest Season Price"
-                                    className="w-full"
-                                    value={formData.harvest_season_price}
-                                    onChange={(e) => handleInputChange("harvest_season_price", e.target.value)}
-                                />
-                                <Input
-                                    type="text"
-                                    placeholder="Season"
-                                    className="w-full"
-                                    value={formData.season}
-                                    onChange={(e) => handleInputChange("season", e.target.value)}
-                                />
-                                <Input
-                                    type="text"
-                                    placeholder="Weather ID"
-                                    className="w-full"
-                                    value={formData.weather_id}
-                                    onChange={(e) => handleInputChange("weather_id", e.target.value)}
-                                />
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Basic Information Section */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="price_id" className="text-gray-700">Price ID *</Label>
+                                        <Input
+                                            id="price_id"
+                                            type="text"
+                                            placeholder="e.g., PH005"
+                                            value={formData.price_id}
+                                            onChange={(e) => handleInputChange("price_id", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="product_id" className="text-gray-700">Product *</Label>
+                                        <Select value={formData.product_id}
+                                                onValueChange={(value) => {
+                                                    handleInputChange("product_id", value)
+                                                    const selectedProduct = products.find(p => p.id === value)
+                                                    if (selectedProduct) {
+                                                        handleInputChange("product_name", selectedProduct.name)
+                                                    }
+                                                }}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Product"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {products.map((product) => (
+                                                    <SelectItem key={product.id} value={product.id}>
+                                                        {product.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="product_name" className="text-gray-700">Product Name</Label>
+                                        <Input
+                                            id="product_name"
+                                            type="text"
+                                            placeholder="Auto-filled from selection"
+                                            value={formData.product_name}
+                                            onChange={(e) => handleInputChange("product_name", e.target.value)}
+                                            readOnly
+                                            className="bg-gray-50"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="location" className="text-gray-700">Location *</Label>
+                                        <Input
+                                            id="location"
+                                            type="text"
+                                            placeholder="e.g., Dhaka"
+                                            value={formData.location}
+                                            onChange={(e) => handleInputChange("location", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="date_recorded" className="text-gray-700">Date Recorded *</Label>
+                                        <Input
+                                            id="date_recorded"
+                                            type="date"
+                                            value={formData.date_recorded}
+                                            onChange={(e) => handleInputChange("date_recorded", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="season" className="text-gray-700">Season *</Label>
+                                        <Select value={formData.season}
+                                                onValueChange={(value) => handleInputChange("season", value)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Season"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {seasons.map((season) => (
+                                                    <SelectItem key={season.id} value={season.id}>
+                                                        {season.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex gap-4">
-                                <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">Add
-                                    Record</Button>
-                                <Button type="button" variant="outline"
-                                        onClick={() => setShowAddForm(false)}>Cancel</Button>
+
+                            {/* Price Information Section */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Price Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="wholesale_price" className="text-gray-700">Wholesale Price ($)
+                                            *</Label>
+                                        <Input
+                                            id="wholesale_price"
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="e.g., 40.00"
+                                            value={formData.wholesale_price}
+                                            onChange={(e) => handleInputChange("wholesale_price", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="retail_price" className="text-gray-700">Retail Price ($)
+                                            *</Label>
+                                        <Input
+                                            id="retail_price"
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="e.g., 45.00"
+                                            value={formData.retail_price}
+                                            onChange={(e) => handleInputChange("retail_price", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="harvest_season_price" className="text-gray-700">Harvest Season
+                                            Price ($) *</Label>
+                                        <Input
+                                            id="harvest_season_price"
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="e.g., 38.00"
+                                            value={formData.harvest_season_price}
+                                            onChange={(e) => handleInputChange("harvest_season_price", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Real-time calculations */}
+                                {formData.wholesale_price && formData.retail_price && (
+                                    <div className="bg-blue-50 p-4 rounded-lg mt-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                            <div className="flex justify-between">
+                                                <span className="text-blue-700">Retail Margin:</span>
+                                                <span className="font-semibold text-blue-800">
+                                                    {(((parseFloat(formData.retail_price) - parseFloat(formData.wholesale_price)) / parseFloat(formData.wholesale_price)) * 100).toFixed(1)}%
+                                                </span>
+                                            </div>
+                                            {formData.harvest_season_price && (
+                                                <div className="flex justify-between">
+                                                    <span className="text-blue-700">Seasonal Variation:</span>
+                                                    <span className="font-semibold text-blue-800">
+                                                        {(((parseFloat(formData.retail_price) - parseFloat(formData.harvest_season_price)) / parseFloat(formData.harvest_season_price)) * 100).toFixed(1)}%
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Additional Information Section */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Additional Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="weather_id" className="text-gray-700">Weather ID</Label>
+                                        <Input
+                                            id="weather_id"
+                                            type="text"
+                                            placeholder="e.g., W001"
+                                            value={formData.weather_id}
+                                            onChange={(e) => handleInputChange("weather_id", e.target.value)}
+                                        />
+                                        <p className="text-xs text-gray-500">Optional weather reference</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4 pt-4 border-t border-gray-200">
+                                <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
+                                    <Plus className="h-4 w-4 mr-2"/>
+                                    Add Price Record
+                                </Button>
+                                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                                    Cancel
+                                </Button>
                             </div>
                         </form>
                     </CardContent>
@@ -409,8 +550,17 @@ export default function PriceAnalytics() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={priceTrendData}>
                                     <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="month"/>
-                                    <YAxis/>
+                                    <XAxis
+                                        dataKey="month"
+                                        tick={{fontSize: 12}}
+                                        tickFormatter={(tick) => tick}
+                                        label={{value: 'Month', position: 'insideBottom', offset: -5}}
+                                    />
+                                    <YAxis
+                                        tick={{fontSize: 12}}
+                                        tickFormatter={(tick) => `$${tick}`}
+                                        label={{value: 'Price ($)', angle: -90, position: 'insideLeft'}}
+                                    />
                                     <ChartTooltip content={<ChartTooltipContent/>}/>
                                     <Legend/>
                                     <Line type="monotone" dataKey="wheat" stroke="#8884d8" strokeWidth={2}/>
@@ -438,8 +588,19 @@ export default function PriceAnalytics() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={priceHistoryData}>
                                     <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="location" angle={-45} textAnchor="end" height={80}/>
-                                    <YAxis/>
+                                    <XAxis
+                                        dataKey="location"
+                                        angle={-45}
+                                        textAnchor="end"
+                                        height={80}
+                                        tick={{fontSize: 12}}
+                                        label={{value: 'Location', position: 'insideBottom', offset: -60}}
+                                    />
+                                    <YAxis
+                                        tick={{fontSize: 12}}
+                                        tickFormatter={(tick) => `$${tick}`}
+                                        label={{value: 'Price ($)', angle: -90, position: 'insideLeft'}}
+                                    />
                                     <ChartTooltip content={<ChartTooltipContent/>}/>
                                     <Legend/>
                                     <Bar dataKey="wholesale_price" fill="#82ca9d"/>
@@ -450,46 +611,6 @@ export default function PriceAnalytics() {
                     </CardContent>
                 </Card>
             </div>
-
-            {/* Market Price Insights */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Market Price Insights</CardTitle>
-                    <CardDescription>Key market indicators and price analysis</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                            <h4 className="font-semibold text-green-800 mb-2">Highest Margin Products</h4>
-                            <p className="text-sm text-green-700">
-                                {priceHistoryData
-                                    .sort((a, b) => ((b.retail_price - b.wholesale_price) / b.wholesale_price) - ((a.retail_price - a.wholesale_price) / a.wholesale_price))
-                                    .slice(0, 2)
-                                    .map(p => p.product_name)
-                                    .join(', ')} showing highest retail margins
-                            </p>
-                        </div>
-
-                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <h4 className="font-semibold text-blue-800 mb-2">Price Stability</h4>
-                            <p className="text-sm text-blue-700">
-                                {priceHistoryData.filter(p => Math.abs(p.retail_price - p.harvest_season_price) / p.harvest_season_price < 0.1).length} out
-                                of {priceHistoryData.length} products
-                                showing stable pricing
-                            </p>
-                        </div>
-
-                        <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                            <h4 className="font-semibold text-orange-800 mb-2">Seasonal Impact</h4>
-                            <p className="text-sm text-orange-700">
-                                Average seasonal price
-                                variation: {(priceHistoryData.reduce((sum, p) => sum + Math.abs((p.retail_price - p.harvest_season_price) / p.harvest_season_price), 0) / priceHistoryData.length * 100).toFixed(1)}%
-                            </p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
         </div>
     )
 }

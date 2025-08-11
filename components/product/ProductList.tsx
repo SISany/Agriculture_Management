@@ -6,19 +6,8 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
-import {Search, Plus, Edit2, Trash2, Package, Leaf, BarChart3} from "lucide-react"
-import {
-    PieChart,
-    Pie,
-    Cell,
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer
-} from "recharts"
+import {Search, Plus, Edit2, Trash2, Package, Leaf, BarChart3, FileDown} from "lucide-react"
+import {exportProductData} from "@/lib/pdfExport"
 
 interface Product {
     id: string
@@ -154,17 +143,6 @@ export default function ProductList() {
 
     const uniqueTypes = [...new Set(products.map(product => product.product_type))]
 
-    // Analytics data
-    const typeDistribution = uniqueTypes.map(type => ({
-        name: type,
-        value: products.filter(p => p.product_type === type).length
-    }))
-
-    const nutritionData = products.slice(0, 6).map(product => ({
-        name: product.product_name.substring(0, 8),
-        nutrition: product.nutritional_value_per_unit
-    }))
-
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
@@ -181,13 +159,22 @@ export default function ProductList() {
                                     specifications</p>
                             </div>
                         </div>
-                        <Button
-                            onClick={() => setShowForm(!showForm)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3"
-                        >
-                            <Plus className="h-4 w-4 mr-2"/>
-                            Add Product
-                        </Button>
+                        <div className="flex gap-4">
+                            <Button
+                                onClick={() => setShowForm(!showForm)}
+                                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3"
+                            >
+                                <Plus className="h-4 w-4 mr-2"/>
+                                Add Product
+                            </Button>
+                            <Button
+                                onClick={() => exportProductData(products)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
+                            >
+                                <FileDown className="h-4 w-4 mr-2"/>
+                                Export Data
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
@@ -229,100 +216,181 @@ export default function ProductList() {
                     </div>
                 </div>
 
-                {/* Charts */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Distribution</h3>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={typeDistribution}
-                                        cx="50%"
-                                        cy="50%"
-                                        outerRadius={80}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                        label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                    >
-                                        {typeDistribution.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={[
-                                                "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"
-                                            ][index % 5]}/>
-                                        ))}
-                                    </Pie>
-                                    <Tooltip/>
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Nutritional Values</h3>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={nutritionData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
-                                    <XAxis dataKey="name" stroke="#64748b" fontSize={12}/>
-                                    <YAxis stroke="#64748b" fontSize={12}/>
-                                    <Tooltip/>
-                                    <Bar dataKey="nutrition" fill="#10B981" radius={[4, 4, 0, 0]}/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                </div>
-
                 {/* Add Product Form */}
                 {showForm && (
                     <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                         <h3 className="text-xl font-semibold text-gray-900 mb-6">Add New Product</h3>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <div>
-                                    <Label htmlFor="product_id" className="text-gray-700">Product ID</Label>
-                                    <Input
-                                        id="product_id"
-                                        placeholder="e.g., P001"
-                                        value={formData.product_id}
-                                        onChange={(e) => handleInputChange("product_id", e.target.value)}
-                                        className="mt-1"
-                                        required
-                                    />
-                                </div>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Basic Information */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div>
+                                        <Label htmlFor="product_id" className="text-gray-700">Product ID *</Label>
+                                        <Input
+                                            id="product_id"
+                                            placeholder="e.g., P005"
+                                            value={formData.product_id}
+                                            onChange={(e) => handleInputChange("product_id", e.target.value)}
+                                            className="mt-1"
+                                            required
+                                        />
+                                    </div>
 
-                                <div>
-                                    <Label htmlFor="product_name" className="text-gray-700">Product Name</Label>
-                                    <Input
-                                        id="product_name"
-                                        placeholder="e.g., Wheat"
-                                        value={formData.product_name}
-                                        onChange={(e) => handleInputChange("product_name", e.target.value)}
-                                        className="mt-1"
-                                        required
-                                    />
-                                </div>
+                                    <div>
+                                        <Label htmlFor="product_name" className="text-gray-700">Product Name *</Label>
+                                        <Input
+                                            id="product_name"
+                                            placeholder="e.g., Wheat"
+                                            value={formData.product_name}
+                                            onChange={(e) => handleInputChange("product_name", e.target.value)}
+                                            className="mt-1"
+                                            required
+                                        />
+                                    </div>
 
-                                <div>
-                                    <Label htmlFor="product_type" className="text-gray-700">Product Type</Label>
-                                    <Select value={formData.product_type}
-                                            onValueChange={(value) => handleInputChange("product_type", value)}>
-                                        <SelectTrigger className="mt-1">
-                                            <SelectValue placeholder="Select type"/>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Grain">Grain</SelectItem>
-                                            <SelectItem value="Vegetable">Vegetable</SelectItem>
-                                            <SelectItem value="Fruit">Fruit</SelectItem>
-                                            <SelectItem value="Legume">Legume</SelectItem>
-                                            <SelectItem value="Spice">Spice</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <div>
+                                        <Label htmlFor="product_type" className="text-gray-700">Product Type *</Label>
+                                        <Select value={formData.product_type}
+                                                onValueChange={(value) => handleInputChange("product_type", value)}>
+                                            <SelectTrigger className="mt-1">
+                                                <SelectValue placeholder="Select type"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Grain">Grain</SelectItem>
+                                                <SelectItem value="Vegetable">Vegetable</SelectItem>
+                                                <SelectItem value="Fruit">Fruit</SelectItem>
+                                                <SelectItem value="Legume">Legume</SelectItem>
+                                                <SelectItem value="Spice">Spice</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div>
+                                        <Label htmlFor="product_type_alt" className="text-gray-700">Alternative
+                                            Type</Label>
+                                        <Input
+                                            id="product_type_alt"
+                                            placeholder="e.g., Cereal"
+                                            value={formData.product_type_alt}
+                                            onChange={(e) => handleInputChange("product_type_alt", e.target.value)}
+                                            className="mt-1"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Label htmlFor="variety" className="text-gray-700">Variety *</Label>
+                                        <Input
+                                            id="variety"
+                                            placeholder="e.g., Winter Wheat"
+                                            value={formData.variety}
+                                            onChange={(e) => handleInputChange("variety", e.target.value)}
+                                            className="mt-1"
+                                            required
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="flex gap-4 pt-4">
+                            {/* Cultivation Timing */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Cultivation Timing</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <Label htmlFor="sowing_time" className="text-gray-700">Sowing Time *</Label>
+                                        <Input
+                                            id="sowing_time"
+                                            type="date"
+                                            value={formData.sowing_time}
+                                            onChange={(e) => handleInputChange("sowing_time", e.target.value)}
+                                            className="mt-1"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Label htmlFor="transplanting_time" className="text-gray-700">Transplanting
+                                            Time</Label>
+                                        <Input
+                                            id="transplanting_time"
+                                            type="date"
+                                            value={formData.transplanting_time}
+                                            onChange={(e) => handleInputChange("transplanting_time", e.target.value)}
+                                            className="mt-1"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">Leave empty if not applicable</p>
+                                    </div>
+
+                                    <div>
+                                        <Label htmlFor="harvest_time" className="text-gray-700">Harvest Time *</Label>
+                                        <Input
+                                            id="harvest_time"
+                                            type="date"
+                                            value={formData.harvest_time}
+                                            onChange={(e) => handleInputChange("harvest_time", e.target.value)}
+                                            className="mt-1"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Agricultural Details */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Agricultural Details</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <Label htmlFor="seed_requirement_per_acre" className="text-gray-700">Seed
+                                            Requirement (kg/acre) *</Label>
+                                        <Input
+                                            id="seed_requirement_per_acre"
+                                            type="number"
+                                            step="0.1"
+                                            placeholder="e.g., 45"
+                                            value={formData.seed_requirement_per_acre}
+                                            onChange={(e) => handleInputChange("seed_requirement_per_acre", parseFloat(e.target.value) || 0)}
+                                            className="mt-1"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Label htmlFor="nutritional_value_per_unit" className="text-gray-700">Nutritional
+                                            Value (kcal/100g) *</Label>
+                                        <Input
+                                            id="nutritional_value_per_unit"
+                                            type="number"
+                                            placeholder="e.g., 364"
+                                            value={formData.nutritional_value_per_unit}
+                                            onChange={(e) => handleInputChange("nutritional_value_per_unit", parseInt(e.target.value) || 0)}
+                                            className="mt-1"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Storage Requirements */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Storage Information</h4>
+                                <div>
+                                    <Label htmlFor="storage_requirements" className="text-gray-700">Storage Requirements
+                                        *</Label>
+                                    <Input
+                                        id="storage_requirements"
+                                        placeholder="e.g., Cool, dry place below 15°C"
+                                        value={formData.storage_requirements}
+                                        onChange={(e) => handleInputChange("storage_requirements", e.target.value)}
+                                        className="mt-1"
+                                        required
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">Describe optimal storage conditions</p>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4 pt-4 border-t border-gray-200">
                                 <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
+                                    <Plus className="h-4 w-4 mr-2"/>
                                     Add Product
                                 </Button>
                                 <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
@@ -372,6 +440,7 @@ export default function ProductList() {
                                     <TableHead>Name</TableHead>
                                     <TableHead>Type</TableHead>
                                     <TableHead>Variety</TableHead>
+                                    <TableHead>Time of Sowing</TableHead>
                                     <TableHead>Nutrition</TableHead>
                                     <TableHead>Seed Req.</TableHead>
                                     <TableHead>Actions</TableHead>
@@ -380,7 +449,7 @@ export default function ProductList() {
                             <TableBody>
                                 {filteredProducts.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                                        <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                                             <Package className="h-8 w-8 mx-auto mb-2 text-gray-400"/>
                                             No products found
                                         </TableCell>
@@ -397,6 +466,7 @@ export default function ProductList() {
                                                 </span>
                                             </TableCell>
                                             <TableCell className="text-gray-600">{product.variety}</TableCell>
+                                            <TableCell className="text-gray-600">{product.sowing_time}</TableCell>
                                             <TableCell>
                                                 <span
                                                     className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">

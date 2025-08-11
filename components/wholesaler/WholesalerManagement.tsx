@@ -461,8 +461,17 @@ export default function WholesalerManagement() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={reachData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
-                                    <XAxis dataKey="name" stroke="#64748b" fontSize={12}/>
-                                    <YAxis stroke="#64748b" fontSize={12}/>
+                                    <XAxis
+                                        dataKey="name"
+                                        stroke="#64748b"
+                                        fontSize={12}
+                                        label={{value: 'Supply Chain Reach', position: 'insideBottom', offset: -5}}
+                                    />
+                                    <YAxis
+                                        stroke="#64748b"
+                                        fontSize={12}
+                                        label={{value: 'Number of Wholesalers', angle: -90, position: 'insideLeft'}}
+                                    />
                                     <Tooltip/>
                                     <Bar dataKey="value" fill="#8B5CF6" radius={[4, 4, 0, 0]}/>
                                 </BarChart>

@@ -712,8 +712,12 @@ export default function DemandForecast() {
                                 <ResponsiveContainer width="100%" height="100%">
                                     <ComposedChart data={demandSupplyTrendData}>
                                         <CartesianGrid strokeDasharray="3 3"/>
-                                        <XAxis dataKey="month"/>
-                                        <YAxis/>
+                                        <XAxis dataKey="month" label={{value: 'Month', position: 'insideBottom'}}/>
+                                        <YAxis label={{
+                                            value: 'Demand/Supply (tons)',
+                                            angle: -90,
+                                            position: 'insideLeft'
+                                        }}/>
                                         <ChartTooltip content={<ChartTooltipContent/>}/>
                                         <Legend/>
                                         <Bar dataKey="wheat_demand" fill="#8B5CF6" name="Wheat Demand"/>
@@ -743,8 +747,13 @@ export default function DemandForecast() {
                                     <BarChart data={regionalGapData}
                                               margin={{top: 20, right: 30, left: 20, bottom: 80}}>
                                         <CartesianGrid strokeDasharray="3 3"/>
-                                        <XAxis dataKey="region" angle={-45} textAnchor="end" height={100}/>
-                                        <YAxis/>
+                                        <XAxis dataKey="region" angle={-45} textAnchor="end" height={100}
+                                               label={{value: 'Region', position: 'insideBottom'}}/>
+                                        <YAxis label={{
+                                            value: 'Demand/Supply (tons)',
+                                            angle: -90,
+                                            position: 'insideLeft'
+                                        }}/>
                                         <ChartTooltip content={<ChartTooltipContent/>}/>
                                         <Legend/>
                                         <Bar dataKey="projected_demand" fill="#8B5CF6" name="Projected Demand"/>

@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Next.js: server-side" type="js.build_tools.npm">
+    <package-json value="$PROJECT_DIR$/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="dev" />
+    </scripts>
+    <node-interpreter value="$APPLICATION_CONFIG_DIR$/node/versions/22.18.0/node" />
+    <package-manager value="npm" />
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>

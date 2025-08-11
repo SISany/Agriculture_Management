@@ -9,7 +9,8 @@ import {Badge} from "@/components/ui/badge"
 import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer} from "recharts"
-import {Search, Plus, Edit2, Trash2, Factory, TrendingUp} from "lucide-react"
+import {Search, Plus, Edit2, Trash2, Factory, TrendingUp, FileDown} from "lucide-react"
+import {exportProductionData} from "@/lib/pdfExport"
 
 interface Production {
     production_id: string
@@ -151,6 +152,10 @@ export default function ProductionManagement() {
                     <Button onClick={() => setShowAddForm(true)}>
                         <Plus className="w-4 h-4 mr-2"/>
                         Add Production Record
+                    </Button>
+                    <Button onClick={() => exportProductionData(productions)}>
+                        <FileDown className="w-4 h-4 mr-2"/>
+                        Export Data
                     </Button>
                 </div>
             </div>
@@ -433,8 +438,16 @@ export default function ProductionManagement() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={productions}>
                                     <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="district_division" angle={-45} textAnchor="end" height={80}/>
-                                    <YAxis/>
+                                    <XAxis
+                                        dataKey="district_division"
+                                        angle={-45}
+                                        textAnchor="end"
+                                        height={80}
+                                        label={{value: 'District/Division', position: 'insideBottom', offset: -60}}
+                                    />
+                                    <YAxis
+                                        label={{value: 'Production (tons)', angle: -90, position: 'insideLeft'}}
+                                    />
                                     <ChartTooltip content={<ChartTooltipContent/>}/>
                                     <Bar dataKey="quantity_produced" fill="#82ca9d"/>
                                 </BarChart>
@@ -456,8 +469,16 @@ export default function ProductionManagement() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={productions}>
                                     <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="district_division" angle={-45} textAnchor="end" height={80}/>
-                                    <YAxis/>
+                                    <XAxis
+                                        dataKey="district_division"
+                                        angle={-45}
+                                        textAnchor="end"
+                                        height={80}
+                                        label={{value: 'District/Division', position: 'insideBottom', offset: -60}}
+                                    />
+                                    <YAxis
+                                        label={{value: 'Acreage (acres)', angle: -90, position: 'insideLeft'}}
+                                    />
                                     <ChartTooltip content={<ChartTooltipContent/>}/>
                                     <Bar dataKey="acreage" fill="#8884d8"/>
                                 </BarChart>

@@ -22,7 +22,8 @@ import {
     Cell,
     Legend
 } from "recharts"
-import {Search, Download, Plus, Edit2, Trash2, TrendingUp, MapPin, DollarSign, Package} from "lucide-react"
+import {Search, Plus, Edit2, Trash2, TrendingUp, MapPin, DollarSign, Package, FileDown} from "lucide-react"
+import {exportConsumptionData} from "@/lib/pdfExport"
 
 // TypeScript interfaces
 interface ConsumptionPattern {
@@ -168,8 +169,8 @@ export default function ConsumptionPattern() {
                         behaviors</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                        <Download className="w-4 h-4 mr-2"/>
+                    <Button variant="outline" size="sm" onClick={() => exportConsumptionData(filteredData)}>
+                        <FileDown className="w-4 h-4 mr-2"/>
                         Export Data
                     </Button>
                     <Button size="sm">
@@ -226,86 +227,7 @@ export default function ConsumptionPattern() {
                 </Card>
             </div>
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Monthly Consumption Trends</CardTitle>
-                        <CardDescription>Product consumption over time</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={{}} className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={monthlyConsumptionData}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="month"/>
-                                    <YAxis/>
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Line type="monotone" dataKey="wheat" stroke="#8884d8" strokeWidth={2}/>
-                                    <Line type="monotone" dataKey="rice" stroke="#82ca9d" strokeWidth={2}/>
-                                    <Line type="monotone" dataKey="corn" stroke="#ffc658" strokeWidth={2}/>
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Demographic Distribution</CardTitle>
-                        <CardDescription>Consumption by demographic groups</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={{}} className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={demographicConsumption}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                        outerRadius={80}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                    >
-                                        {demographicConsumption.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color}/>
-                                        ))}
-                                    </Pie>
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Seasonal Consumption Analysis</CardTitle>
-                    <CardDescription>Consumption patterns across different seasons</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ChartContainer config={{}} className="h-[300px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={seasonalTrends}>
-                                <CartesianGrid strokeDasharray="3 3"/>
-                                <XAxis dataKey="season"/>
-                                <YAxis yAxisId="left"/>
-                                <YAxis yAxisId="right" orientation="right"/>
-                                <ChartTooltip content={<ChartTooltipContent/>}/>
-                                <Legend/>
-                                <Bar yAxisId="left" dataKey="consumption" fill="#8884d8" name="Consumption (kg)"/>
-                                <Bar yAxisId="right" dataKey="spending" fill="#82ca9d" name="Spending (৳)"/>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </ChartContainer>
-                </CardContent>
-            </Card>
-
-            {/* Filters */}
+            {/* Filters and Table */}
             <Card>
                 <CardHeader>
                     <CardTitle>Consumption Pattern Data</CardTitle>
@@ -407,6 +329,100 @@ export default function ConsumptionPattern() {
                             </TableBody>
                         </Table>
                     </div>
+                </CardContent>
+            </Card>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Monthly Consumption Trends</CardTitle>
+                        <CardDescription>Product consumption over time</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={{}} className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={monthlyConsumptionData}>
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis
+                                        dataKey="month"
+                                        label={{value: 'Month', position: 'insideBottom', offset: -5}}
+                                    />
+                                    <YAxis
+                                        label={{value: 'Consumption (kg)', angle: -90, position: 'insideLeft'}}
+                                    />
+                                    <ChartTooltip content={<ChartTooltipContent/>}/>
+                                    <Legend/>
+                                    <Line type="monotone" dataKey="wheat" stroke="#8884d8" strokeWidth={2}/>
+                                    <Line type="monotone" dataKey="rice" stroke="#82ca9d" strokeWidth={2}/>
+                                    <Line type="monotone" dataKey="corn" stroke="#ffc658" strokeWidth={2}/>
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Demographic Distribution</CardTitle>
+                        <CardDescription>Consumption by demographic groups</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={{}} className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={demographicConsumption}
+                                        cx="50%"
+                                        cy="50%"
+                                        labelLine={false}
+                                        label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                        outerRadius={80}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                    >
+                                        {demographicConsumption.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color}/>
+                                        ))}
+                                    </Pie>
+                                    <ChartTooltip content={<ChartTooltipContent/>}/>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Seasonal Consumption Analysis</CardTitle>
+                    <CardDescription>Consumption patterns across different seasons</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <ChartContainer config={{}} className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={seasonalTrends}>
+                                <CartesianGrid strokeDasharray="3 3"/>
+                                <XAxis
+                                    dataKey="season"
+                                    label={{value: 'Season', position: 'insideBottom', offset: -5}}
+                                />
+                                <YAxis
+                                    yAxisId="left"
+                                    label={{value: 'Consumption (kg)', angle: -90, position: 'insideLeft'}}
+                                />
+                                <YAxis
+                                    yAxisId="right"
+                                    orientation="right"
+                                    label={{value: 'Spending (৳)', angle: 90, position: 'insideRight'}}
+                                />
+                                <ChartTooltip content={<ChartTooltipContent/>}/>
+                                <Legend/>
+                                <Bar yAxisId="left" dataKey="consumption" fill="#8884d8" name="Consumption (kg)"/>
+                                <Bar yAxisId="right" dataKey="spending" fill="#82ca9d" name="Spending (৳)"/>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </ChartContainer>
                 </CardContent>
             </Card>
         </div>

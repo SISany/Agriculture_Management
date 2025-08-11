@@ -7,24 +7,20 @@ import {Input} from "@/components/ui/input"
 import {Badge} from "@/components/ui/badge"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
-import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    ResponsiveContainer,
-    LineChart,
-    Line,
-    RadarChart,
-    PolarGrid,
-    PolarAngleAxis,
-    PolarRadiusAxis,
-    Radar,
-    Legend
-} from "recharts"
-import {Search, Download, Plus, Edit2, Trash2, Activity, Heart, AlertCircle, TrendingUp, Apple} from "lucide-react"
+    Search,
+    Plus,
+    Edit2,
+    Trash2,
+    Activity,
+    Heart,
+    AlertCircle,
+    TrendingUp,
+    Apple,
+    FileDown
+} from "lucide-react"
+import {Label} from "@/components/ui/label"
+import {exportNutritionData} from "@/lib/pdfExport"
 
 // TypeScript interfaces
 interface NutritionIntake {
@@ -41,6 +37,9 @@ interface NutritionIntake {
     age_group: string
     gender: string
     health_status: string
+    per_capita_income: number
+    per_capita_nutrition: number
+    surplus_deficit: string
 }
 
 // Mock data
@@ -58,7 +57,10 @@ const nutritionIntakes: NutritionIntake[] = [
         demographic_group: "Middle Class",
         age_group: "Adult",
         gender: "Mixed",
-        health_status: "Healthy"
+        health_status: "Healthy",
+        per_capita_income: 5000,
+        per_capita_nutrition: 200,
+        surplus_deficit: "-15 tons"
     },
     {
         nutrition_id: "N002",
@@ -73,7 +75,10 @@ const nutritionIntakes: NutritionIntake[] = [
         demographic_group: "Upper Middle Class",
         age_group: "Adult",
         gender: "Mixed",
-        health_status: "Healthy"
+        health_status: "Healthy",
+        per_capita_income: 6000,
+        per_capita_nutrition: 150,
+        surplus_deficit: "-8 tons"
     },
     {
         nutrition_id: "N003",
@@ -88,7 +93,10 @@ const nutritionIntakes: NutritionIntake[] = [
         demographic_group: "Lower Middle Class",
         age_group: "Adult",
         gender: "Mixed",
-        health_status: "Moderate Risk"
+        health_status: "Moderate Risk",
+        per_capita_income: 4000,
+        per_capita_nutrition: 100,
+        surplus_deficit: "-25 tons"
     },
     {
         nutrition_id: "N004",
@@ -103,7 +111,10 @@ const nutritionIntakes: NutritionIntake[] = [
         demographic_group: "Middle Class",
         age_group: "Adult",
         gender: "Mixed",
-        health_status: "Healthy"
+        health_status: "Healthy",
+        per_capita_income: 4500,
+        per_capita_nutrition: 120,
+        surplus_deficit: "-12 tons"
     },
     {
         nutrition_id: "N005",
@@ -118,58 +129,47 @@ const nutritionIntakes: NutritionIntake[] = [
         demographic_group: "Upper Class",
         age_group: "Adult",
         gender: "Mixed",
-        health_status: "Healthy"
+        health_status: "Healthy",
+        per_capita_income: 7000,
+        per_capita_nutrition: 250,
+        surplus_deficit: "+20 tons"
     }
-]
-
-// Chart data
-const nutritionTrends = [
-    {month: "Jan", carbohydrates: 245, protein: 175, fiber: 115, vitamins: 92, minerals: 205},
-    {month: "Feb", carbohydrates: 255, protein: 180, fiber: 120, vitamins: 95, minerals: 210},
-    {month: "Mar", carbohydrates: 260, protein: 185, fiber: 125, vitamins: 98, minerals: 215},
-    {month: "Apr", carbohydrates: 250, protein: 190, fiber: 130, vitamins: 100, minerals: 220},
-    {month: "May", carbohydrates: 265, protein: 185, fiber: 135, vitamins: 105, minerals: 225},
-    {month: "Jun", carbohydrates: 270, protein: 195, fiber: 140, vitamins: 110, minerals: 230}
-]
-
-const recommendedVsActual = [
-    {nutrient: "Carbs", recommended: 300, actual: 250, deficit: -50},
-    {nutrient: "Protein", recommended: 200, actual: 180, deficit: -20},
-    {nutrient: "Fiber", recommended: 150, actual: 120, deficit: -30},
-    {nutrient: "Vitamins", recommended: 100, actual: 95, deficit: -5},
-    {nutrient: "Minerals", recommended: 180, actual: 220, deficit: 40}
-]
-
-const demographicNutrition = [
-    {demographic: "Upper Class", carbs: 280, protein: 200, fiber: 140, vitamins: 110, minerals: 240},
-    {demographic: "Upper Middle", carbs: 270, protein: 190, fiber: 130, vitamins: 105, minerals: 220},
-    {demographic: "Middle Class", carbs: 250, protein: 175, fiber: 120, vitamins: 95, minerals: 200},
-    {demographic: "Lower Middle", carbs: 230, protein: 160, fiber: 110, vitamins: 85, minerals: 180}
-]
-
-const radarData = [
-    {subject: "Carbohydrates", A: 250, B: 300, fullMark: 350},
-    {subject: "Protein", A: 180, B: 200, fullMark: 250},
-    {subject: "Fiber", A: 120, B: 150, fullMark: 200},
-    {subject: "Vitamins", A: 95, B: 100, fullMark: 120},
-    {subject: "Minerals", A: 220, B: 180, fullMark: 250}
 ]
 
 export default function NutritionIntake() {
     const [searchTerm, setSearchTerm] = useState("")
-    const [selectedNutritionType, setSelectedNutritionType] = useState("all")
-    const [selectedDemographic, setSelectedDemographic] = useState("all")
-    const [selectedHealthStatus, setSelectedHealthStatus] = useState("all")
+    const [selectedMonth, setSelectedMonth] = useState("all")
+    const [selectedYear, setSelectedYear] = useState("all")
+    const [showAddForm, setShowAddForm] = useState(false)
+
+    // Form state
+    const [formData, setFormData] = useState({
+        nutrition_id: "",
+        stakeholder_id: "",
+        stakeholder_name: "",
+        product_id: "",
+        product_name: "",
+        intake_date: "",
+        per_capita_nutrition_intake: 0,
+        nutrition_type: "",
+        recommended_intake: 0,
+        demographic_group: "",
+        age_group: "",
+        gender: "",
+        health_status: "",
+        per_capita_income: 0,
+        per_capita_nutrition: 0,
+        surplus_deficit: ""
+    })
 
     const filteredData = nutritionIntakes.filter(intake => {
         const matchesSearch = intake.stakeholder_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             intake.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             intake.nutrition_type.toLowerCase().includes(searchTerm.toLowerCase())
-        const matchesNutritionType = selectedNutritionType === "all" || intake.nutrition_type === selectedNutritionType
-        const matchesDemographic = selectedDemographic === "all" || intake.demographic_group === selectedDemographic
-        const matchesHealthStatus = selectedHealthStatus === "all" || intake.health_status === selectedHealthStatus
+        const matchesMonth = selectedMonth === "all" || new Date(intake.intake_date).getMonth() === parseInt(selectedMonth)
+        const matchesYear = selectedYear === "all" || new Date(intake.intake_date).getFullYear() === parseInt(selectedYear)
 
-        return matchesSearch && matchesNutritionType && matchesDemographic && matchesHealthStatus
+        return matchesSearch && matchesMonth && matchesYear
     })
 
     const avgIntake = filteredData.reduce((sum, intake) => sum + intake.per_capita_nutrition_intake, 0) / filteredData.length || 0
@@ -177,19 +177,86 @@ export default function NutritionIntake() {
     const nutritionGap = avgRecommended - avgIntake
     const complianceRate = (avgIntake / avgRecommended) * 100 || 0
 
+    const handleInputChange = (field: string, value: string | number) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }
+
+    // Auto-fill product name when product is selected
+    const handleProductSelect = (productId: string) => {
+        const selectedProduct = products.find(p => p.id === productId)
+        handleInputChange("product_id", productId)
+        if (selectedProduct) {
+            handleInputChange("product_name", selectedProduct.name)
+        }
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+
+        // Add the new record to the data
+        const newNutritionIntake: NutritionIntake = {
+            ...formData,
+        }
+
+        console.log("New Nutrition Intake Record:", newNutritionIntake)
+
+        // Reset form and hide it
+        setFormData({
+            nutrition_id: "",
+            stakeholder_id: "",
+            stakeholder_name: "",
+            product_id: "",
+            product_name: "",
+            intake_date: "",
+            per_capita_nutrition_intake: 0,
+            nutrition_type: "",
+            recommended_intake: 0,
+            demographic_group: "",
+            age_group: "",
+            gender: "",
+            health_status: "",
+            per_capita_income: 0,
+            per_capita_nutrition: 0,
+            surplus_deficit: ""
+        })
+        setShowAddForm(false)
+    }
+
+    // Dropdown options
+    const nutritionTypes = ["Carbohydrates", "Protein", "Fiber", "Vitamins", "Minerals", "Fats"]
+    const products = [
+        {id: "P001", name: "Wheat"},
+        {id: "P002", name: "Rice"},
+        {id: "P003", name: "Corn"},
+        {id: "P004", name: "Potato"},
+        {id: "P005", name: "Tomato"}
+    ]
+
+    const handleExport = () => {
+        exportNutritionData(filteredData)
+    }
+
     return (
         <div className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Nutrition Intake Analysis</h1>
-                    <p className="text-sm text-gray-600">Monitor and analyze per capita nutritional intake patterns</p>
+                    <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                        <Apple className="h-8 w-8 text-green-600"/>
+                        Nutrition Intake Analysis
+                    </h1>
+                    <p className="text-gray-600 mt-1">Monitor and analyze nutritional intake patterns across
+                        demographics</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                        <Download className="w-4 h-4 mr-2"/>
+                    <Button variant="outline" size="sm" onClick={handleExport}>
+                        <FileDown className="w-4 h-4 mr-2"/>
                         Export Report
                     </Button>
-                    <Button size="sm">
+                    <Button size="sm" onClick={() => setShowAddForm(!showAddForm)}>
                         <Plus className="w-4 h-4 mr-2"/>
                         Add Record
                     </Button>
@@ -251,102 +318,6 @@ export default function NutritionIntake() {
                 </Card>
             </div>
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Nutrition Trends Over Time</CardTitle>
-                        <CardDescription>Monthly nutrition intake patterns</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={{}} className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={nutritionTrends}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="month"/>
-                                    <YAxis/>
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Line type="monotone" dataKey="carbohydrates" stroke="#8884d8" strokeWidth={2}/>
-                                    <Line type="monotone" dataKey="protein" stroke="#82ca9d" strokeWidth={2}/>
-                                    <Line type="monotone" dataKey="fiber" stroke="#ffc658" strokeWidth={2}/>
-                                    <Line type="monotone" dataKey="vitamins" stroke="#ff7300" strokeWidth={2}/>
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Recommended vs Actual Intake</CardTitle>
-                        <CardDescription>Nutrient intake compared to recommendations</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={{}} className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={recommendedVsActual}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="nutrient"/>
-                                    <YAxis/>
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Bar dataKey="recommended" fill="#8884d8" name="Recommended"/>
-                                    <Bar dataKey="actual" fill="#82ca9d" name="Actual Intake"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Nutrition by Demographic</CardTitle>
-                        <CardDescription>Intake patterns across demographic groups</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={{}} className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={demographicNutrition}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="demographic"/>
-                                    <YAxis/>
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Bar dataKey="carbs" stackId="a" fill="#8884d8"/>
-                                    <Bar dataKey="protein" stackId="a" fill="#82ca9d"/>
-                                    <Bar dataKey="fiber" stackId="a" fill="#ffc658"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Nutrition Profile</CardTitle>
-                        <CardDescription>Comprehensive nutrition intake radar</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={{}} className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <RadarChart data={radarData}>
-                                    <PolarGrid/>
-                                    <PolarAngleAxis dataKey="subject"/>
-                                    <PolarRadiusAxis/>
-                                    <Radar name="Actual" dataKey="A" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6}/>
-                                    <Radar name="Recommended" dataKey="B" stroke="#82ca9d" fill="#82ca9d"
-                                           fillOpacity={0.6}/>
-                                    <Legend/>
-                                </RadarChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-            </div>
-
             {/* Filters */}
             <Card>
                 <CardHeader>
@@ -365,40 +336,35 @@ export default function NutritionIntake() {
                                 className="pl-10"
                             />
                         </div>
-                        <Select value={selectedNutritionType} onValueChange={setSelectedNutritionType}>
+                        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                             <SelectTrigger className="w-full md:w-48">
-                                <SelectValue placeholder="Nutrition Type"/>
+                                <SelectValue placeholder="Month"/>
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All Types</SelectItem>
-                                <SelectItem value="Carbohydrates">Carbohydrates</SelectItem>
-                                <SelectItem value="Protein">Protein</SelectItem>
-                                <SelectItem value="Fiber">Fiber</SelectItem>
-                                <SelectItem value="Vitamins">Vitamins</SelectItem>
-                                <SelectItem value="Minerals">Minerals</SelectItem>
+                                <SelectItem value="all">All Months</SelectItem>
+                                <SelectItem value="0">January</SelectItem>
+                                <SelectItem value="1">February</SelectItem>
+                                <SelectItem value="2">March</SelectItem>
+                                <SelectItem value="3">April</SelectItem>
+                                <SelectItem value="4">May</SelectItem>
+                                <SelectItem value="5">June</SelectItem>
+                                <SelectItem value="6">July</SelectItem>
+                                <SelectItem value="7">August</SelectItem>
+                                <SelectItem value="8">September</SelectItem>
+                                <SelectItem value="9">October</SelectItem>
+                                <SelectItem value="10">November</SelectItem>
+                                <SelectItem value="11">December</SelectItem>
                             </SelectContent>
                         </Select>
-                        <Select value={selectedDemographic} onValueChange={setSelectedDemographic}>
+                        <Select value={selectedYear} onValueChange={setSelectedYear}>
                             <SelectTrigger className="w-full md:w-48">
-                                <SelectValue placeholder="Demographic"/>
+                                <SelectValue placeholder="Year"/>
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All Groups</SelectItem>
-                                <SelectItem value="Upper Class">Upper Class</SelectItem>
-                                <SelectItem value="Upper Middle Class">Upper Middle Class</SelectItem>
-                                <SelectItem value="Middle Class">Middle Class</SelectItem>
-                                <SelectItem value="Lower Middle Class">Lower Middle Class</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <Select value={selectedHealthStatus} onValueChange={setSelectedHealthStatus}>
-                            <SelectTrigger className="w-full md:w-48">
-                                <SelectValue placeholder="Health Status"/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Status</SelectItem>
-                                <SelectItem value="Healthy">Healthy</SelectItem>
-                                <SelectItem value="Moderate Risk">Moderate Risk</SelectItem>
-                                <SelectItem value="High Risk">High Risk</SelectItem>
+                                <SelectItem value="all">All Years</SelectItem>
+                                <SelectItem value="2022">2022</SelectItem>
+                                <SelectItem value="2023">2023</SelectItem>
+                                <SelectItem value="2024">2024</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -414,16 +380,16 @@ export default function NutritionIntake() {
                                     <TableHead>Actual Intake</TableHead>
                                     <TableHead>Recommended</TableHead>
                                     <TableHead>Gap</TableHead>
-                                    <TableHead>Compliance</TableHead>
-                                    <TableHead>Demographic</TableHead>
                                     <TableHead>Health Status</TableHead>
+                                    <TableHead>Per Capita Income</TableHead>
+                                    <TableHead>Per Capita Nutrition</TableHead>
+                                    <TableHead>Surplus/Deficit</TableHead>
                                     <TableHead>Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {filteredData.map((intake) => {
                                     const gap = intake.recommended_intake - intake.per_capita_nutrition_intake
-                                    const compliance = (intake.per_capita_nutrition_intake / intake.recommended_intake) * 100
                                     return (
                                         <TableRow key={intake.nutrition_id}>
                                             <TableCell className="font-medium">{intake.stakeholder_name}</TableCell>
@@ -435,20 +401,9 @@ export default function NutritionIntake() {
                                             <TableCell>{intake.per_capita_nutrition_intake}g</TableCell>
                                             <TableCell>{intake.recommended_intake}g</TableCell>
                                             <TableCell>
-                        <span className={gap > 0 ? 'text-red-600' : 'text-green-600'}>
-                          {gap > 0 ? '-' : '+'}{Math.abs(gap)}g
-                        </span>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant={compliance >= 100 ? "default" :
-                                                        compliance >= 80 ? "secondary" : "destructive"}
-                                                >
-                                                    {compliance.toFixed(1)}%
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="secondary">{intake.demographic_group}</Badge>
+                                                <span className={gap > 0 ? 'text-red-600' : 'text-green-600'}>
+                                                  {gap > 0 ? '-' : '+'}{Math.abs(gap)}g
+                                                </span>
                                             </TableCell>
                                             <TableCell>
                                                 <Badge
@@ -457,6 +412,14 @@ export default function NutritionIntake() {
                                                 >
                                                     {intake.health_status}
                                                 </Badge>
+                                            </TableCell>
+                                            <TableCell>{intake.per_capita_income}</TableCell>
+                                            <TableCell>{intake.per_capita_nutrition}</TableCell>
+                                            <TableCell>
+                                                <span
+                                                    className={intake.surplus_deficit.startsWith('-') ? 'text-red-600' : 'text-green-600'}>
+                                                    {intake.surplus_deficit}
+                                                </span>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center space-x-1">
@@ -476,6 +439,211 @@ export default function NutritionIntake() {
                     </div>
                 </CardContent>
             </Card>
+
+            {showAddForm && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Add Nutrition Record</CardTitle>
+                        <CardDescription>Enter comprehensive nutrition intake data for stakeholders</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Basic Information Section */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="nutrition_id" className="text-gray-700">Nutrition ID *</Label>
+                                        <Input
+                                            id="nutrition_id"
+                                            type="text"
+                                            placeholder="e.g., N006"
+                                            value={formData.nutrition_id}
+                                            onChange={(e) => handleInputChange("nutrition_id", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="stakeholder_id" className="text-gray-700">Stakeholder ID
+                                            *</Label>
+                                        <Input
+                                            id="stakeholder_id"
+                                            type="text"
+                                            placeholder="e.g., S006"
+                                            value={formData.stakeholder_id}
+                                            onChange={(e) => handleInputChange("stakeholder_id", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="stakeholder_name" className="text-gray-700">Stakeholder Name
+                                            *</Label>
+                                        <Input
+                                            id="stakeholder_name"
+                                            type="text"
+                                            placeholder="e.g., Hassan Family"
+                                            value={formData.stakeholder_name}
+                                            onChange={(e) => handleInputChange("stakeholder_name", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="product_id" className="text-gray-700">Product *</Label>
+                                        <Select value={formData.product_id} onValueChange={handleProductSelect}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Product"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {products.map((product) => (
+                                                    <SelectItem key={product.id} value={product.id}>
+                                                        {product.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="product_name" className="text-gray-700">Product Name</Label>
+                                        <Input
+                                            id="product_name"
+                                            type="text"
+                                            placeholder="Auto-filled from selection"
+                                            value={formData.product_name}
+                                            readOnly
+                                            className="bg-gray-50"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="intake_date" className="text-gray-700">Intake Date *</Label>
+                                        <Input
+                                            id="intake_date"
+                                            type="date"
+                                            value={formData.intake_date}
+                                            onChange={(e) => handleInputChange("intake_date", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Nutrition Data Section */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Nutrition Data</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="nutrition_type" className="text-gray-700">Nutrition Type
+                                            *</Label>
+                                        <Select value={formData.nutrition_type}
+                                                onValueChange={(value) => handleInputChange("nutrition_type", value)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Nutrition Type"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {nutritionTypes.map((type) => (
+                                                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="per_capita_nutrition_intake" className="text-gray-700">Actual
+                                            Intake (g) *</Label>
+                                        <Input
+                                            id="per_capita_nutrition_intake"
+                                            type="number"
+                                            step="0.1"
+                                            placeholder="e.g., 250"
+                                            value={formData.per_capita_nutrition_intake}
+                                            onChange={(e) => handleInputChange("per_capita_nutrition_intake", parseFloat(e.target.value) || 0)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="recommended_intake" className="text-gray-700">Recommended Intake
+                                            (g) *</Label>
+                                        <Input
+                                            id="recommended_intake"
+                                            type="number"
+                                            step="0.1"
+                                            placeholder="e.g., 300"
+                                            value={formData.recommended_intake}
+                                            onChange={(e) => handleInputChange("recommended_intake", parseFloat(e.target.value) || 0)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="per_capita_nutrition" className="text-gray-700">Per Capita
+                                            Nutrition *</Label>
+                                        <Input
+                                            id="per_capita_nutrition"
+                                            type="number"
+                                            step="0.1"
+                                            placeholder="e.g., 200"
+                                            value={formData.per_capita_nutrition}
+                                            onChange={(e) => handleInputChange("per_capita_nutrition", parseFloat(e.target.value) || 0)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="surplus_deficit" className="text-gray-700">Surplus/Deficit
+                                            *</Label>
+                                        <Input
+                                            id="surplus_deficit"
+                                            type="text"
+                                            placeholder="e.g., -15 tons or +20 tons"
+                                            value={formData.surplus_deficit}
+                                            onChange={(e) => handleInputChange("surplus_deficit", e.target.value)}
+                                            required
+                                        />
+                                        <p className="text-xs text-gray-500">Use format: +/-[number] tons</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Economic Information */}
+                            <div>
+                                <h4 className="text-lg font-medium text-gray-900 mb-4">Economic Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="per_capita_income" className="text-gray-700">Per Capita Income
+                                            ($) *</Label>
+                                        <Input
+                                            id="per_capita_income"
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="e.g., 5000"
+                                            value={formData.per_capita_income}
+                                            onChange={(e) => handleInputChange("per_capita_income", parseFloat(e.target.value) || 0)}
+                                            required
+                                        />
+                                        <p className="text-xs text-gray-500">Annual per capita income in USD</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Form Actions */}
+                            <div className="flex gap-4 pt-4 border-t border-gray-200">
+                                <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
+                                    <Plus className="h-4 w-4 mr-2"/>
+                                    Add Nutrition Record
+                                </Button>
+                                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                                    Cancel
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+            )}
         </div>
     )
 }
