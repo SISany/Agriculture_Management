@@ -60,23 +60,13 @@ export const exportTableToPDF = (options: ExportOptions) => {
     doc.text(`Generated on: ${currentDate}`, 20, subtitle ? 40 : 30)
 
     // Prepare table data
-    const tableColumns = columns.map(col => ({
-        title: col.header,
-        dataKey: col.dataKey,
-        width: col.width
-    }))
-
     const tableData = data.map(item => {
-        const row: Record<string, unknown> = {}
-        columns.forEach(col => {
-            row[col.dataKey] = item[col.dataKey] || ''
-        })
-        return row
+        return columns.map(col => item[col.dataKey] || '')
     })
 
     // Add table using autoTable
     autoTable(doc, {
-        columns: tableColumns,
+        head: [columns.map(col => col.header)],
         body: tableData,
         startY: subtitle ? 50 : 40,
         theme: 'striped',
