@@ -12,7 +12,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {Search, Plus, Edit2, Trash2, Users} from "lucide-react"
+import {Search, Plus, Edit2, Trash2, Users, FileDown} from "lucide-react"
+import {exportTableToPDF} from "@/lib/pdfExport"
 
 interface Stakeholder {
     stakeholder_id: string
@@ -39,6 +40,7 @@ interface Stakeholder {
     per_capita_income?: number
     demographic_group?: string
     household_size?: number
+    contact_status?: string
 }
 
 const stakeholders: Stakeholder[] = [
@@ -51,7 +53,8 @@ const stakeholders: Stakeholder[] = [
         farm_size: "50 acres",
         registration_date: "2023-01-15",
         farming_type: "Organic",
-        annual_production_capacity: 500
+        annual_production_capacity: 500,
+        contact_status: "Active"
     },
     {
         stakeholder_id: "S002",
@@ -62,7 +65,8 @@ const stakeholders: Stakeholder[] = [
         shop_type: "Grocery Store",
         customer_base: "5000+",
         monthly_sales_volume: 200,
-        market_coverage: "Urban"
+        market_coverage: "Urban",
+        contact_status: "Active"
     },
     {
         stakeholder_id: "S003",
@@ -73,7 +77,8 @@ const stakeholders: Stakeholder[] = [
         business_license: "WH-2023-001",
         storage_capacity: "10000 tons",
         distribution_network_size: 50,
-        supply_chain_reach: "National"
+        supply_chain_reach: "National",
+        contact_status: "Active"
     },
     {
         stakeholder_id: "S004",
@@ -83,7 +88,8 @@ const stakeholders: Stakeholder[] = [
         stakeholder_type: "Consumer",
         per_capita_income: 25000,
         demographic_group: "Middle Class",
-        household_size: 5
+        household_size: 5,
+        contact_status: "Active"
     },
     {
         stakeholder_id: "S005",
@@ -94,7 +100,8 @@ const stakeholders: Stakeholder[] = [
         farm_size: "120 acres",
         registration_date: "2022-08-20",
         farming_type: "Conventional",
-        annual_production_capacity: 1200
+        annual_production_capacity: 1200,
+        contact_status: "Active"
     }
 ]
 
@@ -142,6 +149,31 @@ export default function StakeholderManagement() {
         }
     }
 
+
+    const handleExport = () => {
+        exportTableToPDF({
+            title: 'Stakeholder Management Report',
+            subtitle: 'Agriculture Management System - Stakeholder Directory',
+            filename: 'stakeholder-management-report.pdf',
+            columns: [
+                {header: 'Stakeholder ID', dataKey: 'stakeholder_id', width: 25},
+                {header: 'Name', dataKey: 'stakeholder_name', width: 30},
+                {header: 'Type', dataKey: 'stakeholder_type', width: 20},
+                {header: 'Contact', dataKey: 'contact_info', width: 30},
+                {header: 'Location', dataKey: 'location', width: 25},
+                {header: 'Registration Date', dataKey: 'registration_date', width: 25}
+            ],
+            data: filteredStakeholders.map(stakeholder => ({
+                stakeholder_id: stakeholder.stakeholder_id,
+                stakeholder_name: stakeholder.stakeholder_name,
+                stakeholder_type: stakeholder.stakeholder_type,
+                contact_info: stakeholder.contact_info,
+                location: stakeholder.location,
+                registration_date: stakeholder.registration_date
+            }))
+        })
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -177,6 +209,10 @@ export default function StakeholderManagement() {
                     <Button>
                         <Plus className="w-4 h-4 mr-2"/>
                         Add Stakeholder
+                    </Button>
+                    <Button onClick={handleExport}>
+                        <FileDown className="w-4 h-4 mr-2"/>
+                        Export Data
                     </Button>
                 </div>
             </div>

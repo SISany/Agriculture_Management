@@ -6,7 +6,7 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
-import {Search, Plus, Edit2, Trash2, Users, MapPin, DollarSign, Home} from "lucide-react"
+import {Search, Plus, Edit2, Trash2, Users, MapPin, DollarSign, Home, FileDown} from "lucide-react"
 import {
     PieChart,
     Pie,
@@ -19,6 +19,7 @@ import {
     Tooltip,
     ResponsiveContainer
 } from "recharts"
+import {exportTableToPDF} from "@/lib/pdfExport"
 
 interface Consumer {
     id: string
@@ -162,6 +163,28 @@ export default function ConsumerManagement() {
     const avgHouseholdSize = Math.round(consumers.reduce((sum, c) => sum + c.household_size, 0) / consumers.length)
     const totalFoodExpenditure = consumers.reduce((sum, c) => sum + c.monthly_food_expenditure, 0)
 
+    const handleExport = () => {
+        exportTableToPDF({
+            title: 'Consumer Management Report',
+            subtitle: 'Agriculture Management System - Consumer Directory',
+            filename: 'consumer-management-report.pdf',
+            columns: [
+                {header: 'Consumer ID', dataKey: 'consumer_id', width: 25},
+                {header: 'Full Name', dataKey: 'consumer_name', width: 35},
+                {header: 'Location', dataKey: 'location', width: 50},
+                {header: 'Demographic Group', dataKey: 'demographic_group', width: 30},
+                {header: 'Household Size', dataKey: 'household_size', width: 25}
+            ],
+            data: filteredConsumers.map(consumer => ({
+                consumer_id: consumer.consumer_id,
+                consumer_name: consumer.consumer_name,
+                location: consumer.location,
+                demographic_group: consumer.demographic_group,
+                household_size: consumer.household_size
+            }))
+        })
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
@@ -177,13 +200,22 @@ export default function ConsumerManagement() {
                                 <p className="text-gray-600 mt-1">Manage consumer profiles and purchasing patterns</p>
                             </div>
                         </div>
-                        <Button
-                            onClick={() => setShowForm(!showForm)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3"
-                        >
-                            <Plus className="h-4 w-4 mr-2"/>
-                            Add Consumer
-                        </Button>
+                        <div className="flex gap-4">
+                            <Button
+                                onClick={() => setShowForm(!showForm)}
+                                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3"
+                            >
+                                <Plus className="h-4 w-4 mr-2"/>
+                                Add Consumer
+                            </Button>
+                            <Button
+                                onClick={handleExport}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
+                            >
+                                <FileDown className="h-4 w-4 mr-2"/>
+                                Export Data
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
@@ -335,7 +367,7 @@ export default function ConsumerManagement() {
                 )}
 
                 {/* Table View */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm" id="consumer-table">
                     <div className="p-6 border-b border-gray-200">
                         <h3 className="text-xl font-semibold text-gray-900 mb-4">Consumer Directory</h3>
                         <div className="flex flex-col sm:flex-row gap-4">

@@ -20,8 +20,10 @@ import {
     Calendar,
     Package,
     MapPin,
-    User
+    User,
+    FileDown
 } from "lucide-react"
+import {exportTableToPDF} from "@/lib/pdfExport"
 
 interface Shipment {
     shipment_id: string
@@ -229,6 +231,41 @@ export default function ShipmentTracking() {
         }
     }
 
+
+    const handleExport = () => {
+        exportTableToPDF({
+            title: 'Shipment Tracking Report',
+            subtitle: 'Agriculture Management System - Shipment Management',
+            filename: 'shipment-tracking-report.pdf',
+            columns: [
+                {header: 'Shipment ID', dataKey: 'shipment_id', width: 25},
+                {header: 'Product', dataKey: 'product_name', width: 20},
+                {header: 'From', dataKey: 'sender_name', width: 25},
+                {header: 'To', dataKey: 'receiver_name', width: 25},
+                {header: 'Quantity', dataKey: 'quantity_shipped', width: 20},
+                {header: 'Ship Date', dataKey: 'shipment_date', width: 25},
+                {header: 'Expected Delivery', dataKey: 'expected_delivery_date', width: 25},
+                {header: 'Actual Delivery', dataKey: 'actual_delivery_date', width: 25},
+                {header: 'Status', dataKey: 'shipment_status', width: 20},
+                {header: 'Cost', dataKey: 'shipping_cost', width: 20},
+                {header: 'Mode', dataKey: 'transport_mode', width: 20}
+            ],
+            data: filteredShipments.map(shipment => ({
+                shipment_id: shipment.shipment_id,
+                product_name: shipment.product_name,
+                sender_name: shipment.sender_name,
+                receiver_name: shipment.receiver_name,
+                quantity_shipped: shipment.quantity_shipped,
+                shipment_date: shipment.shipment_date,
+                expected_delivery_date: shipment.expected_delivery_date,
+                actual_delivery_date: shipment.actual_delivery_date,
+                shipment_status: shipment.shipment_status,
+                shipping_cost: shipment.shipping_cost,
+                transport_mode: shipment.transport_mode
+            }))
+        })
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -250,6 +287,10 @@ export default function ShipmentTracking() {
                     <Button>
                         <Plus className="w-4 h-4 mr-2"/>
                         Create Shipment
+                    </Button>
+                    <Button onClick={handleExport}>
+                        <FileDown className="w-4 h-4 mr-2"/>
+                        Export Data
                     </Button>
                 </div>
             </div>
@@ -646,7 +687,7 @@ export default function ShipmentTracking() {
             </Card>
 
             {/* Detailed Shipment Table */}
-            <Card>
+            <Card id="shipment-table">
                 <CardHeader>
                     <CardTitle>Shipment Records</CardTitle>
                     <CardDescription>Complete shipment tracking with status and delivery information</CardDescription>

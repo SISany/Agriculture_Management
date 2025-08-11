@@ -6,7 +6,7 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
-import {Search, Plus, Edit2, Trash2, Warehouse, Building, Truck, TrendingUp} from "lucide-react"
+import {Search, Plus, Edit2, Trash2, Warehouse, Building, Truck, TrendingUp, FileDown} from "lucide-react"
 import {
     PieChart,
     Pie,
@@ -19,6 +19,7 @@ import {
     Tooltip,
     ResponsiveContainer
 } from "recharts"
+import {exportTableToPDF} from "@/lib/pdfExport"
 
 // TypeScript interfaces
 interface Wholesaler {
@@ -163,6 +164,30 @@ export default function WholesalerManagement() {
     const avgNetworkSize = Math.round(wholesalers.reduce((sum, w) => sum + w.distribution_network_size, 0) / wholesalers.length)
     const totalWarehouses = wholesalers.reduce((sum, w) => sum + w.warehouse_count, 0)
 
+    const handleExport = () => {
+        exportTableToPDF({
+            title: 'Wholesaler Management Report',
+            subtitle: 'Agriculture Management System - Wholesaler Directory',
+            filename: 'wholesaler-management-report.pdf',
+            columns: [
+                {header: 'Wholesaler ID', dataKey: 'wholesaler_id', width: 25},
+                {header: 'Wholesaler Name', dataKey: 'wholesaler_name', width: 35},
+                {header: 'Location', dataKey: 'location', width: 30},
+                {header: 'Supply Chain Reach', dataKey: 'supply_chain_reach', width: 30},
+                {header: 'Storage Capacity', dataKey: 'storage_capacity', width: 25},
+                {header: 'Annual Revenue', dataKey: 'annual_revenue', width: 25}
+            ],
+            data: filteredWholesalers.map(wholesaler => ({
+                wholesaler_id: wholesaler.wholesaler_id,
+                wholesaler_name: wholesaler.wholesaler_name,
+                location: wholesaler.location,
+                supply_chain_reach: wholesaler.supply_chain_reach,
+                storage_capacity: wholesaler.storage_capacity,
+                annual_revenue: wholesaler.annual_turnover
+            }))
+        })
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
@@ -179,13 +204,22 @@ export default function WholesalerManagement() {
                                     networks</p>
                             </div>
                         </div>
-                        <Button
-                            onClick={() => setShowForm(!showForm)}
-                            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3"
-                        >
-                            <Plus className="h-4 w-4 mr-2"/>
-                            Add Wholesaler
-                        </Button>
+                        <div className="flex gap-4">
+                            <Button
+                                onClick={() => setShowForm(!showForm)}
+                                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3"
+                            >
+                                <Plus className="h-4 w-4 mr-2"/>
+                                Add Wholesaler
+                            </Button>
+                            <Button
+                                onClick={handleExport}
+                                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3"
+                            >
+                                <FileDown className="h-4 w-4 mr-2"/>
+                                Export Data
+                            </Button>
+                        </div>
                     </div>
                 </div>
 

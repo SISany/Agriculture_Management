@@ -6,7 +6,7 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
-import {Search, Plus, Edit2, Trash2, Store, MapPin, Users, TrendingUp} from "lucide-react"
+import {Search, Plus, Edit2, Trash2, Store, MapPin, Users, TrendingUp, FileDown} from "lucide-react"
 import {
     PieChart,
     Pie,
@@ -19,6 +19,7 @@ import {
     Tooltip,
     ResponsiveContainer
 } from "recharts"
+import {exportTableToPDF} from "@/lib/pdfExport"
 
 interface Retailer {
     id: string
@@ -165,6 +166,30 @@ export default function RetailerManagement() {
         return sum + customers
     }, 0)
 
+    const handleExport = () => {
+        exportTableToPDF({
+            title: 'Retailer Management Report',
+            subtitle: 'Agriculture Management System - Retailer Directory',
+            filename: 'retailer-management-report.pdf',
+            columns: [
+                {header: 'Retailer ID', dataKey: 'retailer_id', width: 25},
+                {header: 'Retailer Name', dataKey: 'retailer_name', width: 35},
+                {header: 'Location', dataKey: 'location', width: 30},
+                {header: 'Shop Type', dataKey: 'shop_type', width: 25},
+                {header: 'Customer Base', dataKey: 'customer_base', width: 40},
+                {header: 'Annual Revenue', dataKey: 'annual_revenue', width: 25}
+            ],
+            data: filteredRetailers.map(retailer => ({
+                retailer_id: retailer.retailer_id,
+                retailer_name: retailer.retailer_name,
+                location: retailer.location,
+                shop_type: retailer.shop_type,
+                customer_base: retailer.customer_base,
+                annual_revenue: retailer.annual_revenue
+            }))
+        })
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
@@ -181,13 +206,22 @@ export default function RetailerManagement() {
                                     information</p>
                             </div>
                         </div>
-                        <Button
-                            onClick={() => setShowForm(!showForm)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
-                        >
-                            <Plus className="h-4 w-4 mr-2"/>
-                            Add Retailer
-                        </Button>
+                        <div className="flex gap-4">
+                            <Button
+                                onClick={() => setShowForm(!showForm)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
+                            >
+                                <Plus className="h-4 w-4 mr-2"/>
+                                Add Retailer
+                            </Button>
+                            <Button
+                                onClick={handleExport}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
+                            >
+                                <FileDown className="h-4 w-4 mr-2"/>
+                                Export Data
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
@@ -368,7 +402,7 @@ export default function RetailerManagement() {
                     </div>
 
                     <div className="overflow-x-auto">
-                        <Table>
+                        <Table id="retailer-table">
                             <TableHeader>
                                 <TableRow className="bg-gray-50">
                                     <TableHead>ID</TableHead>

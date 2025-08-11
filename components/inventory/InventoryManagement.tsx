@@ -7,7 +7,20 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {Badge} from "@/components/ui/badge"
-import {Search, Plus, Edit2, Trash2, Package, Activity, Target, TrendingUp, Calendar, Warehouse} from "lucide-react"
+import {
+    Search,
+    Plus,
+    Edit2,
+    Trash2,
+    Package,
+    Activity,
+    Target,
+    TrendingUp,
+    Calendar,
+    Warehouse,
+    FileDown
+} from "lucide-react"
+import {exportTableToPDF} from "@/lib/pdfExport"
 
 interface InventoryItem {
     inventory_id: string
@@ -177,6 +190,38 @@ export default function InventoryManagement() {
         return "default"
     }
 
+    const handleExport = () => {
+        exportTableToPDF({
+            title: 'Inventory Management Report',
+            subtitle: 'Agriculture Management System - Inventory Status',
+            filename: 'inventory-management-report.pdf',
+            columns: [
+                {header: 'Inventory ID', dataKey: 'inventory_id', width: 20},
+                {header: 'Product Name', dataKey: 'product_name', width: 30},
+                {header: 'Warehouse', dataKey: 'warehouse_name', width: 25},
+                {header: 'Available', dataKey: 'quantity_available', width: 25},
+                {header: 'Reserved', dataKey: 'quantity_reserved', width: 20},
+                {header: 'Expiry Date', dataKey: 'expiry_date', width: 20},
+                {header: 'Batch Number', dataKey: 'batch_number', width: 20},
+                {header: 'Unit Cost', dataKey: 'unit_cost', width: 20},
+                {header: 'Total Value', dataKey: 'total_value', width: 20},
+                {header: 'Last Updated', dataKey: 'last_updated', width: 20}
+            ],
+            data: filteredInventory.map(item => ({
+                inventory_id: item.inventory_id,
+                product_name: item.product_name,
+                warehouse_name: item.warehouse_name,
+                quantity_available: item.quantity_available,
+                quantity_reserved: item.quantity_reserved,
+                expiry_date: item.expiry_date,
+                batch_number: item.batch_number,
+                unit_cost: item.unit_cost,
+                total_value: (item.quantity_available * item.unit_cost).toFixed(2),
+                last_updated: item.last_updated
+            }))
+        })
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -198,6 +243,10 @@ export default function InventoryManagement() {
                     <Button>
                         <Plus className="w-4 h-4 mr-2"/>
                         Add Inventory
+                    </Button>
+                    <Button onClick={handleExport}>
+                        <FileDown className="w-4 h-4 mr-2"/>
+                        Export Data
                     </Button>
                 </div>
             </div>

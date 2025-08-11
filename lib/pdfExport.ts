@@ -19,7 +19,7 @@ export interface ExportOptions {
     subtitle?: string
     filename: string
     columns: ExportColumn[]
-    data: any[]
+    data: Record<string, unknown>[]
 }
 
 export const exportTableToPDF = (options: ExportOptions) => {
@@ -67,7 +67,7 @@ export const exportTableToPDF = (options: ExportOptions) => {
     }))
 
     const tableData = data.map(item => {
-        const row: any = {}
+        const row: Record<string, unknown> = {}
         columns.forEach(col => {
             row[col.dataKey] = item[col.dataKey] || ''
         })
@@ -111,7 +111,7 @@ export const exportTableToPDF = (options: ExportOptions) => {
 }
 
 // Pre-configured export functions for different components
-export const exportWeatherData = (data: any[]) => {
+export const exportWeatherData = (data: Record<string, unknown>[]) => {
     exportTableToPDF({
         title: 'Weather Data Report',
         subtitle: 'Agriculture Management System - Weather Monitoring',
@@ -129,7 +129,7 @@ export const exportWeatherData = (data: any[]) => {
     })
 }
 
-export const exportProductData = (data: any[]) => {
+export const exportProductData = (data: Record<string, unknown>[]) => {
     exportTableToPDF({
         title: 'Product Catalog Report',
         subtitle: 'Agriculture Management System - Product Directory',
@@ -147,7 +147,7 @@ export const exportProductData = (data: any[]) => {
     })
 }
 
-export const exportNutritionData = (data: any[]) => {
+export const exportNutritionData = (data: Record<string, unknown>[]) => {
     exportTableToPDF({
         title: 'Nutrition Intake Report',
         subtitle: 'Agriculture Management System - Nutritional Analysis',
@@ -167,7 +167,7 @@ export const exportNutritionData = (data: any[]) => {
     })
 }
 
-export const exportPriceData = (data: any[]) => {
+export const exportPriceData = (data: Record<string, unknown>[]) => {
     exportTableToPDF({
         title: 'Price History Report',
         subtitle: 'Agriculture Management System - Market Price Analysis',
@@ -186,7 +186,7 @@ export const exportPriceData = (data: any[]) => {
     })
 }
 
-export const exportProductionData = (data: any[]) => {
+export const exportProductionData = (data: Record<string, unknown>[]) => {
     exportTableToPDF({
         title: 'Production Management Report',
         subtitle: 'Agriculture Management System - Regional Production Data',
@@ -204,7 +204,7 @@ export const exportProductionData = (data: any[]) => {
     })
 }
 
-export const exportConsumptionData = (data: any[]) => {
+export const exportConsumptionData = (data: Record<string, unknown>[]) => {
     exportTableToPDF({
         title: 'Consumption Pattern Report',
         subtitle: 'Agriculture Management System - Consumer Behavior Analysis',
@@ -223,7 +223,7 @@ export const exportConsumptionData = (data: any[]) => {
     })
 }
 
-export const exportTransactionData = (data: any[]) => {
+export const exportTransactionData = (data: Record<string, unknown>[]) => {
     exportTableToPDF({
         title: 'Transaction Management Report',
         subtitle: 'Agriculture Management System - Financial Transaction Records',

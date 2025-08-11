@@ -32,8 +32,10 @@ import {
     Trash2,
     Package,
     MapPin,
-    Calendar
+    Calendar,
+    FileDown
 } from "lucide-react"
+import {exportTableToPDF} from "@/lib/pdfExport"
 
 // TypeScript interfaces
 interface DemandForecast {
@@ -230,7 +232,7 @@ export default function DemandForecast() {
     // Updated statistics based on filteredForecasts
     const totalProjectedDemand = filteredForecasts.reduce((sum, forecast) => sum + forecast.projected_demand, 0)
     const totalCurrentSupply = filteredForecasts.reduce((sum, forecast) => sum + forecast.current_supply, 0)
-    const avgAccuracy = filteredForecasts.reduce((sum, forecast) => sum + forecast.accuracy_percentage, 0) / (filteredForecasts.length || 1)
+    const avgAccuracy = filteredForecasts.reduce((sum, forecast) => sum + forecast.accuracy_percentage, 0) / filteredForecasts.length || 0
     const supplyGap = totalProjectedDemand - totalCurrentSupply
 
     // Prepare chart data for new chart requirements
@@ -252,6 +254,38 @@ export default function DemandForecast() {
         {region: "Khulna", projected_demand: 16500, current_supply: 14000, supply_gap: 2500}
     ]
 
+    const handleExport = () => {
+        exportTableToPDF({
+            title: 'Demand Forecast Report',
+            subtitle: 'Agriculture Management System - Demand Analysis',
+            filename: 'demand-forecast-report.pdf',
+            columns: [
+                {header: 'Forecast ID', dataKey: 'demand_id', width: 25},
+                {header: 'Product', dataKey: 'product_name', width: 25},
+                {header: 'Location', dataKey: 'location', width: 30},
+                {header: 'Forecast Date', dataKey: 'forecast_date', width: 25},
+                {header: 'Projected Demand', dataKey: 'projected_demand', width: 30},
+                {header: 'Current Supply', dataKey: 'current_supply', width: 30},
+                {header: 'Supply Gap', dataKey: 'supply_gap', width: 25},
+                {header: 'Period', dataKey: 'forecast_period', width: 25},
+                {header: 'Trend', dataKey: 'demand_trend', width: 25},
+                {header: 'Accuracy', dataKey: 'accuracy_percentage', width: 25}
+            ],
+            data: filteredForecasts.map(forecast => ({
+                demand_id: forecast.demand_id,
+                product_name: forecast.product_name,
+                location: forecast.location,
+                forecast_date: forecast.forecast_date,
+                projected_demand: forecast.projected_demand,
+                current_supply: forecast.current_supply,
+                supply_gap: forecast.projected_demand - forecast.current_supply,
+                forecast_period: forecast.forecast_period,
+                demand_trend: forecast.demand_trend,
+                accuracy_percentage: `${forecast.accuracy_percentage}%`
+            }))
+        })
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-8">
@@ -262,6 +296,10 @@ export default function DemandForecast() {
                         <p className="text-gray-600 text-lg">AI-powered demand forecasting and supply gap analysis</p>
                     </div>
                     <div className="flex items-center gap-4">
+                        <Button variant="outline" size="sm" onClick={handleExport}>
+                            <FileDown className="w-4 h-4 mr-2"/>
+                            Export Data
+                        </Button>
                         <Button variant="outline" size="sm">
                             <Download className="w-4 h-4 mr-2"/>
                             Export Report

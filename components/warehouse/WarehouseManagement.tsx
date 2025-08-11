@@ -22,7 +22,6 @@ import {
     ComposedChart
 } from "recharts"
 import {
-    Download,
     Search,
     Plus,
     Edit2,
@@ -31,8 +30,10 @@ import {
     MapPin,
     Thermometer,
     Package,
-    Users
+    Users,
+    FileDown
 } from "lucide-react"
+import {exportTableToPDF} from "@/lib/pdfExport"
 
 interface Warehouse {
     id: string
@@ -228,6 +229,36 @@ export default function WarehouseManagement() {
         return "default"
     }
 
+    const handleExport = () => {
+        exportTableToPDF({
+            title: 'Warehouse Management Report',
+            subtitle: 'Agriculture Management System - Warehouse Operations',
+            filename: 'warehouse-management-report.pdf',
+            columns: [
+                {header: 'Warehouse ID', dataKey: 'warehouse_id', width: 25},
+                {header: 'Name', dataKey: 'warehouse_name', width: 30},
+                {header: 'Location', dataKey: 'location', width: 30},
+                {header: 'Type', dataKey: 'warehouse_type', width: 20},
+                {header: 'Total Capacity', dataKey: 'total_capacity', width: 25},
+                {header: 'Current Stock', dataKey: 'current_stock', width: 25},
+                {header: 'Available Space', dataKey: 'available_space', width: 25},
+                {header: 'Manager', dataKey: 'manager_name', width: 25},
+                {header: 'Status', dataKey: 'operational_status', width: 20}
+            ],
+            data: filteredWarehouses.map(warehouse => ({
+                warehouse_id: warehouse.warehouse_id,
+                warehouse_name: warehouse.warehouse_name,
+                location: warehouse.location,
+                warehouse_type: warehouse.storage_conditions,
+                total_capacity: warehouse.storage_capacity,
+                current_stock: warehouse.current_stock_level,
+                available_space: warehouse.storage_capacity - warehouse.current_stock_level,
+                manager_name: warehouse.stakeholder_name,
+                operational_status: "Operational"
+            }))
+        })
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -236,8 +267,8 @@ export default function WarehouseManagement() {
                     <p className="text-sm text-gray-600">Manage storage facilities and inventory tracking</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                        <Download className="w-4 h-4 mr-2"/>
+                    <Button variant="outline" size="sm" onClick={handleExport}>
+                        <FileDown className="w-4 h-4 mr-2"/>
                         Export Data
                     </Button>
                 </div>
