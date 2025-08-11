@@ -531,8 +531,6 @@ export default function ConsumptionPattern() {
                                     <TableHead>Amount Spent</TableHead>
                                     <TableHead>Location</TableHead>
                                     <TableHead>Season</TableHead>
-                                    <TableHead>Demographic</TableHead>
-                                    <TableHead>Household Size</TableHead>
                                     <TableHead>Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -548,10 +546,6 @@ export default function ConsumptionPattern() {
                                         <TableCell>
                                             <Badge variant="outline">{pattern.season}</Badge>
                                         </TableCell>
-                                        <TableCell>
-                                            <Badge variant="secondary">{pattern.demographic_group}</Badge>
-                                        </TableCell>
-                                        <TableCell>{pattern.household_size}</TableCell>
                                         <TableCell>
                                             <div className="flex items-center space-x-1">
                                                 <Button variant="ghost" size="sm" className="hover:bg-blue-50">
