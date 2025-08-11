@@ -440,16 +440,18 @@ export default function ProductList() {
                                     <TableHead>Name</TableHead>
                                     <TableHead>Type</TableHead>
                                     <TableHead>Variety</TableHead>
-                                    <TableHead>Time of Sowing</TableHead>
+                                    <TableHead>Sowing Time</TableHead>
+                                    <TableHead>Transplanting</TableHead>
+                                    <TableHead>Harvest Time</TableHead>
+                                    <TableHead>Per Acre Seed</TableHead>
                                     <TableHead>Nutrition</TableHead>
-                                    <TableHead>Seed Req.</TableHead>
                                     <TableHead>Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {filteredProducts.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                                        <TableCell colSpan={10} className="text-center py-8 text-gray-500">
                                             <Package className="h-8 w-8 mx-auto mb-2 text-gray-400"/>
                                             No products found
                                         </TableCell>
@@ -467,6 +469,12 @@ export default function ProductList() {
                                             </TableCell>
                                             <TableCell className="text-gray-600">{product.variety}</TableCell>
                                             <TableCell className="text-gray-600">{product.sowing_time}</TableCell>
+                                            <TableCell className="text-gray-600">
+                                                {product.transplanting_time || "N/A"}
+                                            </TableCell>
+                                            <TableCell className="text-gray-600">{product.harvest_time}</TableCell>
+                                            <TableCell
+                                                className="text-gray-600">{product.seed_requirement_per_acre} kg/acre</TableCell>
                                             <TableCell>
                                                 <span
                                                     className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">

@@ -125,13 +125,15 @@ export const exportProductData = (data: Record<string, unknown>[]) => {
         subtitle: 'Agriculture Management System - Product Directory',
         filename: 'product-catalog-report.pdf',
         columns: [
-            {header: 'Product ID', dataKey: 'id', width: 20},
-            {header: 'Name', dataKey: 'product_name', width: 30},
-            {header: 'Type', dataKey: 'product_type', width: 25},
-            {header: 'Variety', dataKey: 'variety', width: 30},
+            {header: 'Product ID', dataKey: 'product_id', width: 20},
+            {header: 'Name', dataKey: 'product_name', width: 25},
+            {header: 'Type', dataKey: 'product_type', width: 20},
+            {header: 'Variety', dataKey: 'variety', width: 25},
             {header: 'Sowing Time', dataKey: 'sowing_time', width: 25},
-            {header: 'Nutrition (kcal)', dataKey: 'nutritional_value_per_unit', width: 30},
-            {header: 'Seed Req/Acre', dataKey: 'seed_requirement_per_acre', width: 30}
+            {header: 'Transplanting', dataKey: 'transplanting_time', width: 25},
+            {header: 'Harvest Time', dataKey: 'harvest_time', width: 25},
+            {header: 'Per Acre Seed (kg)', dataKey: 'seed_requirement_per_acre', width: 25},
+            {header: 'Nutrition (kcal)', dataKey: 'nutritional_value_per_unit', width: 25}
         ],
         data
     })
