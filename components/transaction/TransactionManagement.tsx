@@ -130,7 +130,8 @@ export default function TransactionManagement() {
                         <Plus className="w-4 h-4 mr-2"/>
                         Add Transaction
                     </Button>
-                    <Button variant="outline" onClick={() => exportTransactionData(transactions)}>
+                    <Button variant="outline"
+                            onClick={() => exportTransactionData(transactions as unknown as Record<string, unknown>[])}>
                         <FileDown className="w-4 h-4 mr-2"/>
                         Export Data
                     </Button>

@@ -236,7 +236,7 @@ export default function ConsumptionPattern() {
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" size="sm"
-                            onClick={() => exportConsumptionData(filteredData as Record<string, unknown>[])}>
+                            onClick={() => exportConsumptionData(filteredData as unknown as Record<string, unknown>[])}>
                         <FileDown className="w-4 h-4 mr-2"/>
                         Export Data
                     </Button>

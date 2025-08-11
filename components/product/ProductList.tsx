@@ -168,7 +168,7 @@ export default function ProductList() {
                                 Add Product
                             </Button>
                             <Button
-                                onClick={() => exportProductData(products)}
+                                onClick={() => exportProductData(products as unknown as Record<string, unknown>[])}
                                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
                             >
                                 <FileDown className="h-4 w-4 mr-2"/>

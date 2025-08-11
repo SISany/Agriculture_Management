@@ -202,7 +202,7 @@ export default function PriceAnalytics() {
                         <Plus className="w-4 h-4 mr-2"/>
                         Add Price Record
                     </Button>
-                    <Button onClick={() => exportPriceData(priceHistoryData)}>
+                    <Button onClick={() => exportPriceData(priceHistoryData as unknown as Record<string, unknown>[])}>
                         <FileDown className="w-4 h-4 mr-2"/>
                         Export Data
                     </Button>

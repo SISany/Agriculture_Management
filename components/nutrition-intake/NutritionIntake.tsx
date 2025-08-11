@@ -238,7 +238,7 @@ export default function NutritionIntake() {
     ]
 
     const handleExport = () => {
-        exportNutritionData(filteredData as Record<string, unknown>[])
+        exportNutritionData(filteredData as unknown as Record<string, unknown>[])
     }
 
     return (

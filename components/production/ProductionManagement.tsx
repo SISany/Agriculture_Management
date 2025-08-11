@@ -153,7 +153,7 @@ export default function ProductionManagement() {
                         <Plus className="w-4 h-4 mr-2"/>
                         Add Production Record
                     </Button>
-                    <Button onClick={() => exportProductionData(productions)}>
+                    <Button onClick={() => exportProductionData(productions as unknown as Record<string, unknown>[])}>
                         <FileDown className="w-4 h-4 mr-2"/>
                         Export Data
                     </Button>

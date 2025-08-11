@@ -162,7 +162,8 @@ export default function WeatherDashboard() {
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => exportWeatherData(weatherData)}>
+                        <Button variant="outline" size="sm"
+                                onClick={() => exportWeatherData(weatherData as unknown as Record<string, unknown>[])}>
                             <FileDown className="w-4 h-4 mr-2"/>
                             Export Data
                         </Button>
