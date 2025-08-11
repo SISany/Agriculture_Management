@@ -240,7 +240,6 @@ export default function ProductionManagement() {
                                     <label htmlFor="product_name" className="text-sm font-medium text-gray-700">Product
                                         Name</label>
                                     <Select
-                                        id="product_name"
                                         value={formData.product_name}
                                         onValueChange={(value) => handleInputChange("product_name", value)}
                                     >
@@ -259,7 +258,6 @@ export default function ProductionManagement() {
                                     <label htmlFor="district_division"
                                            className="text-sm font-medium text-gray-700">District/Division</label>
                                     <Select
-                                        id="district_division"
                                         value={formData.district_division}
                                         onValueChange={(value) => handleInputChange("district_division", value)}
                                     >
