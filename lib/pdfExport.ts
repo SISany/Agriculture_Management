@@ -207,7 +207,7 @@ export const exportConsumptionData = (data: Record<string, unknown>[]) => {
             {header: 'Amount Spent (৳)', dataKey: 'amount_spent', width: 30},
             {header: 'Location', dataKey: 'location', width: 25},
             {header: 'Season', dataKey: 'season', width: 20},
-            {header: 'Demographic', dataKey: 'demographic_group', width: 25}
+            {header: 'Household Size', dataKey: 'household_size', width: 25}
         ],
         data
     })
