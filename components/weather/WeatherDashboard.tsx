@@ -1,480 +1,365 @@
 "use client"
 
-import {useState} from "react"
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {useState, useEffect} from "react"
 import {Button} from "@/components/ui/button"
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
-import {Badge} from "@/components/ui/badge"
-import {CloudRain, Search, Plus, Edit2, Trash2, Package, Sun, Wind, FileDown} from "lucide-react"
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Label} from "@/components/ui/label"
-import {exportWeatherData} from "@/lib/pdfExport"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {Search, Plus, Edit2, Trash2, Cloud, Droplets, Thermometer} from "lucide-react"
 
 interface Weather {
-    weather_id: number
-    location: string
-    date_recorded: string
+    weather_id: string
+    district_id: number
+    date: string
     rainfall: number
     temperature: number
-    season: string
-    humidity: number
-    weather_conditions: string
+    district_name?: string
 }
 
-const weatherData: Weather[] = [
-    {
-        weather_id: 1,
-        location: "Dhaka",
-        date_recorded: "2024-01-15",
-        rainfall: 15.2,
-        temperature: 25.8,
-        season: "Winter",
-        humidity: 72.0,
-        weather_conditions: "Partly Cloudy"
-    },
-    {
-        weather_id: 2,
-        location: "Chittagong",
-        date_recorded: "2024-01-15",
-        rainfall: 8.5,
-        temperature: 24.2,
-        season: "Winter",
-        humidity: 75.0,
-        weather_conditions: "Clear Sky"
-    },
-    {
-        weather_id: 3,
-        location: "Sylhet",
-        date_recorded: "2024-01-14",
-        rainfall: 22.1,
-        temperature: 23.5,
-        season: "Winter",
-        humidity: 78.0,
-        weather_conditions: "Light Rain"
-    },
-    {
-        weather_id: 4,
-        location: "Rajshahi",
-        date_recorded: "2024-01-14",
-        rainfall: 5.3,
-        temperature: 26.1,
-        season: "Winter",
-        humidity: 68.0,
-        weather_conditions: "Sunny"
-    },
-    {
-        weather_id: 5,
-        location: "Khulna",
-        date_recorded: "2024-01-13",
-        rainfall: 18.7,
-        temperature: 24.8,
-        season: "Winter",
-        humidity: 74.0,
-        weather_conditions: "Overcast"
-    }
-]
+interface District {
+    district_id: number
+    name: string
+}
 
 export default function WeatherDashboard() {
+    const [weather, setWeather] = useState<Weather[]>([])
+    const [districts, setDistricts] = useState<District[]>([])
+    const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState("")
-    const [weatherLoading, setWeatherLoading] = useState(false)
-    const [showAddForm, setShowAddForm] = useState(false)
-
-    const [formData, setFormData] = useState({
-        weather_id: 0,
-        location: "",
-        date_recorded: "",
+    const [selectedDistrict, setSelectedDistrict] = useState("all")
+    const [showForm, setShowForm] = useState(false)
+    const [editingWeather, setEditingWeather] = useState<Weather | null>(null)
+    const [formData, setFormData] = useState<Weather>({
+        weather_id: "",
+        district_id: 0,
+        date: "",
         rainfall: 0,
-        temperature: 0,
-        season: "",
-        humidity: 0,
-        weather_conditions: ""
+        temperature: 0
     })
 
-    const filteredWeatherData = weatherData.filter(weather =>
-        weather.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        weather.weather_conditions.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        weather.season.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    useEffect(() => {
+        fetchData();
+    }, []);
 
-    const refreshWeatherData = () => {
-        setWeatherLoading(true)
-        setTimeout(() => {
-            setWeatherLoading(false)
-        }, 2000)
-    }
+    const fetchData = async () => {
+        try {
+            const [weatherRes, districtsRes] = await Promise.all([
+                fetch('/api/weather'),
+                fetch('/api/districts')
+            ]);
+            
+            const weatherData = await weatherRes.json();
+            const districtsData = await districtsRes.json();
+            
+            setWeather(weatherData);
+            setDistricts(districtsData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    const handleInputChange = (field: string, value: string | number) => {
+    const handleInputChange = (field: keyof Weather, value: string | number) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
         }))
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-
-        const newWeatherRecord: Weather = {
-            ...formData,
-            weather_id: Math.max(...weatherData.map(w => w.weather_id)) + 1
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const method = editingWeather ? 'PUT' : 'POST';
+            const response = await fetch('/api/weather', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+            
+            if (response.ok) {
+                await fetchData();
+                resetForm();
+            }
+        } catch (error) {
+            console.error('Error saving weather:', error);
         }
-
-        console.log("New Weather Record:", newWeatherRecord)
-
-        setFormData({
-            weather_id: 0,
-            location: "",
-            date_recorded: "",
-            rainfall: 0,
-            temperature: 0,
-            season: "",
-            humidity: 0,
-            weather_conditions: ""
-        })
-        setShowAddForm(false)
     }
 
-    // Calculate statistics
-    const totalRecords = weatherData.length
-    const averageTemperature = weatherData.reduce((sum, w) => sum + w.temperature, 0) / weatherData.length || 0
-    const totalRainfall = weatherData.reduce((sum, w) => sum + w.rainfall, 0)
-    const averageHumidity = weatherData.reduce((sum, w) => sum + w.humidity, 0) / weatherData.length || 0
+    const handleEdit = (weatherRecord: Weather) => {
+        setEditingWeather(weatherRecord);
+        setFormData(weatherRecord);
+        setShowForm(true);
+    }
 
-    const seasons = ["Winter", "Spring", "Summer", "Autumn"]
-    const weatherConditions = ["Sunny", "Partly Cloudy", "Cloudy", "Rainy", "Light Rain", "Heavy Rain", "Clear", "Stormy"]
-    const locations = ["Dhaka", "Chittagong", "Sylhet", "Rajshahi", "Khulna", "Barisal", "Rangpur", "Mymensingh"]
+    const handleDelete = async (id: string) => {
+        if (confirm('Are you sure you want to delete this weather record?')) {
+            try {
+                const response = await fetch(`/api/weather?id=${id}`, {
+                    method: 'DELETE',
+                });
+                
+                if (response.ok) {
+                    await fetchData();
+                }
+            } catch (error) {
+                console.error('Error deleting weather:', error);
+            }
+        }
+    }
+
+    const resetForm = () => {
+        setFormData({
+            weather_id: "",
+            district_id: 0,
+            date: "",
+            rainfall: 0,
+            temperature: 0
+        });
+        setEditingWeather(null);
+        setShowForm(false);
+    }
+
+    const filteredWeather = weather.filter(record => {
+        const matchesSearch = (record.district_name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+        const matchesDistrict = selectedDistrict === "all" || record.district_id.toString() === selectedDistrict
+        return matchesSearch && matchesDistrict
+    })
+
+    const averageRainfall = weather.length > 0 ? weather.reduce((sum, w) => sum + (w.rainfall || 0), 0) / weather.length : 0;
+    const averageTemperature = weather.length > 0 ? weather.reduce((sum, w) => sum + (w.temperature || 0), 0) / weather.length : 0;
+    const maxRainfall = weather.length > 0 ? Math.max(...weather.map(w => w.rainfall || 0)) : 0;
+    const maxTemperature = weather.length > 0 ? Math.max(...weather.map(w => w.temperature || 0)) : 0;
+
+    if (loading) {
+        return <div className="flex justify-center items-center min-h-screen">Loading...</div>
+    }
 
     return (
-        <div className="min-h-screen bg-background p-6">
-            <div className="max-w-7xl mx-auto space-y-8">
-
+        <div className="min-h-screen bg-gray-50 p-6">
+            <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="flex items-center space-x-4">
-                        <div
-                            className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-2xl shadow-lg border-2 border-blue-300">
-                            <CloudRain className="h-8 w-8 text-white"/>
-                        </div>
+                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                    <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-4xl font-bold text-foreground">Weather Dashboard</h1>
-                            <p className="text-muted-foreground text-lg mt-2">Real-time weather monitoring and
-                                analysis</p>
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Weather Dashboard</h1>
+                            <p className="text-gray-600">Monitor daily weather conditions across districts</p>
                         </div>
-                    </div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="sm"
-                                onClick={() => exportWeatherData(weatherData as unknown as Record<string, unknown>[])}>
-                            <FileDown className="w-4 h-4 mr-2"/>
-                            Export Data
-                        </Button>
-                        <Button size="sm" onClick={() => setShowAddForm(!showAddForm)}>
-                            <Plus className="w-4 h-4 mr-2"/>
-                            Add Weather Data
-                        </Button>
-                    </div>
-                </div>
-                <div className="bg-card border-2 border-border p-8">
-                    <div className="flex items-center justify-between gap-6">
-                        <div className="relative w-80">
-                            <Search
-                                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4"/>
-                            <Input
-                                type="search"
-                                placeholder="Search locations..."
-                                className="bg-input border-2 border-border text-foreground placeholder-muted-foreground pl-12 w-full"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                        <div className="flex items-center space-x-4">
+                            <div className="bg-sky-50 p-4 rounded-xl">
+                                <Cloud className="h-8 w-8 text-sky-600" />
+                            </div>
                         </div>
-                        <Button onClick={refreshWeatherData} disabled={weatherLoading}
-                                className="bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary">
-                            {weatherLoading ? "Loading..." : "Refresh Weather"}
-                        </Button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="bg-card border-2 border-border p-6 text-foreground">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-secondary border border-border">
-                                <Sun className="h-6 w-6 text-foreground"/>
-                            </div>
-                            <div className="text-3xl font-bold text-foreground">
-                                {averageTemperature.toFixed(1)}°C
-                            </div>
-                        </div>
-                        <h3 className="text-lg font-semibold text-foreground mb-2">Average Temperature</h3>
-                        <p className="text-muted-foreground text-sm">Across all regions</p>
-                    </div>
-
-                    <div className="bg-card border-2 border-border p-6 text-foreground">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-secondary border border-border">
-                                <CloudRain className="h-6 w-6 text-foreground"/>
-                            </div>
-                            <div className="text-3xl font-bold text-foreground">
-                                {totalRainfall.toFixed(1)}mm
-                            </div>
-                        </div>
-                        <h3 className="text-lg font-semibold text-foreground mb-2">Total Rainfall</h3>
-                        <p className="text-muted-foreground text-sm">Current hour total</p>
-                    </div>
-
-                    <div className="bg-card border-2 border-border p-6 text-foreground">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-secondary border border-border">
-                                <Wind className="h-6 w-6 text-foreground"/>
-                            </div>
-                            <div className="text-3xl font-bold text-foreground">
-                                {averageHumidity}%
-                            </div>
-                        </div>
-                        <h3 className="text-lg font-semibold text-foreground mb-2">Average Humidity</h3>
-                        <p className="text-muted-foreground text-sm">Regional average</p>
-                    </div>
-
-                    <div className="bg-card border-2 border-border p-6 text-foreground">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-secondary border border-border">
-                                <Package className="h-6 w-6 text-foreground"/>
-                            </div>
-                            <div className="text-3xl font-bold text-foreground">
-                                {totalRecords} Records
-                            </div>
-                        </div>
-                        <h3 className="text-lg font-semibold text-foreground mb-2">Total Weather Records</h3>
-                        <p className="text-muted-foreground text-sm">Total number of weather records</p>
-                    </div>
-                </div>
-
-                <div className="bg-card border-2 border-border p-8">
-                    <div className="pb-8">
-                        <h2 className="text-3xl font-bold text-foreground mb-2">
-                            Detailed Weather Records
-                        </h2>
-                        <p className="text-muted-foreground text-lg">Comprehensive weather data from all monitoring
-                            stations</p>
-                    </div>
-                    {/* Add Weather Data Form - Positioned above table */}
-                    {showAddForm && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Add Weather Data</CardTitle>
-                                <CardDescription>Enter comprehensive weather monitoring data</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    {/* Basic Information Section */}
-                                <div>
-                                    <h4 className="text-lg font-medium text-gray-900 mb-4">Weather Information</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="location" className="text-gray-700">Location *</Label>
-                                            <Select value={formData.location}
-                                                    onValueChange={(value) => handleInputChange("location", value)}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select location..."/>
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {locations.map((location) => (
-                                                        <SelectItem key={location} value={location}>
-                                                            {location}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="date_recorded" className="text-gray-700">Date Recorded
-                                                *</Label>
-                                            <Input
-                                                id="date_recorded"
-                                                type="date"
-                                                value={formData.date_recorded}
-                                                onChange={(e) => handleInputChange("date_recorded", e.target.value)}
-                                                required
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="season" className="text-gray-700">Season *</Label>
-                                            <Select value={formData.season}
-                                                    onValueChange={(value) => handleInputChange("season", value)}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select season..."/>
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {seasons.map((season) => (
-                                                        <SelectItem key={season} value={season}>
-                                                            {season}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Measurement Data Section */}
-                                <div>
-                                    <h4 className="text-lg font-medium text-gray-900 mb-4">Measurements</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="rainfall" className="text-gray-700">Rainfall (mm) *</Label>
-                                            <Input
-                                                id="rainfall"
-                                                type="number"
-                                                step="0.1"
-                                                placeholder="e.g. 12.3"
-                                                value={formData.rainfall}
-                                                onChange={(e) => handleInputChange("rainfall", parseFloat(e.target.value) || 0)}
-                                                required
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="temperature" className="text-gray-700">Temperature (°C)
-                                                *</Label>
-                                            <Input
-                                                id="temperature"
-                                                type="number"
-                                                step="0.1"
-                                                placeholder="e.g. 25.7"
-                                                value={formData.temperature}
-                                                onChange={(e) => handleInputChange("temperature", parseFloat(e.target.value) || 0)}
-                                                required
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="humidity" className="text-gray-700">Humidity (%) *</Label>
-                                            <Input
-                                                id="humidity"
-                                                type="number"
-                                                step="0.1"
-                                                placeholder="e.g. 70"
-                                                value={formData.humidity}
-                                                onChange={(e) => handleInputChange("humidity", parseFloat(e.target.value) || 0)}
-                                                required
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="weather_conditions" className="text-gray-700">Weather
-                                                Conditions *</Label>
-                                            <Select value={formData.weather_conditions}
-                                                    onValueChange={(value) => handleInputChange("weather_conditions", value)}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select condition..."/>
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {weatherConditions.map((condition) => (
-                                                        <SelectItem key={condition} value={condition}>
-                                                            {condition}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Form Actions */}
-                                <div className="flex gap-4 pt-4 border-t border-gray-200">
-                                    <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
-                                        <Plus className="h-4 w-4 mr-2"/>
-                                        Add Weather Data
-                                    </Button>
-                                    <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
-                                        Cancel
-                                    </Button>
-                                </div>
-                            </form>
+                {/* Statistics */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Total Records</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-gray-900">{weather.length}</div>
                         </CardContent>
                     </Card>
+                    <Card>
+                        <CardHeader className="pb-2 flex flex-row items-center space-y-0 space-x-2">
+                            <Droplets className="h-4 w-4 text-blue-600" />
+                            <CardTitle className="text-sm font-medium text-gray-500">Avg Rainfall</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-blue-600">{averageRainfall.toFixed(1)}mm</div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="pb-2 flex flex-row items-center space-y-0 space-x-2">
+                            <Thermometer className="h-4 w-4 text-red-600" />
+                            <CardTitle className="text-sm font-medium text-gray-500">Avg Temperature</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-red-600">{averageTemperature.toFixed(1)}°C</div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Max Rainfall</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-blue-800">{maxRainfall.toFixed(1)}mm</div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Controls */}
+                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                <Input
+                                    placeholder="Search by district..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-10 w-full md:w-64"
+                                />
+                            </div>
+                            <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+                                <SelectTrigger className="w-full md:w-40">
+                                    <SelectValue placeholder="All Districts" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Districts</SelectItem>
+                                    {districts.map(district => (
+                                        <SelectItem key={district.district_id} value={district.district_id.toString()}>
+                                            {district.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Button onClick={() => setShowForm(true)} className="bg-sky-600 hover:bg-sky-700">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Weather
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Add/Edit Form */}
+                {showForm && (
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            {editingWeather ? 'Edit Weather' : 'Add New Weather Record'}
+                        </h2>
+                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="weather_id">Weather ID *</Label>
+                                <Input
+                                    id="weather_id"
+                                    value={formData.weather_id}
+                                    onChange={(e) => handleInputChange("weather_id", e.target.value)}
+                                    required
+                                    disabled={!!editingWeather}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="district_id">District *</Label>
+                                <Select value={formData.district_id.toString()} onValueChange={(value) => handleInputChange("district_id", parseInt(value))}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select district" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {districts.map(district => (
+                                            <SelectItem key={district.district_id} value={district.district_id.toString()}>
+                                                {district.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="date">Date *</Label>
+                                <Input
+                                    id="date"
+                                    type="date"
+                                    value={formData.date}
+                                    onChange={(e) => handleInputChange("date", e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="rainfall">Rainfall (mm)</Label>
+                                <Input
+                                    id="rainfall"
+                                    type="number"
+                                    step="0.1"
+                                    value={formData.rainfall}
+                                    onChange={(e) => handleInputChange("rainfall", parseFloat(e.target.value) || 0)}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="temperature">Temperature (°C)</Label>
+                                <Input
+                                    id="temperature"
+                                    type="number"
+                                    step="0.1"
+                                    value={formData.temperature}
+                                    onChange={(e) => handleInputChange("temperature", parseFloat(e.target.value) || 0)}
+                                />
+                            </div>
+
+                            <div className="md:col-span-2 flex gap-4">
+                                <Button type="submit" className="bg-sky-600 hover:bg-sky-700">
+                                    {editingWeather ? 'Update Weather' : 'Add Weather'}
+                                </Button>
+                                <Button type="button" variant="outline" onClick={resetForm}>
+                                    Cancel
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
                 )}
-                    <div className="border-2 border-border mt-4">
+
+                {/* Weather Table */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-gray-200">
+                        <h2 className="text-xl font-semibold text-gray-900">
+                            Weather Records ({filteredWeather.length})
+                        </h2>
+                    </div>
+                    <div className="overflow-x-auto">
                         <Table>
-                            <TableHeader className="bg-secondary border-b-2 border-border">
-                                <TableRow>
-                                    <TableHead className="text-foreground font-semibold border-r border-border">Weather
-                                        ID</TableHead>
-                                    <TableHead
-                                        className="text-foreground font-semibold border-r border-border">Location</TableHead>
-                                    <TableHead className="text-foreground font-semibold border-r border-border">Date
-                                        Recorded</TableHead>
-                                    <TableHead className="text-foreground font-semibold border-r border-border">Rainfall
-                                        (mm)</TableHead>
-                                    <TableHead className="text-foreground font-semibold border-r border-border">Temperature
-                                        (°C)</TableHead>
-                                    <TableHead
-                                        className="text-foreground font-semibold border-r border-border">Season</TableHead>
-                                    <TableHead className="text-foreground font-semibold border-r border-border">Humidity
-                                        (%)</TableHead>
-                                    <TableHead className="text-foreground font-semibold">Actions</TableHead>
+                            <TableHeader>
+                                <TableRow className="bg-gray-50">
+                                    <TableHead>Weather ID</TableHead>
+                                    <TableHead>District</TableHead>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Rainfall (mm)</TableHead>
+                                    <TableHead>Temperature (°C)</TableHead>
+                                    <TableHead>Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
-                            <TableBody className="bg-card">
-                                {filteredWeatherData.map((record) => (
-                                    <TableRow key={record.weather_id}
-                                              className="border-b border-border hover:bg-secondary/50">
-                                        <TableCell
-                                            className="font-semibold text-foreground border-r border-border">{record.weather_id}</TableCell>
-                                        <TableCell
-                                            className="font-medium text-foreground border-r border-border">{record.location}</TableCell>
-                                        <TableCell
-                                            className="text-muted-foreground border-r border-border">{new Date(record.date_recorded).toLocaleDateString()}</TableCell>
-                                        <TableCell className="border-r border-border">
-                                            <div className="flex items-center">
-                                                <span className={`inline-block w-3 h-3 mr-2 ${
-                                                    record.rainfall > 15 ? 'bg-foreground' :
-                                                        record.rainfall > 5 ? 'bg-muted-foreground' : 'bg-secondary'
-                                                }`}></span>
-                                                <Badge
-                                                    className="bg-foreground text-background border border-foreground">
-                                                    {record.rainfall} mm
-                                                </Badge>
+                            <TableBody>
+                                {filteredWeather.map((weatherRecord) => (
+                                    <TableRow key={weatherRecord.weather_id} className="hover:bg-gray-50">
+                                        <TableCell className="font-medium">{weatherRecord.weather_id}</TableCell>
+                                        <TableCell>{weatherRecord.district_name || weatherRecord.district_id}</TableCell>
+                                        <TableCell>{new Date(weatherRecord.date).toLocaleDateString()}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center space-x-1">
+                                                <Droplets className="h-4 w-4 text-blue-600" />
+                                                <span>{weatherRecord.rainfall.toFixed(1)}</span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="border-r border-border">
-                                            <div className="flex items-center">
-                                                <span className={`inline-block w-3 h-3 mr-2 ${
-                                                    record.temperature > 30 ? 'bg-foreground' :
-                                                        record.temperature > 20 ? 'bg-muted-foreground' : 'bg-secondary'
-                                                }`}></span>
-                                                <Badge
-                                                    className="bg-foreground text-background border border-foreground">
-                                                    {record.temperature}°C
-                                                </Badge>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="border-r border-border">
-                                            <Badge className="bg-secondary text-foreground border border-border">
-                                                {record.season}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="border-r border-border">
-                                            <div className="flex items-center">
-                                                <span className={`inline-block w-3 h-3 mr-2 ${
-                                                    record.humidity > 80 ? 'bg-foreground' :
-                                                        record.humidity > 60 ? 'bg-muted-foreground' : 'bg-secondary'
-                                                }`}></span>
-                                                <Badge
-                                                    className="bg-foreground text-background border border-foreground">
-                                                    {record.humidity}%
-                                                </Badge>
+                                        <TableCell>
+                                            <div className="flex items-center space-x-1">
+                                                <Thermometer className="h-4 w-4 text-red-600" />
+                                                <span>{weatherRecord.temperature.toFixed(1)}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center space-x-2">
-                                                <Button variant="ghost" size="sm"
-                                                        className="hover:bg-secondary border border-border">
-                                                    <Edit2 className="w-4 h-4 text-foreground"/>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                                    onClick={() => handleEdit(weatherRecord)}
+                                                >
+                                                    <Edit2 className="h-4 w-4" />
                                                 </Button>
-                                                <Button variant="ghost" size="sm"
-                                                        className="hover:bg-secondary border border-border">
-                                                    <Trash2 className="w-4 h-4 text-foreground"/>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                                                    onClick={() => handleDelete(weatherRecord.weather_id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </div>
                                         </TableCell>

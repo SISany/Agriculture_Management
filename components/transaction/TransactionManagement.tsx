@@ -1,374 +1,417 @@
 "use client"
 
-import {useState} from "react"
+import {useState, useEffect} from "react"
 import {Button} from "@/components/ui/button"
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
-import {Badge} from "@/components/ui/badge"
-import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
-import {BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend} from "recharts"
-import {Search, Plus, Edit2, Trash2, ShoppingCart, TrendingUp, DollarSign, Activity, FileDown} from "lucide-react"
-import {exportTransactionData} from "@/lib/pdfExport"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {Search, Plus, Edit2, Trash2, CreditCard} from "lucide-react"
 
 interface Transaction {
     transaction_id: string
-    stakeholder_id: string
-    stakeholder_name: string
+    buyer_id: string
+    seller_id: string
     product_id: string
-    product_name: string
-    transaction_date: string
     quantity: number
     price_per_unit: number
     total_amount: number
-    transaction_type: "Sale" | "Purchase"
-    warehouse_id: string
-    shipment_id: string
+    date: string
+    buyer_name?: string
+    seller_name?: string
+    product_name?: string
 }
 
-const transactions: Transaction[] = [
-    {
-        transaction_id: "T001",
-        stakeholder_id: "S001",
-        stakeholder_name: "Ahmed Farms",
-        product_id: "P001",
-        product_name: "Wheat",
-        transaction_date: "2024-01-15",
-        quantity: 500,
-        price_per_unit: 42,
-        total_amount: 21000,
-        transaction_type: "Sale",
-        warehouse_id: "WH002",
-        shipment_id: "SH001"
-    },
-    {
-        transaction_id: "T002",
-        stakeholder_id: "S002",
-        stakeholder_name: "City Retail Store",
-        product_id: "P002",
-        product_name: "Rice",
-        transaction_date: "2024-01-14",
-        quantity: 200,
-        price_per_unit: 65,
-        total_amount: 13000,
-        transaction_type: "Purchase",
-        warehouse_id: "WH001",
-        shipment_id: "SH002"
-    },
-    {
-        transaction_id: "T003",
-        stakeholder_id: "S003",
-        stakeholder_name: "Grain Wholesale Co",
-        product_id: "P003",
-        product_name: "Corn",
-        transaction_date: "2024-01-16",
-        quantity: 800,
-        price_per_unit: 35,
-        total_amount: 28000,
-        transaction_type: "Purchase",
-        warehouse_id: "WH001",
-        shipment_id: "SH003"
-    },
-    {
-        transaction_id: "T004",
-        stakeholder_id: "S001",
-        stakeholder_name: "Ahmed Farms",
-        product_id: "P002",
-        product_name: "Rice",
-        transaction_date: "2024-01-18",
-        quantity: 300,
-        price_per_unit: 58,
-        total_amount: 17400,
-        transaction_type: "Sale",
-        warehouse_id: "WH002",
-        shipment_id: "SH004"
-    }
-]
+interface Stakeholder {
+    stakeholder_id: string
+    name: string
+}
 
-// Chart data
-const transactionTypeData = [
-    {name: "Sales", value: transactions.filter(t => t.transaction_type === "Sale").length, color: "#82ca9d"},
-    {name: "Purchases", value: transactions.filter(t => t.transaction_type === "Purchase").length, color: "#8884d8"}
-]
-
-const monthlyTransactionData = [
-    {month: "Oct", sales: 85000, purchases: 62000},
-    {month: "Nov", sales: 72000, purchases: 48000},
-    {month: "Dec", sales: 68000, purchases: 55000},
-    {month: "Jan", sales: 79400, purchases: 41000},
-]
+interface Product {
+    product_id: string
+    name: string
+}
 
 export default function TransactionManagement() {
+    const [transactions, setTransactions] = useState<Transaction[]>([])
+    const [stakeholders, setStakeholders] = useState<Stakeholder[]>([])
+    const [products, setProducts] = useState<Product[]>([])
+    const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState("")
+    const [showForm, setShowForm] = useState(false)
+    const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
+    const [formData, setFormData] = useState<Transaction>({
+        transaction_id: "",
+        buyer_id: "",
+        seller_id: "",
+        product_id: "",
+        quantity: 0,
+        price_per_unit: 0,
+        total_amount: 0,
+        date: ""
+    })
 
-    const filteredTransactions = transactions.filter(transaction =>
-        transaction.stakeholder_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        transaction.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        transaction.transaction_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        transaction.transaction_type.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        // Auto-calculate total amount when quantity or price changes
+        const total = formData.quantity * formData.price_per_unit;
+        if (total !== formData.total_amount) {
+            setFormData(prev => ({ ...prev, total_amount: total }));
+        }
+    }, [formData.quantity, formData.price_per_unit]);
+
+    const fetchData = async () => {
+        try {
+            const [transactionsRes, stakeholdersRes, productsRes] = await Promise.all([
+                fetch('/api/transactions'),
+                fetch('/api/stakeholders'),
+                fetch('/api/products')
+            ]);
+            
+            const transactionsData = await transactionsRes.json();
+            const stakeholdersData = await stakeholdersRes.json();
+            const productsData = await productsRes.json();
+            
+            setTransactions(transactionsData);
+            setStakeholders(stakeholdersData);
+            setProducts(productsData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleInputChange = (field: keyof Transaction, value: string | number) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const method = editingTransaction ? 'PUT' : 'POST';
+            const response = await fetch('/api/transactions', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+            
+            if (response.ok) {
+                await fetchData();
+                resetForm();
+            }
+        } catch (error) {
+            console.error('Error saving transaction:', error);
+        }
+    }
+
+    const handleEdit = (transaction: Transaction) => {
+        setEditingTransaction(transaction);
+        setFormData(transaction);
+        setShowForm(true);
+    }
+
+    const handleDelete = async (id: string) => {
+        if (confirm('Are you sure you want to delete this transaction?')) {
+            try {
+                const response = await fetch(`/api/transactions?id=${id}`, {
+                    method: 'DELETE',
+                });
+                
+                if (response.ok) {
+                    await fetchData();
+                }
+            } catch (error) {
+                console.error('Error deleting transaction:', error);
+            }
+        }
+    }
+
+    const resetForm = () => {
+        setFormData({
+            transaction_id: "",
+            buyer_id: "",
+            seller_id: "",
+            product_id: "",
+            quantity: 0,
+            price_per_unit: 0,
+            total_amount: 0,
+            date: ""
+        });
+        setEditingTransaction(null);
+        setShowForm(false);
+    }
+
+    const filteredTransactions = transactions.filter(transaction => {
+        const matchesSearch = (transaction.buyer_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (transaction.seller_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (transaction.product_name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+        return matchesSearch
+    })
+
+    const totalValue = transactions.reduce((sum, t) => sum + (t.total_amount || 0), 0);
+    const totalQuantity = transactions.reduce((sum, t) => sum + (t.quantity || 0), 0);
+
+    if (loading) {
+        return <div className="flex justify-center items-center min-h-screen">Loading...</div>
+    }
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Transaction Management</h1>
-                    <p className="mt-2 text-gray-600">Track all agricultural transactions</p>
-                </div>
-                <div className="flex gap-4 items-center">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
-                        <Input
-                            type="search"
-                            placeholder="Search transactions..."
-                            className="pl-10 w-64"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+        <div className="min-h-screen bg-gray-50 p-6">
+            <div className="max-w-7xl mx-auto space-y-6">
+                {/* Header */}
+                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Transaction Management</h1>
+                            <p className="text-gray-600">Track all agricultural product transactions</p>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                            <div className="bg-purple-50 p-4 rounded-xl">
+                                <CreditCard className="h-8 w-8 text-purple-600" />
+                            </div>
+                        </div>
                     </div>
-                    <Button>
-                        <Plus className="w-4 h-4 mr-2"/>
-                        Add Transaction
-                    </Button>
-                    <Button variant="outline"
-                            onClick={() => exportTransactionData(transactions as unknown as Record<string, unknown>[])}>
-                        <FileDown className="w-4 h-4 mr-2"/>
-                        Export Data
-                    </Button>
                 </div>
-            </div>
 
-            {/* Transaction Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
-                        <ShoppingCart className="h-4 w-4 text-blue-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{transactions.length}</div>
-                        <p className="text-xs text-gray-600">All transactions</p>
-                    </CardContent>
-                </Card>
+                {/* Statistics */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Total Transactions</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-gray-900">{transactions.length}</div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Total Value</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-gray-900">৳{totalValue.toLocaleString()}</div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Total Quantity</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-gray-900">{totalQuantity.toLocaleString()} kg</div>
+                        </CardContent>
+                    </Card>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-                        <DollarSign className="h-4 w-4 text-green-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            ${transactions.reduce((sum, t) => sum + t.total_amount, 0).toLocaleString()}
+                {/* Controls */}
+                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                            <Input
+                                placeholder="Search transactions..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-10 w-full md:w-64"
+                            />
                         </div>
-                        <p className="text-xs text-gray-600">Transaction volume</p>
-                    </CardContent>
-                </Card>
+                        <Button onClick={() => setShowForm(true)} className="bg-purple-600 hover:bg-purple-700">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Transaction
+                        </Button>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Sales Volume</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-purple-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            ${transactions.filter(t => t.transaction_type === "Sale").reduce((sum, t) => sum + t.total_amount, 0).toLocaleString()}
-                        </div>
-                        <p className="text-xs text-gray-600">Total sales</p>
-                    </CardContent>
-                </Card>
+                {/* Add/Edit Form */}
+                {showForm && (
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            {editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}
+                        </h2>
+                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="transaction_id">Transaction ID *</Label>
+                                <Input
+                                    id="transaction_id"
+                                    value={formData.transaction_id}
+                                    onChange={(e) => handleInputChange("transaction_id", e.target.value)}
+                                    required
+                                    disabled={!!editingTransaction}
+                                />
+                            </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Average Transaction</CardTitle>
-                        <Activity className="h-4 w-4 text-orange-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            ${(transactions.reduce((sum, t) => sum + t.total_amount, 0) / transactions.length).toLocaleString()}
-                        </div>
-                        <p className="text-xs text-gray-600">Per transaction</p>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Transaction Charts */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Monthly Transaction Volume</CardTitle>
-                        <CardDescription>Sales vs Purchase trends over time</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer
-                            config={{
-                                sales: {label: "Sales", color: "#82ca9d"},
-                                purchases: {label: "Purchases", color: "#8884d8"}
-                            }}
-                            className="h-[300px]"
-                        >
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={monthlyTransactionData}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis
-                                        dataKey="month"
-                                        tick={{fontSize: 12}}
-                                        tickFormatter={(tick) => tick}
-                                        label={{value: 'Month', position: 'insideBottom', offset: -5}}
-                                    />
-                                    <YAxis
-                                        tick={{fontSize: 12}}
-                                        tickFormatter={(tick) => `$${tick.toLocaleString()}`}
-                                        label={{value: 'Transaction Amount ($)', angle: -90, position: 'insideLeft'}}
-                                    />
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Bar dataKey="sales" fill="#82ca9d"/>
-                                    <Bar dataKey="purchases" fill="#8884d8"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Transaction Type Distribution</CardTitle>
-                        <CardDescription>Breakdown of sales vs purchases</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer
-                            config={{value: {label: "Count"}}}
-                            className="h-[300px]"
-                        >
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={transactionTypeData}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                        outerRadius={80}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                    >
-                                        {transactionTypeData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color}/>
+                            <div className="space-y-2">
+                                <Label htmlFor="product_id">Product *</Label>
+                                <Select value={formData.product_id} onValueChange={(value) => handleInputChange("product_id", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select product" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {products.map(product => (
+                                            <SelectItem key={product.product_id} value={product.product_id}>
+                                                {product.name}
+                                            </SelectItem>
                                         ))}
-                                    </Pie>
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-            </div>
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-            {/* Transaction Insights */}
-            <Card className="mb-8">
-                <CardHeader>
-                    <CardTitle>Transaction Insights</CardTitle>
-                    <CardDescription>Key transaction metrics and patterns</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                            <h4 className="font-semibold text-green-800 mb-2">Top Product by Volume</h4>
-                            <p className="text-sm text-green-700">
-                                {(() => {
-                                    const acc = transactions.reduce((acc, t) => {
-                                        acc[t.product_name] = (acc[t.product_name] || 0) + t.total_amount
-                                        return acc
-                                    }, {} as Record<string, number>)
-                                    return Object.entries(acc).sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A'
-                                })()} leads in transaction value
-                            </p>
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="buyer_id">Buyer *</Label>
+                                <Select value={formData.buyer_id} onValueChange={(value) => handleInputChange("buyer_id", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select buyer" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {stakeholders.map(stakeholder => (
+                                            <SelectItem key={stakeholder.stakeholder_id} value={stakeholder.stakeholder_id}>
+                                                {stakeholder.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <h4 className="font-semibold text-blue-800 mb-2">Most Active Stakeholder</h4>
-                            <p className="text-sm text-blue-700">
-                                {(() => {
-                                    const acc = transactions.reduce((acc, t) => {
-                                        acc[t.stakeholder_name] = (acc[t.stakeholder_name] || 0) + 1
-                                        return acc
-                                    }, {} as Record<string, number>)
-                                    return Object.entries(acc).sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A'
-                                })()} with most transactions
-                            </p>
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="seller_id">Seller *</Label>
+                                <Select value={formData.seller_id} onValueChange={(value) => handleInputChange("seller_id", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select seller" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {stakeholders.map(stakeholder => (
+                                            <SelectItem key={stakeholder.stakeholder_id} value={stakeholder.stakeholder_id}>
+                                                {stakeholder.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                        <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                            <h4 className="font-semibold text-orange-800 mb-2">Price Trends</h4>
-                            <p className="text-sm text-orange-700">
-                                Average price per unit:
-                                ${(transactions.reduce((sum, t) => sum + t.price_per_unit, 0) / transactions.length).toFixed(2)}
-                            </p>
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="quantity">Quantity (kg) *</Label>
+                                <Input
+                                    id="quantity"
+                                    type="number"
+                                    value={formData.quantity}
+                                    onChange={(e) => handleInputChange("quantity", parseInt(e.target.value) || 0)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="price_per_unit">Price per Unit (৳) *</Label>
+                                <Input
+                                    id="price_per_unit"
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.price_per_unit}
+                                    onChange={(e) => handleInputChange("price_per_unit", parseFloat(e.target.value) || 0)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="total_amount">Total Amount (৳)</Label>
+                                <Input
+                                    id="total_amount"
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.total_amount}
+                                    onChange={(e) => handleInputChange("total_amount", parseFloat(e.target.value) || 0)}
+                                    disabled
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="date">Date *</Label>
+                                <Input
+                                    id="date"
+                                    type="date"
+                                    value={formData.date}
+                                    onChange={(e) => handleInputChange("date", e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="md:col-span-2 flex gap-4">
+                                <Button type="submit" className="bg-purple-600 hover:bg-purple-700">
+                                    {editingTransaction ? 'Update Transaction' : 'Add Transaction'}
+                                </Button>
+                                <Button type="button" variant="outline" onClick={resetForm}>
+                                    Cancel
+                                </Button>
+                            </div>
+                        </form>
                     </div>
-                </CardContent>
-            </Card>
+                )}
 
-            {/* Detailed Transaction Table */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Transaction Records</CardTitle>
-                    <CardDescription>Complete transaction history with stakeholder and product details</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Transaction ID</TableHead>
-                                <TableHead>Stakeholder</TableHead>
-                                <TableHead>Product</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Quantity</TableHead>
-                                <TableHead>Price/Unit</TableHead>
-                                <TableHead>Total Amount</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Warehouse</TableHead>
-                                <TableHead>Shipment</TableHead>
-                                <TableHead>Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredTransactions.map((transaction) => (
-                                <TableRow key={transaction.transaction_id}>
-                                    <TableCell className="font-medium">{transaction.transaction_id}</TableCell>
-                                    <TableCell>{transaction.stakeholder_name}</TableCell>
-                                    <TableCell>{transaction.product_name}</TableCell>
-                                    <TableCell>{transaction.transaction_date}</TableCell>
-                                    <TableCell>{transaction.quantity} tons</TableCell>
-                                    <TableCell>${transaction.price_per_unit}</TableCell>
-                                    <TableCell>
-                                        <span
-                                            className="font-semibold">${transaction.total_amount.toLocaleString()}</span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge
-                                            variant={transaction.transaction_type === "Sale" ? "default" : "secondary"}>
-                                            {transaction.transaction_type}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>{transaction.warehouse_id}</TableCell>
-                                    <TableCell>{transaction.shipment_id}</TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center space-x-1">
-                                            <Button variant="ghost" size="sm" className="hover:bg-blue-50">
-                                                <Edit2 className="w-4 h-4 text-blue-600"/>
-                                            </Button>
-                                            <Button variant="ghost" size="sm" className="hover:bg-red-50">
-                                                <Trash2 className="w-4 h-4 text-red-600"/>
-                                            </Button>
-                                        </div>
-                                    </TableCell>
+                {/* Transactions Table */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-gray-200">
+                        <h2 className="text-xl font-semibold text-gray-900">
+                            Transactions ({filteredTransactions.length})
+                        </h2>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="bg-gray-50">
+                                    <TableHead>Transaction ID</TableHead>
+                                    <TableHead>Product</TableHead>
+                                    <TableHead>Buyer</TableHead>
+                                    <TableHead>Seller</TableHead>
+                                    <TableHead>Quantity</TableHead>
+                                    <TableHead>Price/Unit</TableHead>
+                                    <TableHead>Total</TableHead>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Actions</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredTransactions.map((transaction) => (
+                                    <TableRow key={transaction.transaction_id} className="hover:bg-gray-50">
+                                        <TableCell className="font-medium">{transaction.transaction_id}</TableCell>
+                                        <TableCell>{transaction.product_name || transaction.product_id}</TableCell>
+                                        <TableCell>{transaction.buyer_name || transaction.buyer_id}</TableCell>
+                                        <TableCell>{transaction.seller_name || transaction.seller_id}</TableCell>
+                                        <TableCell>{(transaction.quantity || 0)} kg</TableCell>
+                                        <TableCell>৳{(transaction.price_per_unit || 0).toFixed(2)}</TableCell>
+                                        <TableCell>৳{(transaction.total_amount || 0).toLocaleString()}</TableCell>
+                                        <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center space-x-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                                    onClick={() => handleEdit(transaction)}
+                                                >
+                                                    <Edit2 className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                                                    onClick={() => handleDelete(transaction.transaction_id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }

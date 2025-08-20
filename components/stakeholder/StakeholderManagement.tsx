@@ -1,433 +1,375 @@
 "use client"
 
-import {useState} from "react"
+import {useState, useEffect} from "react"
 import {Button} from "@/components/ui/button"
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {Badge} from "@/components/ui/badge"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {Search, Plus, Edit2, Trash2, Users, FileDown} from "lucide-react"
-import {exportTableToPDF} from "@/lib/pdfExport"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {Search, Plus, Edit2, Trash2, Users} from "lucide-react"
 
 interface Stakeholder {
     stakeholder_id: string
-    stakeholder_name: string
-    location: string
+    name: string
+    type_id: number
+    district_id: number
     contact_info: string
-    stakeholder_type: "Farmer" | "Retailer" | "Wholesaler" | "Consumer"
-    // Farmer specific fields
-    farm_size?: string
-    registration_date?: string
-    farming_type?: string
-    annual_production_capacity?: number
-    // Retailer specific fields
-    shop_type?: string
-    customer_base?: string
-    monthly_sales_volume?: number
-    market_coverage?: string
-    // Wholesaler specific fields
-    business_license?: string
-    storage_capacity?: string
-    distribution_network_size?: number
-    supply_chain_reach?: string
-    // Consumer specific fields
-    per_capita_income?: number
-    demographic_group?: string
-    household_size?: number
-    contact_status?: string
+    type_name?: string
+    district_name?: string
 }
 
-const stakeholders: Stakeholder[] = [
-    {
-        stakeholder_id: "S001",
-        stakeholder_name: "Ahmed Farms",
-        location: "Dhaka",
-        contact_info: "ahmed@farms.com",
-        stakeholder_type: "Farmer",
-        farm_size: "50 acres",
-        registration_date: "2023-01-15",
-        farming_type: "Organic",
-        annual_production_capacity: 500,
-        contact_status: "Active"
-    },
-    {
-        stakeholder_id: "S002",
-        stakeholder_name: "City Retail Store",
-        location: "Chittagong",
-        contact_info: "info@citystore.com",
-        stakeholder_type: "Retailer",
-        shop_type: "Grocery Store",
-        customer_base: "5000+",
-        monthly_sales_volume: 200,
-        market_coverage: "Urban",
-        contact_status: "Active"
-    },
-    {
-        stakeholder_id: "S003",
-        stakeholder_name: "Grain Wholesale Co",
-        location: "Dhaka",
-        contact_info: "contact@grainwholesale.com",
-        stakeholder_type: "Wholesaler",
-        business_license: "WH-2023-001",
-        storage_capacity: "10000 tons",
-        distribution_network_size: 50,
-        supply_chain_reach: "National",
-        contact_status: "Active"
-    },
-    {
-        stakeholder_id: "S004",
-        stakeholder_name: "Rahman Family",
-        location: "Sylhet",
-        contact_info: "rahman@email.com",
-        stakeholder_type: "Consumer",
-        per_capita_income: 25000,
-        demographic_group: "Middle Class",
-        household_size: 5,
-        contact_status: "Active"
-    },
-    {
-        stakeholder_id: "S005",
-        stakeholder_name: "Green Valley Farm",
-        location: "Rajshahi",
-        contact_info: "info@greenvalley.com",
-        stakeholder_type: "Farmer",
-        farm_size: "120 acres",
-        registration_date: "2022-08-20",
-        farming_type: "Conventional",
-        annual_production_capacity: 1200,
-        contact_status: "Active"
-    }
-]
+interface StakeholderType {
+    type_id: number
+    type_name: string
+}
+
+interface District {
+    district_id: number
+    name: string
+}
 
 export default function StakeholderManagement() {
+    const [stakeholders, setStakeholders] = useState<Stakeholder[]>([])
+    const [stakeholderTypes, setStakeholderTypes] = useState<StakeholderType[]>([])
+    const [districts, setDistricts] = useState<District[]>([])
+    const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState("")
-    const [filterType, setFilterType] = useState<string>("All")
-
-    const filteredStakeholders = stakeholders.filter(stakeholder => {
-        const matchesSearch = stakeholder.stakeholder_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            stakeholder.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            stakeholder.contact_info.toLowerCase().includes(searchTerm.toLowerCase())
-
-        const matchesFilter = filterType === "All" || stakeholder.stakeholder_type === filterType
-
-        return matchesSearch && matchesFilter
+    const [selectedType, setSelectedType] = useState("all")
+    const [showForm, setShowForm] = useState(false)
+    const [editingStakeholder, setEditingStakeholder] = useState<Stakeholder | null>(null)
+    const [formData, setFormData] = useState<Stakeholder>({
+        stakeholder_id: "",
+        name: "",
+        type_id: 0,
+        district_id: 0,
+        contact_info: ""
     })
 
-    const getStakeholderTypeColor = (type: string) => {
-        switch (type) {
-            case "Farmer":
-                return "bg-green-100 text-green-800"
-            case "Retailer":
-                return "bg-blue-100 text-blue-800"
-            case "Wholesaler":
-                return "bg-purple-100 text-purple-800"
-            case "Consumer":
-                return "bg-orange-100 text-orange-800"
-            default:
-                return "bg-gray-100 text-gray-800"
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const [stakeholdersRes, typesRes, districtsRes] = await Promise.all([
+                fetch('/api/stakeholders'),
+                fetch('/api/stakeholder-types'),
+                fetch('/api/districts')
+            ]);
+            
+            const stakeholdersData = await stakeholdersRes.json();
+            const typesData = await typesRes.json();
+            const districtsData = await districtsRes.json();
+            
+            setStakeholders(stakeholdersData);
+            setStakeholderTypes(typesData);
+            setDistricts(districtsData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleInputChange = (field: keyof Stakeholder, value: string | number) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const method = editingStakeholder ? 'PUT' : 'POST';
+            const response = await fetch('/api/stakeholders', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+            
+            if (response.ok) {
+                await fetchData();
+                resetForm();
+            }
+        } catch (error) {
+            console.error('Error saving stakeholder:', error);
         }
     }
 
-    const getAdditionalInfo = (stakeholder: Stakeholder) => {
-        switch (stakeholder.stakeholder_type) {
-            case "Farmer":
-                return stakeholder.farm_size || "N/A"
-            case "Retailer":
-                return stakeholder.shop_type || "N/A"
-            case "Wholesaler":
-                return stakeholder.storage_capacity || "N/A"
-            case "Consumer":
-                return stakeholder.demographic_group || "N/A"
-            default:
-                return "N/A"
+    const handleEdit = (stakeholder: Stakeholder) => {
+        setEditingStakeholder(stakeholder);
+        setFormData(stakeholder);
+        setShowForm(true);
+    }
+
+    const handleDelete = async (id: string) => {
+        if (confirm('Are you sure you want to delete this stakeholder?')) {
+            try {
+                const response = await fetch(`/api/stakeholders?id=${id}`, {
+                    method: 'DELETE',
+                });
+                
+                if (response.ok) {
+                    await fetchData();
+                }
+            } catch (error) {
+                console.error('Error deleting stakeholder:', error);
+            }
         }
     }
 
+    const resetForm = () => {
+        setFormData({
+            stakeholder_id: "",
+            name: "",
+            type_id: 0,
+            district_id: 0,
+            contact_info: ""
+        });
+        setEditingStakeholder(null);
+        setShowForm(false);
+    }
 
-    const handleExport = () => {
-        exportTableToPDF({
-            title: 'Stakeholder Management Report',
-            subtitle: 'Agriculture Management System - Stakeholder Directory',
-            filename: 'stakeholder-management-report.pdf',
-            columns: [
-                {header: 'Stakeholder ID', dataKey: 'stakeholder_id', width: 25},
-                {header: 'Name', dataKey: 'stakeholder_name', width: 30},
-                {header: 'Type', dataKey: 'stakeholder_type', width: 20},
-                {header: 'Contact', dataKey: 'contact_info', width: 30},
-                {header: 'Location', dataKey: 'location', width: 25},
-                {header: 'Registration Date', dataKey: 'registration_date', width: 25}
-            ],
-            data: filteredStakeholders.map(stakeholder => ({
-                stakeholder_id: stakeholder.stakeholder_id,
-                stakeholder_name: stakeholder.stakeholder_name,
-                stakeholder_type: stakeholder.stakeholder_type,
-                contact_info: stakeholder.contact_info,
-                location: stakeholder.location,
-                registration_date: stakeholder.registration_date
-            }))
-        })
+    const filteredStakeholders = stakeholders.filter(stakeholder => {
+        const matchesSearch = (stakeholder.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (stakeholder.contact_info?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+        const matchesType = selectedType === "all" || stakeholder.type_id.toString() === selectedType
+        return matchesSearch && matchesType
+    })
+
+    const getTypeBadgeColor = (typeName: string) => {
+        switch (typeName) {
+            case 'Farmer': return 'bg-green-100 text-green-800'
+            case 'Wholesaler': return 'bg-blue-100 text-blue-800'
+            case 'Retailer': return 'bg-purple-100 text-purple-800'
+            case 'Consumer': return 'bg-orange-100 text-orange-800'
+            default: return 'bg-gray-100 text-gray-800'
+        }
+    }
+
+    if (loading) {
+        return <div className="flex justify-center items-center min-h-screen">Loading...</div>
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Stakeholder Management</h1>
-                    <p className="mt-2 text-gray-600">Manage farmers, retailers, wholesalers, and consumers</p>
-                </div>
-                <div className="flex gap-4 items-center">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
-                        <Input
-                            type="search"
-                            placeholder="Search stakeholders..."
-                            className="pl-10 w-64"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+        <div className="min-h-screen bg-gray-50 p-6">
+            <div className="max-w-7xl mx-auto space-y-6">
+                {/* Header */}
+                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Stakeholder Management</h1>
+                            <p className="text-gray-600">Manage farmers, wholesalers, retailers, and consumers</p>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                            <div className="bg-blue-50 p-4 rounded-xl">
+                                <Users className="h-8 w-8 text-blue-600" />
+                            </div>
+                        </div>
                     </div>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline">
-                                Filter by Type: {filterType}
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => setFilterType("All")}>All</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setFilterType("Farmer")}>Farmers</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setFilterType("Retailer")}>Retailers</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setFilterType("Wholesaler")}>Wholesalers</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setFilterType("Consumer")}>Consumers</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    <Button>
-                        <Plus className="w-4 h-4 mr-2"/>
-                        Add Stakeholder
-                    </Button>
-                    <Button onClick={handleExport}>
-                        <FileDown className="w-4 h-4 mr-2"/>
-                        Export Data
-                    </Button>
                 </div>
-            </div>
 
-            {/* Stakeholder Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Farmers</CardTitle>
-                        <Users className="h-4 w-4 text-green-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {stakeholders.filter(s => s.stakeholder_type === "Farmer").length}
+                {/* Statistics */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Total Stakeholders</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-gray-900">{stakeholders.length}</div>
+                        </CardContent>
+                    </Card>
+                    {stakeholderTypes.map(type => (
+                        <Card key={type.type_id}>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm font-medium text-gray-500">{type.type_name}s</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-3xl font-bold text-gray-900">
+                                    {stakeholders.filter(s => s.type_id === type.type_id).length}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+
+                {/* Controls */}
+                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                <Input
+                                    placeholder="Search stakeholders..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-10 w-full md:w-64"
+                                />
+                            </div>
+                            <Select value={selectedType} onValueChange={setSelectedType}>
+                                <SelectTrigger className="w-full md:w-40">
+                                    <SelectValue placeholder="All Types" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Types</SelectItem>
+                                    {stakeholderTypes.map(type => (
+                                        <SelectItem key={type.type_id} value={type.type_id.toString()}>
+                                            {type.type_name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <p className="text-xs text-gray-600">Registered farmers</p>
-                    </CardContent>
-                </Card>
+                        <Button onClick={() => setShowForm(true)} className="bg-blue-600 hover:bg-blue-700">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Stakeholder
+                        </Button>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Retailers</CardTitle>
-                        <Users className="h-4 w-4 text-blue-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {stakeholders.filter(s => s.stakeholder_type === "Retailer").length}
-                        </div>
-                        <p className="text-xs text-gray-600">Retail partners</p>
-                    </CardContent>
-                </Card>
+                {/* Add/Edit Form */}
+                {showForm && (
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            {editingStakeholder ? 'Edit Stakeholder' : 'Add New Stakeholder'}
+                        </h2>
+                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="stakeholder_id">Stakeholder ID *</Label>
+                                <Input
+                                    id="stakeholder_id"
+                                    value={formData.stakeholder_id}
+                                    onChange={(e) => handleInputChange("stakeholder_id", e.target.value)}
+                                    required
+                                    disabled={!!editingStakeholder}
+                                />
+                            </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Wholesalers</CardTitle>
-                        <Users className="h-4 w-4 text-purple-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {stakeholders.filter(s => s.stakeholder_type === "Wholesaler").length}
-                        </div>
-                        <p className="text-xs text-gray-600">Wholesale partners</p>
-                    </CardContent>
-                </Card>
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Name *</Label>
+                                <Input
+                                    id="name"
+                                    value={formData.name}
+                                    onChange={(e) => handleInputChange("name", e.target.value)}
+                                    required
+                                />
+                            </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Consumers</CardTitle>
-                        <Users className="h-4 w-4 text-orange-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {stakeholders.filter(s => s.stakeholder_type === "Consumer").length}
-                        </div>
-                        <p className="text-xs text-gray-600">Consumer base</p>
-                    </CardContent>
-                </Card>
-            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="type_id">Type *</Label>
+                                <Select value={formData.type_id.toString()} onValueChange={(value) => handleInputChange("type_id", parseInt(value))}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {stakeholderTypes.map(type => (
+                                            <SelectItem key={type.type_id} value={type.type_id.toString()}>
+                                                {type.type_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-            {/* Stakeholder Distribution */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Stakeholder Distribution by Type</CardTitle>
-                        <CardDescription>Breakdown of stakeholder categories</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {["Farmer", "Retailer", "Wholesaler", "Consumer"].map((type) => {
-                                const count = stakeholders.filter(s => s.stakeholder_type === type).length
-                                const percentage = (count / stakeholders.length) * 100
-                                return (
-                                    <div key={type} className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-3">
-                                            <div className={`w-4 h-4 rounded ${
-                                                type === "Farmer" ? "bg-green-500" :
-                                                    type === "Retailer" ? "bg-blue-500" :
-                                                        type === "Wholesaler" ? "bg-purple-500" : "bg-orange-500"
-                                            }`}></div>
-                                            <span className="text-sm font-medium">{type}s</span>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-sm text-gray-600">{count} stakeholders</span>
-                                            <Badge variant="outline">{percentage.toFixed(0)}%</Badge>
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </CardContent>
-                </Card>
+                            <div className="space-y-2">
+                                <Label htmlFor="district_id">District *</Label>
+                                <Select value={formData.district_id.toString()} onValueChange={(value) => handleInputChange("district_id", parseInt(value))}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select district" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {districts.map(district => (
+                                            <SelectItem key={district.district_id} value={district.district_id.toString()}>
+                                                {district.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Geographic Distribution</CardTitle>
-                        <CardDescription>Stakeholders by location</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {Array.from(new Set(stakeholders.map(s => s.location))).map((location) => {
-                                const count = stakeholders.filter(s => s.location === location).length
-                                const percentage = (count / stakeholders.length) * 100
-                                return (
-                                    <div key={location} className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-4 h-4 bg-indigo-500 rounded"></div>
-                                            <span className="text-sm font-medium">{location}</span>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-sm text-gray-600">{count} stakeholders</span>
-                                            <Badge variant="outline">{percentage.toFixed(0)}%</Badge>
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+                            <div className="md:col-span-2 space-y-2">
+                                <Label htmlFor="contact_info">Contact Information</Label>
+                                <Input
+                                    id="contact_info"
+                                    value={formData.contact_info}
+                                    onChange={(e) => handleInputChange("contact_info", e.target.value)}
+                                    placeholder="Email, phone, or other contact details"
+                                />
+                            </div>
 
-            {/* Stakeholder Details Table */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>All Stakeholders</CardTitle>
-                    <CardDescription>Complete stakeholder directory</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Stakeholder ID</TableHead>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Location</TableHead>
-                                <TableHead>Contact</TableHead>
-                                <TableHead>Additional Info</TableHead>
-                                <TableHead>Registration/Date</TableHead>
-                                <TableHead>Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredStakeholders.map((stakeholder) => (
-                                <TableRow key={stakeholder.stakeholder_id}>
-                                    <TableCell className="font-medium">{stakeholder.stakeholder_id}</TableCell>
-                                    <TableCell>{stakeholder.stakeholder_name}</TableCell>
-                                    <TableCell>
-                                        <Badge className={getStakeholderTypeColor(stakeholder.stakeholder_type)}>
-                                            {stakeholder.stakeholder_type}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>{stakeholder.location}</TableCell>
-                                    <TableCell>{stakeholder.contact_info}</TableCell>
-                                    <TableCell>{getAdditionalInfo(stakeholder)}</TableCell>
-                                    <TableCell>
-                                        {stakeholder.registration_date ||
-                                            (stakeholder.stakeholder_type === "Consumer" ? "Consumer" : "N/A")}
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center space-x-1">
-                                            <Button variant="ghost" size="sm" className="hover:bg-blue-50">
-                                                <Edit2 className="w-4 h-4 text-blue-600"/>
-                                            </Button>
-                                            <Button variant="ghost" size="sm" className="hover:bg-red-50">
-                                                <Trash2 className="w-4 h-4 text-red-600"/>
-                                            </Button>
-                                        </div>
-                                    </TableCell>
+                            <div className="md:col-span-2 flex gap-4">
+                                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                                    {editingStakeholder ? 'Update Stakeholder' : 'Add Stakeholder'}
+                                </Button>
+                                <Button type="button" variant="outline" onClick={resetForm}>
+                                    Cancel
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+
+                {/* Stakeholders Table */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-gray-200">
+                        <h2 className="text-xl font-semibold text-gray-900">
+                            Stakeholders ({filteredStakeholders.length})
+                        </h2>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="bg-gray-50">
+                                    <TableHead>ID</TableHead>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Type</TableHead>
+                                    <TableHead>District</TableHead>
+                                    <TableHead>Contact</TableHead>
+                                    <TableHead>Actions</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-
-            {/* Stakeholder Insights */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Stakeholder Insights</CardTitle>
-                    <CardDescription>Key metrics and business intelligence</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                            <h4 className="font-semibold text-green-800 mb-2">Farmer Capacity</h4>
-                            <p className="text-sm text-green-700">
-                                Total farming capacity: {stakeholders
-                                .filter(s => s.stakeholder_type === "Farmer")
-                                .reduce((sum, s) => sum + (s.annual_production_capacity || 0), 0)
-                                .toLocaleString()} tons annually
-                            </p>
-                        </div>
-
-                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <h4 className="font-semibold text-blue-800 mb-2">Retail Network</h4>
-                            <p className="text-sm text-blue-700">
-                                Average monthly sales: {(stakeholders
-                                    .filter(s => s.stakeholder_type === "Retailer")
-                                    .reduce((sum, s) => sum + (s.monthly_sales_volume || 0), 0) /
-                                stakeholders.filter(s => s.stakeholder_type === "Retailer").length || 1
-                            ).toFixed(0)} tons per retailer
-                            </p>
-                        </div>
-
-                        <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                            <h4 className="font-semibold text-purple-800 mb-2">Distribution Network</h4>
-                            <p className="text-sm text-purple-700">
-                                Total distribution reach: {stakeholders
-                                .filter(s => s.stakeholder_type === "Wholesaler")
-                                .reduce((sum, s) => sum + (s.distribution_network_size || 0), 0)
-                            } distribution points
-                            </p>
-                        </div>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredStakeholders.map((stakeholder) => (
+                                    <TableRow key={stakeholder.stakeholder_id} className="hover:bg-gray-50">
+                                        <TableCell className="font-medium">{stakeholder.stakeholder_id}</TableCell>
+                                        <TableCell>{stakeholder.name}</TableCell>
+                                        <TableCell>
+                                            <Badge className={getTypeBadgeColor(stakeholder.type_name || '')}>
+                                                {stakeholder.type_name}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>{stakeholder.district_name || stakeholder.district_id}</TableCell>
+                                        <TableCell>{stakeholder.contact_info || 'N/A'}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center space-x-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                                    onClick={() => handleEdit(stakeholder)}
+                                                >
+                                                    <Edit2 className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                                                    onClick={() => handleDelete(stakeholder.stakeholder_id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     )
 }

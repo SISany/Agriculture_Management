@@ -1,572 +1,380 @@
 "use client"
 
-import {useState} from "react"
+import {useState, useEffect} from "react"
 import {Button} from "@/components/ui/button"
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
-import {Badge} from "@/components/ui/badge"
-import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
-import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    ResponsiveContainer,
-    Legend
-} from "recharts"
-import {Search, Plus, Edit2, Trash2, BarChart3, TrendingUp, DollarSign, FileDown} from "lucide-react"
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Label} from "@/components/ui/label"
-import {exportPriceData} from "@/lib/pdfExport"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {Search, Plus, Edit2, Trash2, TrendingUp} from "lucide-react"
 
-interface PriceHistory {
-    price_id: string
+interface Price {
+    price_id?: number
     product_id: string
-    product_name: string
-    date_recorded: string
-    location: string
-    wholesale_price: number
-    retail_price: number
-    harvest_season_price: number
-    season: string
-    weather_id: string
+    district_id: number
+    date: string
+    price_per_unit: number
+    product_name?: string
+    district_name?: string
 }
 
-const priceHistory: PriceHistory[] = [
-    {
-        price_id: "PH001",
-        product_id: "P001",
-        product_name: "Wheat",
-        date_recorded: "2024-01-15",
-        location: "Dhaka",
-        wholesale_price: 40,
-        retail_price: 45,
-        harvest_season_price: 38,
-        season: "Winter",
-        weather_id: "W001"
-    },
-    {
-        price_id: "PH002",
-        product_id: "P002",
-        product_name: "Rice",
-        date_recorded: "2024-01-15",
-        location: "Chittagong",
-        wholesale_price: 60,
-        retail_price: 68,
-        harvest_season_price: 55,
-        season: "Winter",
-        weather_id: "W002"
-    },
-    {
-        price_id: "PH003",
-        product_id: "P003",
-        product_name: "Corn",
-        date_recorded: "2024-01-16",
-        location: "Sylhet",
-        wholesale_price: 35,
-        retail_price: 42,
-        harvest_season_price: 32,
-        season: "Winter",
-        weather_id: "W003"
-    },
-    {
-        price_id: "PH004",
-        product_id: "P001",
-        product_name: "Wheat",
-        date_recorded: "2024-01-18",
-        location: "Rajshahi",
-        wholesale_price: 38,
-        retail_price: 43,
-        harvest_season_price: 36,
-        season: "Winter",
-        weather_id: "W004"
-    }
-]
+interface Product {
+    product_id: string
+    name: string
+}
 
-// Sample trend data for charts
-const priceTrendData = [
-    {month: "Oct", wheat: 42, rice: 58, corn: 38},
-    {month: "Nov", wheat: 40, rice: 62, corn: 36},
-    {month: "Dec", wheat: 39, rice: 60, corn: 34},
-    {month: "Jan", wheat: 40, rice: 60, corn: 35},
-]
+interface District {
+    district_id: number
+    name: string
+}
 
 export default function PriceAnalytics() {
+    const [prices, setPrices] = useState<Price[]>([])
+    const [products, setProducts] = useState<Product[]>([])
+    const [districts, setDistricts] = useState<District[]>([])
+    const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState("")
-    const [showAddForm, setShowAddForm] = useState(false)
-    const [priceHistoryData, setPriceHistoryData] = useState<PriceHistory[]>(priceHistory)
-    const [formData, setFormData] = useState({
-        price_id: "",
+    const [selectedProduct, setSelectedProduct] = useState("all")
+    const [selectedDistrict, setSelectedDistrict] = useState("all")
+    const [showForm, setShowForm] = useState(false)
+    const [editingPrice, setEditingPrice] = useState<Price | null>(null)
+    const [formData, setFormData] = useState<Price>({
         product_id: "",
-        product_name: "",
-        location: "",
-        date_recorded: "",
-        wholesale_price: "",
-        retail_price: "",
-        harvest_season_price: "",
-        season: "",
-        weather_id: ""
+        district_id: 0,
+        date: "",
+        price_per_unit: 0
     })
 
-    const handleInputChange = (field: string, value: string) => {
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const [pricesRes, productsRes, districtsRes] = await Promise.all([
+                fetch('/api/prices'),
+                fetch('/api/products'),
+                fetch('/api/districts')
+            ]);
+            
+            const pricesData = await pricesRes.json();
+            const productsData = await productsRes.json();
+            const districtsData = await districtsRes.json();
+            
+            setPrices(pricesData);
+            setProducts(productsData);
+            setDistricts(districtsData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleInputChange = (field: keyof Price, value: string | number) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
         }))
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-
-        const newPriceRecord: PriceHistory = {
-            price_id: formData.price_id,
-            product_id: formData.product_id,
-            product_name: formData.product_name,
-            date_recorded: formData.date_recorded,
-            location: formData.location,
-            wholesale_price: parseFloat(formData.wholesale_price) || 0,
-            retail_price: parseFloat(formData.retail_price) || 0,
-            harvest_season_price: parseFloat(formData.harvest_season_price) || 0,
-            season: formData.season,
-            weather_id: formData.weather_id
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const method = editingPrice ? 'PUT' : 'POST';
+            const response = await fetch('/api/prices', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+            
+            if (response.ok) {
+                await fetchData();
+                resetForm();
+            }
+        } catch (error) {
+            console.error('Error saving price:', error);
         }
+    }
 
-        setPriceHistoryData([...priceHistoryData, newPriceRecord])
+    const handleEdit = (price: Price) => {
+        setEditingPrice(price);
+        setFormData(price);
+        setShowForm(true);
+    }
 
-        // Reset form
+    const handleDelete = async (id: number) => {
+        if (confirm('Are you sure you want to delete this price record?')) {
+            try {
+                const response = await fetch(`/api/prices?id=${id}`, {
+                    method: 'DELETE',
+                });
+                
+                if (response.ok) {
+                    await fetchData();
+                }
+            } catch (error) {
+                console.error('Error deleting price:', error);
+            }
+        }
+    }
+
+    const resetForm = () => {
         setFormData({
-            price_id: "",
             product_id: "",
-            product_name: "",
-            location: "",
-            date_recorded: "",
-            wholesale_price: "",
-            retail_price: "",
-            harvest_season_price: "",
-            season: "",
-            weather_id: ""
-        })
-        setShowAddForm(false)
-        alert("Price record added successfully!")
+            district_id: 0,
+            date: "",
+            price_per_unit: 0
+        });
+        setEditingPrice(null);
+        setShowForm(false);
     }
 
-    const filteredPriceHistory = priceHistoryData.filter(record =>
-        record.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.price_id.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    const filteredPrices = prices.filter(price => {
+        const matchesSearch = (price.product_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (price.district_name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+        const matchesProduct = selectedProduct === "all" || price.product_id === selectedProduct
+        const matchesDistrict = selectedDistrict === "all" || price.district_id.toString() === selectedDistrict
+        return matchesSearch && matchesProduct && matchesDistrict
+    })
 
-    const getMarginPercentage = (retail: number, wholesale: number) => {
-        return (((retail - wholesale) / wholesale) * 100).toFixed(1)
+    const averagePrice = prices.length > 0 ? prices.reduce((sum, p) => sum + (p.price_per_unit || 0), 0) / prices.length : 0;
+    const highestPrice = prices.length > 0 ? Math.max(...prices.map(p => p.price_per_unit || 0)) : 0;
+    const lowestPrice = prices.length > 0 ? Math.min(...prices.map(p => p.price_per_unit || 0)) : 0;
+
+    if (loading) {
+        return <div className="flex justify-center items-center min-h-screen">Loading...</div>
     }
-
-    const getSeasonalVariation = (current: number, harvest: number) => {
-        return (((current - harvest) / harvest) * 100).toFixed(1)
-    }
-
-    const products = [
-        {id: "P001", name: "Wheat"},
-        {id: "P002", name: "Rice"},
-        {id: "P003", name: "Corn"}
-    ]
-    const seasons = [
-        {id: "Winter", name: "Winter"},
-        {id: "Summer", name: "Summer"},
-        {id: "Spring", name: "Spring"},
-        {id: "Autumn", name: "Autumn"}
-    ]
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Price History & Analytics</h1>
-                    <p className="mt-2 text-gray-600">Track price trends and market analytics</p>
-                </div>
-                <div className="flex gap-4 items-center">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
-                        <Input
-                            type="search"
-                            placeholder="Search price records..."
-                            className="pl-10 w-64"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+        <div className="min-h-screen bg-gray-50 p-6">
+            <div className="max-w-7xl mx-auto space-y-6">
+                {/* Header */}
+                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Price Analytics</h1>
+                            <p className="text-gray-600">Track and analyze agricultural product prices</p>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                            <div className="bg-orange-50 p-4 rounded-xl">
+                                <TrendingUp className="h-8 w-8 text-orange-600" />
+                            </div>
+                        </div>
                     </div>
-                    <Button onClick={() => setShowAddForm(true)}>
-                        <Plus className="w-4 h-4 mr-2"/>
-                        Add Price Record
-                    </Button>
-                    <Button onClick={() => exportPriceData(priceHistoryData as unknown as Record<string, unknown>[])}>
-                        <FileDown className="w-4 h-4 mr-2"/>
-                        Export Data
-                    </Button>
                 </div>
-            </div>
 
-            {/* 1. STATISTICS CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Total Records</CardTitle>
-                        <BarChart3 className="h-4 w-4 text-blue-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{priceHistoryData.length}</div>
-                        <p className="text-xs text-gray-600">Price records</p>
-                    </CardContent>
-                </Card>
+                {/* Statistics */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Total Records</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-gray-900">{prices.length}</div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Average Price</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-gray-900">৳{averagePrice.toFixed(2)}</div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Highest Price</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-green-600">৳{highestPrice.toFixed(2)}</div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Lowest Price</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-red-600">৳{lowestPrice.toFixed(2)}</div>
+                        </CardContent>
+                    </Card>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Avg Wholesale Price</CardTitle>
-                        <DollarSign className="h-4 w-4 text-green-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            ${(priceHistoryData.reduce((sum, p) => sum + p.wholesale_price, 0) / priceHistoryData.length).toFixed(2)}
+                {/* Controls */}
+                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                <Input
+                                    placeholder="Search prices..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-10 w-full md:w-64"
+                                />
+                            </div>
+                            <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                                <SelectTrigger className="w-full md:w-40">
+                                    <SelectValue placeholder="All Products" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Products</SelectItem>
+                                    {products.map(product => (
+                                        <SelectItem key={product.product_id} value={product.product_id}>
+                                            {product.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+                                <SelectTrigger className="w-full md:w-40">
+                                    <SelectValue placeholder="All Districts" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Districts</SelectItem>
+                                    {districts.map(district => (
+                                        <SelectItem key={district.district_id} value={district.district_id.toString()}>
+                                            {district.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <p className="text-xs text-gray-600">Per unit</p>
-                    </CardContent>
-                </Card>
+                        <Button onClick={() => setShowForm(true)} className="bg-orange-600 hover:bg-orange-700">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Price
+                        </Button>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Avg Retail Price</CardTitle>
-                        <DollarSign className="h-4 w-4 text-purple-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            ${(priceHistoryData.reduce((sum, p) => sum + p.retail_price, 0) / priceHistoryData.length).toFixed(2)}
-                        </div>
-                        <p className="text-xs text-gray-600">Per unit</p>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-sm font-medium">Avg Margin</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-orange-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {(priceHistoryData.reduce((sum, p) => sum + ((p.retail_price - p.wholesale_price) / p.wholesale_price), 0) / priceHistoryData.length * 100).toFixed(1)}%
-                        </div>
-                        <p className="text-xs text-gray-600">Retail markup</p>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* 2. ENTRY DATA FORM */}
-            {showAddForm && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Add Price Record</CardTitle>
-                        <CardDescription>Enter current market pricing information</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Basic Information Section */}
-                            <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="price_id" className="text-gray-700">Price ID *</Label>
-                                        <Input
-                                            id="price_id"
-                                            type="text"
-                                            placeholder="e.g., PH005"
-                                            value={formData.price_id}
-                                            onChange={(e) => handleInputChange("price_id", e.target.value)}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="product_id" className="text-gray-700">Product *</Label>
-                                        <Select value={formData.product_id}
-                                                onValueChange={(value) => {
-                                                    handleInputChange("product_id", value)
-                                                    const selectedProduct = products.find(p => p.id === value)
-                                                    if (selectedProduct) {
-                                                        handleInputChange("product_name", selectedProduct.name)
-                                                    }
-                                                }}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select Product"/>
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {products.map((product) => (
-                                                    <SelectItem key={product.id} value={product.id}>
-                                                        {product.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="product_name" className="text-gray-700">Product Name</Label>
-                                        <Input
-                                            id="product_name"
-                                            type="text"
-                                            placeholder="Auto-filled from selection"
-                                            value={formData.product_name}
-                                            onChange={(e) => handleInputChange("product_name", e.target.value)}
-                                            readOnly
-                                            className="bg-gray-50"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="location" className="text-gray-700">Location *</Label>
-                                        <Input
-                                            id="location"
-                                            type="text"
-                                            placeholder="e.g., Dhaka"
-                                            value={formData.location}
-                                            onChange={(e) => handleInputChange("location", e.target.value)}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="date_recorded" className="text-gray-700">Date Recorded *</Label>
-                                        <Input
-                                            id="date_recorded"
-                                            type="date"
-                                            value={formData.date_recorded}
-                                            onChange={(e) => handleInputChange("date_recorded", e.target.value)}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="season" className="text-gray-700">Season *</Label>
-                                        <Select value={formData.season}
-                                                onValueChange={(value) => handleInputChange("season", value)}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select Season"/>
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {seasons.map((season) => (
-                                                    <SelectItem key={season.id} value={season.id}>
-                                                        {season.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
+                {/* Add/Edit Form */}
+                {showForm && (
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            {editingPrice ? 'Edit Price' : 'Add New Price'}
+                        </h2>
+                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="product_id">Product *</Label>
+                                <Select value={formData.product_id} onValueChange={(value) => handleInputChange("product_id", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select product" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {products.map(product => (
+                                            <SelectItem key={product.product_id} value={product.product_id}>
+                                                {product.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
 
-                            {/* Price Information Section */}
-                            <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Price Information</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="wholesale_price" className="text-gray-700">Wholesale Price ($)
-                                            *</Label>
-                                        <Input
-                                            id="wholesale_price"
-                                            type="number"
-                                            step="0.01"
-                                            placeholder="e.g., 40.00"
-                                            value={formData.wholesale_price}
-                                            onChange={(e) => handleInputChange("wholesale_price", e.target.value)}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="retail_price" className="text-gray-700">Retail Price ($)
-                                            *</Label>
-                                        <Input
-                                            id="retail_price"
-                                            type="number"
-                                            step="0.01"
-                                            placeholder="e.g., 45.00"
-                                            value={formData.retail_price}
-                                            onChange={(e) => handleInputChange("retail_price", e.target.value)}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="harvest_season_price" className="text-gray-700">Harvest Season
-                                            Price ($) *</Label>
-                                        <Input
-                                            id="harvest_season_price"
-                                            type="number"
-                                            step="0.01"
-                                            placeholder="e.g., 38.00"
-                                            value={formData.harvest_season_price}
-                                            onChange={(e) => handleInputChange("harvest_season_price", e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Real-time calculations */}
-                                {formData.wholesale_price && formData.retail_price && (
-                                    <div className="bg-blue-50 p-4 rounded-lg mt-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                            <div className="flex justify-between">
-                                                <span className="text-blue-700">Retail Margin:</span>
-                                                <span className="font-semibold text-blue-800">
-                                                    {(((parseFloat(formData.retail_price) - parseFloat(formData.wholesale_price)) / parseFloat(formData.wholesale_price)) * 100).toFixed(1)}%
-                                                </span>
-                                            </div>
-                                            {formData.harvest_season_price && (
-                                                <div className="flex justify-between">
-                                                    <span className="text-blue-700">Seasonal Variation:</span>
-                                                    <span className="font-semibold text-blue-800">
-                                                        {(((parseFloat(formData.retail_price) - parseFloat(formData.harvest_season_price)) / parseFloat(formData.harvest_season_price)) * 100).toFixed(1)}%
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
+                            <div className="space-y-2">
+                                <Label htmlFor="district_id">District *</Label>
+                                <Select value={formData.district_id.toString()} onValueChange={(value) => handleInputChange("district_id", parseInt(value))}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select district" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {districts.map(district => (
+                                            <SelectItem key={district.district_id} value={district.district_id.toString()}>
+                                                {district.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
 
-                            {/* Additional Information Section */}
-                            <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Additional Information</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="weather_id" className="text-gray-700">Weather ID</Label>
-                                        <Input
-                                            id="weather_id"
-                                            type="text"
-                                            placeholder="e.g., W001"
-                                            value={formData.weather_id}
-                                            onChange={(e) => handleInputChange("weather_id", e.target.value)}
-                                        />
-                                        <p className="text-xs text-gray-500">Optional weather reference</p>
-                                    </div>
-                                </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="date">Date *</Label>
+                                <Input
+                                    id="date"
+                                    type="date"
+                                    value={formData.date}
+                                    onChange={(e) => handleInputChange("date", e.target.value)}
+                                    required
+                                />
                             </div>
 
-                            <div className="flex gap-4 pt-4 border-t border-gray-200">
-                                <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
-                                    <Plus className="h-4 w-4 mr-2"/>
-                                    Add Price Record
+                            <div className="space-y-2">
+                                <Label htmlFor="price_per_unit">Price per Unit (৳) *</Label>
+                                <Input
+                                    id="price_per_unit"
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.price_per_unit}
+                                    onChange={(e) => handleInputChange("price_per_unit", parseFloat(e.target.value) || 0)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="md:col-span-2 flex gap-4">
+                                <Button type="submit" className="bg-orange-600 hover:bg-orange-700">
+                                    {editingPrice ? 'Update Price' : 'Add Price'}
                                 </Button>
-                                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                                <Button type="button" variant="outline" onClick={resetForm}>
                                     Cancel
                                 </Button>
                             </div>
                         </form>
-                    </CardContent>
-                </Card>
-            )}
+                    </div>
+                )}
 
-            {/* 3. TABLE SHOW */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Price History Records</CardTitle>
-                    <CardDescription>Historical pricing data by season</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Price ID</TableHead>
-                                <TableHead>Product</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Wholesale Price</TableHead>
-                                <TableHead>Retail Price</TableHead>
-                                <TableHead>Harvest Price</TableHead>
-                                <TableHead>Margin</TableHead>
-                                <TableHead>Seasonal Var.</TableHead>
-                                <TableHead>Season</TableHead>
-                                <TableHead>Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredPriceHistory.map((record) => (
-                                <TableRow key={record.price_id}>
-                                    <TableCell className="font-medium">{record.price_id}</TableCell>
-                                    <TableCell>{record.product_name}</TableCell>
-                                    <TableCell>{record.date_recorded}</TableCell>
-                                    <TableCell>${record.wholesale_price}</TableCell>
-                                    <TableCell>${record.retail_price}</TableCell>
-                                    <TableCell>${record.harvest_season_price}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline">
-                                            {getMarginPercentage(record.retail_price, record.wholesale_price)}%
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge
-                                            variant={Math.abs(parseFloat(getSeasonalVariation(record.retail_price, record.harvest_season_price))) > 10 ? "destructive" : "default"}>
-                                            {getSeasonalVariation(record.retail_price, record.harvest_season_price)}%
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant="secondary">{record.season}</Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center space-x-1">
-                                            <Button variant="ghost" size="sm" className="hover:bg-blue-50">
-                                                <Edit2 className="w-4 h-4 text-blue-600"/>
-                                            </Button>
-                                            <Button variant="ghost" size="sm" className="hover:bg-red-50">
-                                                <Trash2 className="w-4 h-4 text-red-600"/>
-                                            </Button>
-                                        </div>
-                                    </TableCell>
+                {/* Prices Table */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-gray-200">
+                        <h2 className="text-xl font-semibold text-gray-900">
+                            Price Records ({filteredPrices.length})
+                        </h2>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="bg-gray-50">
+                                    <TableHead>Product</TableHead>
+                                    <TableHead>District</TableHead>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Price (৳/unit)</TableHead>
+                                    <TableHead>Actions</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-
-            {/* 4. CHARTS */}
-            <div className="grid grid-cols-1 gap-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Price Trends Over Time</CardTitle>
-                        <CardDescription>Monthly price variations by product</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer
-                            config={{
-                                wheat: {label: "Wheat", color: "#8884d8"},
-                                rice: {label: "Rice", color: "#82ca9d"},
-                                corn: {label: "Corn", color: "#ffc658"}
-                            }}
-                            className="h-[300px]"
-                        >
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={priceTrendData}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis
-                                        dataKey="month"
-                                        tick={{fontSize: 12}}
-                                        tickFormatter={(tick) => tick}
-                                        label={{value: 'Month', position: 'insideBottom', offset: -5}}
-                                    />
-                                    <YAxis
-                                        tick={{fontSize: 12}}
-                                        tickFormatter={(tick) => `$${tick}`}
-                                        label={{value: 'Price ($)', angle: -90, position: 'insideLeft'}}
-                                    />
-                                    <ChartTooltip content={<ChartTooltipContent/>}/>
-                                    <Legend/>
-                                    <Line type="monotone" dataKey="wheat" stroke="#8884d8" strokeWidth={2}/>
-                                    <Line type="monotone" dataKey="rice" stroke="#82ca9d" strokeWidth={2}/>
-                                    <Line type="monotone" dataKey="corn" stroke="#ffc658" strokeWidth={2}/>
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredPrices.map((price) => (
+                                    <TableRow key={`${price.product_id}-${price.district_id}-${price.date}`} className="hover:bg-gray-50">
+                                        <TableCell className="font-medium">{price.product_name || price.product_id}</TableCell>
+                                        <TableCell>{price.district_name || price.district_id}</TableCell>
+                                        <TableCell>{new Date(price.date).toLocaleDateString()}</TableCell>
+                                        <TableCell className="font-semibold">৳{price.price_per_unit.toFixed(2)}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center space-x-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                                    onClick={() => handleEdit(price)}
+                                                >
+                                                    <Edit2 className="h-4 w-4" />
+                                                </Button>
+                                                {price.price_id && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                                                        onClick={() => handleDelete(price.price_id!)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </div>
             </div>
         </div>
     )
