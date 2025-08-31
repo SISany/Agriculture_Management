@@ -38,6 +38,7 @@ interface Price {
     district_id: number
     date: string
     price_per_unit: number
+    price_type?: string
     product_name?: string
     district_name?: string
 }
@@ -74,7 +75,8 @@ export default function PriceAnalytics() {
         product_id: "",
         district_id: 0,
         date: "",
-        price_per_unit: 0
+        price_per_unit: 0,
+        price_type: "retail"
     })
 
     useEffect(() => {
@@ -304,8 +306,8 @@ export default function PriceAnalytics() {
                                             <TableCell>{product?.harvest_time || 'N/A'}</TableCell>
                                             <TableCell className="font-semibold">৳{safeNumberFormat(price.price_per_unit, 2)}</TableCell>
                                             <TableCell>
-                                                <Badge variant={price.price_per_unit > avgPrice ? "default" : "secondary"}>
-                                                    {price.price_per_unit > avgPrice ? "Premium" : "Standard"}
+                                                <Badge variant={price.price_type === 'wholesale' ? "default" : "secondary"}>
+                                                    {price.price_type === 'wholesale' ? 'Wholesale' : 'Retail'}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>

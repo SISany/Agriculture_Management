@@ -148,7 +148,7 @@ export default function SupplyDemandAnalysis() {
     
     // Load analysis data when filters change
     useEffect(() => {
-        if (selectedProduct || selectedDistrict) {
+        if (selectedProduct && selectedDistrict) {
             fetchAnalysisData()
         }
     }, [selectedProduct, selectedDistrict, selectedDateRange, activeTab])
@@ -172,7 +172,10 @@ export default function SupplyDemandAnalysis() {
             const data = await response.json()
             setDistricts(data)
             if (data.length > 0) {
-                setSelectedDistrict(data[0].district_id.toString())
+                // Try to select a district that likely has data (Dhaka = district_id 1)
+                const dhakaDistrict = data.find(d => d.district_id === 1)
+                const defaultDistrict = dhakaDistrict || data[0]
+                setSelectedDistrict(defaultDistrict.district_id.toString())
             }
         } catch (error) {
             console.error('Error fetching districts:', error)
@@ -180,7 +183,10 @@ export default function SupplyDemandAnalysis() {
     }
     
     const fetchAnalysisData = async () => {
-        if (!selectedProduct || !selectedDistrict) return
+        if (!selectedProduct || !selectedDistrict) {
+            console.log('Missing required filters:', { selectedProduct, selectedDistrict })
+            return
+        }
         
         setLoading(true)
         try {

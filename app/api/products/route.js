@@ -4,7 +4,19 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     const products = await query('SELECT * FROM product');
-    return NextResponse.json(products);
+    
+    // Map the database column names to match the frontend expectations
+    const mappedProducts = products.map(product => ({
+      product_id: product.product_id,
+      name: product.NAME || product.name,
+      type: product.TYPE || product.type,
+      variety: product.variety,
+      sowing_time: product.sowing_time,
+      harvest_time: product.harvest_time,
+      seed_requirement_per_acre: parseFloat(product.seed_requirement_per_acre) || 0
+    }));
+    
+    return NextResponse.json(mappedProducts);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

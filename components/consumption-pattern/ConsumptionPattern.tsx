@@ -865,27 +865,40 @@ export default function ConsumptionPattern() {
                                 <h4 className="text-lg font-medium text-foreground mb-4">Basic Information</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="consumer_name" className="text-foreground">Consumer Name *</Label>
-                                        <Input
-                                            id="stakeholder_id"
-                                            type="text"
-                                            placeholder="e.g., S001"
-                                            value={formData.stakeholder_id}
-                                            onChange={(e) => handleInputChange("stakeholder_id", e.target.value)}
-                                            required
-                                        />
+                                        <Label htmlFor="consumer_name" className="text-foreground">Consumer *</Label>
+                                        <Select value={formData.stakeholder_id}
+                                                onValueChange={(value) => handleInputChange("stakeholder_id", value)}>
+                                            <SelectTrigger className="bg-background text-foreground border-border">
+                                                <SelectValue placeholder="Select Consumer"/>
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-background border-border">
+                                                {stakeholders.map((stakeholder) => (
+                                                    <SelectItem 
+                                                        key={stakeholder.stakeholder_id} 
+                                                        value={stakeholder.stakeholder_id}
+                                                        className="text-foreground hover:bg-muted focus:bg-muted"
+                                                    >
+                                                        {stakeholder.NAME || stakeholder.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
 
                                     <div className="space-y-2">
                                         <Label htmlFor="product_id" className="text-foreground">Product *</Label>
                                         <Select value={formData.product_id}
                                                 onValueChange={(value) => handleInputChange("product_id", value)}>
-                                            <SelectTrigger>
+                                            <SelectTrigger className="bg-background text-foreground border-border">
                                                 <SelectValue placeholder="Select Product"/>
                                             </SelectTrigger>
-                                            <SelectContent>
+                                            <SelectContent className="bg-background border-border">
                                                 {products.map((product) => (
-                                                    <SelectItem key={product.product_id} value={product.product_id}>
+                                                    <SelectItem 
+                                                        key={product.product_id} 
+                                                        value={product.product_id}
+                                                        className="text-foreground hover:bg-muted focus:bg-muted"
+                                                    >
                                                         {getProductName(product.product_id)}
                                                     </SelectItem>
                                                 ))}
@@ -902,6 +915,7 @@ export default function ConsumptionPattern() {
                                             value={formData.consumption_date}
                                             onChange={(e) => handleInputChange("consumption_date", e.target.value)}
                                             required
+                                            className="bg-background text-foreground border-border"
                                         />
                                     </div>
 
@@ -909,13 +923,17 @@ export default function ConsumptionPattern() {
                                         <Label htmlFor="district_id" className="text-foreground">District *</Label>
                                         <Select value={formData.district_id}
                                                 onValueChange={(value) => handleInputChange("district_id", value)}>
-                                            <SelectTrigger>
+                                            <SelectTrigger className="bg-background text-foreground border-border">
                                                 <SelectValue placeholder="Select District"/>
                                             </SelectTrigger>
-                                            <SelectContent>
+                                            <SelectContent className="bg-background border-border">
                                                 {districts.map((district) => (
-                                                    <SelectItem key={district.district_id} value={district.district_id}>
-                                                        {getDistrictName(district.district_id)}
+                                                    <SelectItem 
+                                                        key={district.district_id} 
+                                                        value={district.district_id.toString()}
+                                                        className="text-foreground hover:bg-muted focus:bg-muted"
+                                                    >
+                                                        {district.name}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
@@ -926,31 +944,13 @@ export default function ConsumptionPattern() {
                                         <Label htmlFor="demographic_group" className="text-foreground">Demographic Group *</Label>
                                         <Select value={formData.demographic_group}
                                                 onValueChange={(value) => handleInputChange("demographic_group", value)}>
-                                            <SelectTrigger>
+                                            <SelectTrigger className="bg-background text-foreground border-border">
                                                 <SelectValue placeholder="Select Demographic"/>
                                             </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Urban">Urban</SelectItem>
-                                                <SelectItem value="Rural">Rural</SelectItem>
-                                                <SelectItem value="Suburban">Suburban</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="demographic_group" className="text-foreground">Demographic Group
-                                            *</Label>
-                                        <Select value={formData.demographic_group}
-                                                onValueChange={(value) => handleInputChange("demographic_group", value)}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select Group"/>
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {demographicGroups.map((group) => (
-                                                    <SelectItem key={group} value={group}>
-                                                        {group}
-                                                    </SelectItem>
-                                                ))}
+                                            <SelectContent className="bg-background border-border">
+                                                <SelectItem value="Urban" className="text-foreground hover:bg-muted focus:bg-muted">Urban</SelectItem>
+                                                <SelectItem value="Rural" className="text-foreground hover:bg-muted focus:bg-muted">Rural</SelectItem>
+                                                <SelectItem value="Suburban" className="text-foreground hover:bg-muted focus:bg-muted">Suburban</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -972,6 +972,7 @@ export default function ConsumptionPattern() {
                                             value={formData.quantity_consumed}
                                             onChange={(e) => handleInputChange("quantity_consumed", parseFloat(e.target.value) || 0)}
                                             required
+                                            className="bg-background text-foreground border-border"
                                         />
                                     </div>
 
@@ -986,6 +987,7 @@ export default function ConsumptionPattern() {
                                             value={formData.amount_spent}
                                             onChange={(e) => handleInputChange("amount_spent", parseFloat(e.target.value) || 0)}
                                             required
+                                            className="bg-background text-foreground border-border"
                                         />
                                     </div>
 
@@ -1000,6 +1002,7 @@ export default function ConsumptionPattern() {
                                             value={formData.household_size}
                                             onChange={(e) => handleInputChange("household_size", parseInt(e.target.value) || 0)}
                                             required
+                                            className="bg-background text-foreground border-border"
                                         />
                                     </div>
                                 </div>
@@ -1035,16 +1038,16 @@ export default function ConsumptionPattern() {
                                 placeholder="Search consumers, products, locations..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10"
+                                className="pl-10 bg-background text-foreground border-border"
                             />
                         </div>
                         <Select value={selectedSeason} onValueChange={setSelectedSeason}>
-                            <SelectTrigger className="w-full md:w-48">
+                            <SelectTrigger className="w-full md:w-48 bg-background text-foreground border-border">
                                 <SelectValue placeholder="Select Season"/>
                             </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Seasons</SelectItem>
-                                <SelectItem value="Spring">Spring</SelectItem>
+                            <SelectContent className="bg-background border-border">
+                                <SelectItem value="all" className="text-foreground hover:bg-muted focus:bg-muted">All Seasons</SelectItem>
+                                <SelectItem value="Spring" className="text-foreground hover:bg-muted focus:bg-muted">Spring</SelectItem>
                                 <SelectItem value="Summer">Summer</SelectItem>
                                 <SelectItem value="Monsoon">Monsoon</SelectItem>
                                 <SelectItem value="Winter">Winter</SelectItem>

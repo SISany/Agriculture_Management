@@ -5,12 +5,12 @@ export async function GET() {
   try {
     const prices = await query(`
       SELECT p.*, 
-             pr.name as product_name, 
+             pr.NAME as product_name, 
              d.name as district_name
       FROM price p
       LEFT JOIN product pr ON p.product_id = pr.product_id
       LEFT JOIN district d ON p.district_id = d.district_id
-      ORDER BY p.date DESC
+      ORDER BY p.DATE DESC
     `);
     return NextResponse.json(prices);
   } catch (error) {

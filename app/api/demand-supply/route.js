@@ -79,7 +79,17 @@ async function getDemandSupplyOverview(product_id, district_id, start_date, end_
     ORDER BY p.name, d.name
   `;
 
-  return await query(sql, params);
+  const results = await query(sql, params);
+  
+  // Convert string numbers to proper numbers
+  return results.map(row => ({
+    ...row,
+    total_supply: parseFloat(row.total_supply) || 0,
+    total_consumption: parseFloat(row.total_consumption) || 0,
+    avg_price: parseFloat(row.avg_price) || 0,
+    transaction_count: parseInt(row.transaction_count) || 0,
+    surplus_deficit: parseFloat(row.surplus_deficit) || 0
+  }));
 }
 
 // Calculate monthly surplus/deficit based on production vs consumption
