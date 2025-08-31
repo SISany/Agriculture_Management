@@ -9,7 +9,20 @@ export async function GET() {
       LEFT JOIN product pr ON p.product_id = pr.product_id
       LEFT JOIN district d ON p.district_id = d.district_id
     `);
-    return NextResponse.json(productions);
+    
+    // Map the database column names to match the frontend expectations
+    const mappedProductions = productions.map(production => ({
+      production_id: production.production_id,
+      product_id: production.product_id,
+      district_id: production.district_id,
+      date: production.DATE || production.date, // Handle both cases
+      acreage: parseFloat(production.acreage) || 0,
+      quantity_produced: parseFloat(production.quantity_produced) || 0,
+      product_name: production.product_name,
+      district_name: production.district_name
+    }));
+    
+    return NextResponse.json(mappedProductions);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

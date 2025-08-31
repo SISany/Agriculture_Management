@@ -12,7 +12,19 @@ export async function GET() {
       LEFT JOIN district d ON p.district_id = d.district_id
       ORDER BY p.DATE DESC
     `);
-    return NextResponse.json(prices);
+    
+    // Map the database column names to match the frontend expectations
+    const mappedPrices = prices.map(price => ({
+      price_id: price.price_id,
+      product_id: price.product_id,
+      district_id: price.district_id,
+      date: price.DATE || price.date, // Handle both cases
+      price_per_unit: parseFloat(price.price_per_unit) || 0,
+      product_name: price.product_name,
+      district_name: price.district_name
+    }));
+    
+    return NextResponse.json(mappedPrices);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

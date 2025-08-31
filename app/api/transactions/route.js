@@ -13,7 +13,23 @@ export async function GET() {
       LEFT JOIN stakeholder ss ON t.seller_id = ss.stakeholder_id
       LEFT JOIN product p ON t.product_id = p.product_id
     `);
-    return NextResponse.json(transactions);
+    
+    // Map the database column names to match the frontend expectations
+    const mappedTransactions = transactions.map(transaction => ({
+      transaction_id: transaction.transaction_id,
+      buyer_id: transaction.buyer_id,
+      seller_id: transaction.seller_id,
+      product_id: transaction.product_id,
+      quantity: parseFloat(transaction.quantity) || 0,
+      price_per_unit: parseFloat(transaction.price_per_unit) || 0,
+      total_amount: parseFloat(transaction.total_amount) || 0,
+      date: transaction.DATE || transaction.date, // Handle both cases
+      buyer_name: transaction.buyer_name,
+      seller_name: transaction.seller_name,
+      product_name: transaction.product_name
+    }));
+    
+    return NextResponse.json(mappedTransactions);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

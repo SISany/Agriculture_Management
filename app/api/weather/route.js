@@ -9,7 +9,18 @@ export async function GET() {
       LEFT JOIN district d ON w.district_id = d.district_id
       ORDER BY w.date DESC
     `);
-    return NextResponse.json(weather);
+    
+    // Map the database column names to match the frontend expectations
+    const mappedWeather = weather.map(item => ({
+      weather_id: item.weather_id,
+      district_id: item.district_id,
+      date: item.DATE || item.date, // Handle both cases
+      rainfall: parseFloat(item.rainfall) || 0,
+      temperature: parseFloat(item.temperature) || 0,
+      district_name: item.district_name
+    }));
+    
+    return NextResponse.json(mappedWeather);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
