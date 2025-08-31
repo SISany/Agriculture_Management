@@ -139,6 +139,15 @@ export default function ConsumptionPattern() {
     const [supplyDemandData, setSupplyDemandData] = useState<SupplyDemandComparison[]>([])
     const [demographicGroups, setDemographicGroups] = useState<string[]>([])
     
+    // Helper functions for data processing
+    const getProductName = (productId: string) => {
+        return products.find(p => p.product_id === productId)?.name || 'Unknown Product'
+    }
+    
+    const getDistrictName = (districtId: string) => {
+        return districts.find(d => d.district_id === districtId)?.name || 'Unknown District'
+    }
+    
     // Computed data for charts
     const monthlyConsumptionData = React.useMemo(() => {
         if (!consumptionPatterns.length) return []
@@ -430,15 +439,6 @@ export default function ConsumptionPattern() {
         }
     }
 
-    // Helper functions for data processing
-    const getProductName = (productId: string) => {
-        return products.find(p => p.product_id === productId)?.name || 'Unknown Product'
-    }
-    
-    const getDistrictName = (districtId: string) => {
-        return districts.find(d => d.district_id === districtId)?.name || 'Unknown District'
-    }
-    
     // Calculate price elasticity based on real data
     const calculatePriceElasticity = () => {
         if (priceHistory.length === 0 || consumptionPatterns.length === 0) return []
@@ -867,26 +867,26 @@ export default function ConsumptionPattern() {
                                     <div className="space-y-2">
                                         <Label htmlFor="consumer_name" className="text-foreground">Consumer Name *</Label>
                                         <Input
-                                            id="consumer_name"
+                                            id="stakeholder_id"
                                             type="text"
-                                            placeholder="e.g., Rahman Family"
-                                            value={formData.consumer_name}
-                                            onChange={(e) => handleInputChange("consumer_name", e.target.value)}
+                                            placeholder="e.g., S001"
+                                            value={formData.stakeholder_id}
+                                            onChange={(e) => handleInputChange("stakeholder_id", e.target.value)}
                                             required
                                         />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="product_name" className="text-foreground">Product *</Label>
-                                        <Select value={formData.product_name}
-                                                onValueChange={(value) => handleInputChange("product_name", value)}>
+                                        <Label htmlFor="product_id" className="text-foreground">Product *</Label>
+                                        <Select value={formData.product_id}
+                                                onValueChange={(value) => handleInputChange("product_id", value)}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select Product"/>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {productOptions.map((product) => (
-                                                    <SelectItem key={product} value={product}>
-                                                        {product}
+                                                {products.map((product) => (
+                                                    <SelectItem key={product.product_id} value={product.product_id}>
+                                                        {getProductName(product.product_id)}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
@@ -906,16 +906,16 @@ export default function ConsumptionPattern() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="location" className="text-foreground">Location *</Label>
-                                        <Select value={formData.location}
-                                                onValueChange={(value) => handleInputChange("location", value)}>
+                                        <Label htmlFor="district_id" className="text-foreground">District *</Label>
+                                        <Select value={formData.district_id}
+                                                onValueChange={(value) => handleInputChange("district_id", value)}>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select Location"/>
+                                                <SelectValue placeholder="Select District"/>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {locations.map((location) => (
-                                                    <SelectItem key={location} value={location}>
-                                                        {location}
+                                                {districts.map((district) => (
+                                                    <SelectItem key={district.district_id} value={district.district_id}>
+                                                        {getDistrictName(district.district_id)}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
@@ -923,18 +923,16 @@ export default function ConsumptionPattern() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="season" className="text-foreground">Season *</Label>
-                                        <Select value={formData.season}
-                                                onValueChange={(value) => handleInputChange("season", value)}>
+                                        <Label htmlFor="demographic_group" className="text-foreground">Demographic Group *</Label>
+                                        <Select value={formData.demographic_group}
+                                                onValueChange={(value) => handleInputChange("demographic_group", value)}>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select Season"/>
+                                                <SelectValue placeholder="Select Demographic"/>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {seasons.map((season) => (
-                                                    <SelectItem key={season} value={season}>
-                                                        {season}
-                                                    </SelectItem>
-                                                ))}
+                                                <SelectItem value="Urban">Urban</SelectItem>
+                                                <SelectItem value="Rural">Rural</SelectItem>
+                                                <SelectItem value="Suburban">Suburban</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -1094,14 +1092,14 @@ export default function ConsumptionPattern() {
                             <TableBody>
                                 {filteredData.map((pattern) => (
                                     <TableRow key={pattern.consumption_id}>
-                                        <TableCell className="font-medium">{pattern.stakeholder_name}</TableCell>
-                                        <TableCell>{pattern.product_name}</TableCell>
+                                        <TableCell className="font-medium">{pattern.stakeholder_id}</TableCell>
+                                        <TableCell>{getProductName(pattern.product_id)}</TableCell>
                                         <TableCell>{new Date(pattern.consumption_date).toLocaleDateString()}</TableCell>
                                         <TableCell>{pattern.quantity_consumed} kg</TableCell>
                                         <TableCell>৳{pattern.amount_spent.toLocaleString()}</TableCell>
-                                        <TableCell>{pattern.purchase_location}</TableCell>
+                                        <TableCell>{getDistrictName(pattern.district_id)}</TableCell>
                                         <TableCell>
-                                            <Badge variant="outline">{pattern.season}</Badge>
+                                            <Badge variant="outline">{pattern.demographic_group}</Badge>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center space-x-1">
