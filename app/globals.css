@@ -83,37 +83,37 @@
 }
 
 .dark {
-    --background: #000000;
-    --foreground: #ffffff;
-    --card: #000000;
-    --card-foreground: #ffffff;
-    --popover: #000000;
-    --popover-foreground: #ffffff;
-    --primary: #ffffff;
-    --primary-foreground: #000000;
+    --background: #0a0a0a;
+    --foreground: #fafafa;
+    --card: #111111;
+    --card-foreground: #fafafa;
+    --popover: #111111;
+    --popover-foreground: #fafafa;
+    --primary: #fafafa;
+    --primary-foreground: #0a0a0a;
     --secondary: #1a1a1a;
-    --secondary-foreground: #ffffff;
+    --secondary-foreground: #fafafa;
     --muted: #1a1a1a;
-    --muted-foreground: #999999;
+    --muted-foreground: #a1a1aa;
     --accent: #1a1a1a;
-    --accent-foreground: #ffffff;
-    --destructive: #ffffff;
-    --border: #333333;
-    --input: #000000;
-    --ring: #ffffff;
-    --chart-1: #ffffff;
-    --chart-2: #cccccc;
-    --chart-3: #999999;
-    --chart-4: #666666;
-    --chart-5: #333333;
-    --sidebar: #000000;
-    --sidebar-foreground: #ffffff;
-    --sidebar-primary: #ffffff;
-    --sidebar-primary-foreground: #000000;
+    --accent-foreground: #fafafa;
+    --destructive: #dc2626;
+    --border: #27272a;
+    --input: #1a1a1a;
+    --ring: #3b82f6;
+    --chart-1: #3b82f6;
+    --chart-2: #10b981;
+    --chart-3: #f59e0b;
+    --chart-4: #ef4444;
+    --chart-5: #8b5cf6;
+    --sidebar: #111111;
+    --sidebar-foreground: #fafafa;
+    --sidebar-primary: #fafafa;
+    --sidebar-primary-foreground: #0a0a0a;
     --sidebar-accent: #1a1a1a;
-    --sidebar-accent-foreground: #ffffff;
-    --sidebar-border: #333333;
-    --sidebar-ring: #ffffff;
+    --sidebar-accent-foreground: #fafafa;
+    --sidebar-border: #27272a;
+    --sidebar-ring: #3b82f6;
 }
 
 @layer base {
@@ -431,4 +431,69 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+/* Dark mode enhancements */
+.dark {
+    color-scheme: dark;
+}
+
+.dark table {
+    @apply bg-card text-card-foreground;
+}
+
+.dark th {
+    @apply bg-muted text-muted-foreground border-border;
+}
+
+.dark td {
+    @apply border-border text-card-foreground;
+}
+
+.dark .table-row:hover {
+    @apply bg-muted/30;
+}
+
+.dark input, .dark textarea, .dark select {
+    @apply bg-input text-foreground border-border;
+}
+
+.dark .card {
+    @apply bg-card border-border;
+}
+
+.dark .badge {
+    @apply text-foreground;
+}
+
+.dark .text-gray-600 {
+    @apply text-muted-foreground;
+}
+
+.dark .text-gray-700 {
+    @apply text-foreground;
+}
+
+.dark .text-gray-800 {
+    @apply text-foreground;
+}
+
+.dark .text-gray-900 {
+    @apply text-foreground;
+}
+
+.dark .bg-white {
+    @apply bg-card;
+}
+
+.dark .bg-gray-50 {
+    @apply bg-muted;
+}
+
+.dark .bg-gray-100 {
+    @apply bg-muted;
+}
+
+.dark .border-gray-200 {
+    @apply border-border;
 }

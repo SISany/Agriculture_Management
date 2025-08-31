@@ -192,15 +192,15 @@ export default function WholesalerManagement() {
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="bg-purple-100 p-3 rounded-xl border border-purple-200">
                                 <Warehouse className="h-8 w-8 text-purple-600"/>
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold text-gray-900">Wholesaler Management</h1>
-                                <p className="text-gray-600 mt-1">Manage wholesale partners and distribution
+                                <h1 className="text-3xl font-bold text-foreground">Wholesaler Management</h1>
+                                <p className="text-muted-foreground mt-1">Manage wholesale partners and distribution
                                     networks</p>
                             </div>
                         </div>
@@ -225,60 +225,60 @@ export default function WholesalerManagement() {
 
                 {/* Statistics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-purple-100 p-2 rounded-lg">
                                 <Warehouse className="h-5 w-5 text-purple-600"/>
                             </div>
-                            <span className="text-2xl font-bold text-gray-900">{totalWholesalers}</span>
+                            <span className="text-2xl font-bold text-foreground">{totalWholesalers}</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Total Wholesalers</h3>
+                        <h3 className="font-medium text-foreground">Total Wholesalers</h3>
                         <p className="text-sm text-gray-500">Active partners</p>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-green-100 p-2 rounded-lg">
                                 <TrendingUp className="h-5 w-5 text-green-600"/>
                             </div>
                             <span
-                                className="text-2xl font-bold text-gray-900">${(totalTurnover / 1000000).toFixed(1)}M</span>
+                                className="text-2xl font-bold text-foreground">${(totalTurnover / 1000000).toFixed(1)}M</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Total Turnover</h3>
+                        <h3 className="font-medium text-foreground">Total Turnover</h3>
                         <p className="text-sm text-gray-500">Annual combined</p>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-blue-100 p-2 rounded-lg">
                                 <Building className="h-5 w-5 text-blue-600"/>
                             </div>
-                            <span className="text-2xl font-bold text-gray-900">{totalWarehouses}</span>
+                            <span className="text-2xl font-bold text-foreground">{totalWarehouses}</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Total Warehouses</h3>
+                        <h3 className="font-medium text-foreground">Total Warehouses</h3>
                         <p className="text-sm text-gray-500">Storage facilities</p>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-orange-100 p-2 rounded-lg">
                                 <Truck className="h-5 w-5 text-orange-600"/>
                             </div>
-                            <span className="text-2xl font-bold text-gray-900">{avgNetworkSize}</span>
+                            <span className="text-2xl font-bold text-foreground">{avgNetworkSize}</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Avg Network Size</h3>
+                        <h3 className="font-medium text-foreground">Avg Network Size</h3>
                         <p className="text-sm text-gray-500">Distribution points</p>
                     </div>
                 </div>
 
                 {/* Data Entry Form */}
                 {showForm && (
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-6">Add New Wholesaler</h3>
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h3 className="text-xl font-semibold text-foreground mb-6">Add New Wholesaler</h3>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div>
-                                    <Label htmlFor="wholesaler_id" className="text-gray-700">Wholesaler ID</Label>
+                                    <Label htmlFor="wholesaler_id" className="text-foreground">Wholesaler ID</Label>
                                     <Input
                                         id="wholesaler_id"
                                         placeholder="e.g., W001"
@@ -290,7 +290,7 @@ export default function WholesalerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="wholesaler_name" className="text-gray-700">Wholesaler Name</Label>
+                                    <Label htmlFor="wholesaler_name" className="text-foreground">Wholesaler Name</Label>
                                     <Input
                                         id="wholesaler_name"
                                         placeholder="e.g., Grain Wholesale Co"
@@ -302,7 +302,7 @@ export default function WholesalerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="location" className="text-gray-700">Location</Label>
+                                    <Label htmlFor="location" className="text-foreground">Location</Label>
                                     <Input
                                         id="location"
                                         placeholder="e.g., Dhaka"
@@ -314,7 +314,7 @@ export default function WholesalerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="contact_info" className="text-gray-700">Contact Info</Label>
+                                    <Label htmlFor="contact_info" className="text-foreground">Contact Info</Label>
                                     <Input
                                         id="contact_info"
                                         placeholder="e.g., email@wholesale.com"
@@ -326,7 +326,7 @@ export default function WholesalerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="supply_chain_reach" className="text-gray-700">Supply Chain
+                                    <Label htmlFor="supply_chain_reach" className="text-foreground">Supply Chain
                                         Reach</Label>
                                     <Select value={formData.supply_chain_reach}
                                             onValueChange={(value) => handleInputChange("supply_chain_reach", value)}>
@@ -343,7 +343,7 @@ export default function WholesalerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="annual_turnover" className="text-gray-700">Annual Turnover</Label>
+                                    <Label htmlFor="annual_turnover" className="text-foreground">Annual Turnover</Label>
                                     <Input
                                         id="annual_turnover"
                                         type="number"
@@ -369,9 +369,9 @@ export default function WholesalerManagement() {
                 )}
 
                 {/* Table View */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                    <div className="p-6 border-b border-gray-200">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Wholesaler Directory</h3>
+                <div className="bg-card rounded-xl border border-border shadow-sm">
+                    <div className="p-6 border-b border-border">
+                        <h3 className="text-xl font-semibold text-foreground mb-4">Wholesaler Directory</h3>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <div className="relative flex-1">
                                 <Search
@@ -426,7 +426,7 @@ export default function WholesalerManagement() {
                                             <TableCell
                                                 className="font-mono text-sm">{wholesaler.wholesaler_id}</TableCell>
                                             <TableCell className="font-medium">{wholesaler.wholesaler_name}</TableCell>
-                                            <TableCell className="text-gray-600">{wholesaler.location}</TableCell>
+                                            <TableCell className="text-muted-foreground">{wholesaler.location}</TableCell>
                                             <TableCell>
                                                 <span
                                                     className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
@@ -434,19 +434,19 @@ export default function WholesalerManagement() {
                                                 </span>
                                             </TableCell>
                                             <TableCell
-                                                className="text-gray-600">${wholesaler.annual_turnover.toLocaleString()}</TableCell>
+                                                className="text-muted-foreground">${wholesaler.annual_turnover.toLocaleString()}</TableCell>
                                             <TableCell
-                                                className="text-gray-600">{wholesaler.distribution_network_size}</TableCell>
+                                                className="text-muted-foreground">{wholesaler.distribution_network_size}</TableCell>
                                             <TableCell>
                                                 <div className="flex space-x-2">
                                                     <Button variant="ghost" size="sm"
-                                                            className="text-gray-600 hover:text-blue-600">
+                                                            className="text-muted-foreground hover:text-blue-600">
                                                         <Edit2 className="h-4 w-4"/>
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        className="text-gray-600 hover:text-red-600"
+                                                        className="text-muted-foreground hover:text-red-600"
                                                         onClick={() => handleDelete(wholesaler.id)}
                                                     >
                                                         <Trash2 className="h-4 w-4"/>
@@ -463,8 +463,8 @@ export default function WholesalerManagement() {
 
                 {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Location Distribution</h3>
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Location Distribution</h3>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -489,8 +489,8 @@ export default function WholesalerManagement() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Supply Chain Reach</h3>
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Supply Chain Reach</h3>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={reachData}>

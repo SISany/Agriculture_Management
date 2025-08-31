@@ -158,11 +158,11 @@ export default function StakeholderManagement() {
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Stakeholder Management</h1>
-                            <p className="text-gray-600">Manage farmers, wholesalers, retailers, and consumers</p>
+                            <h1 className="text-3xl font-bold text-foreground mb-2">Stakeholder Management</h1>
+                            <p className="text-muted-foreground">Manage farmers, wholesalers, retailers, and consumers</p>
                         </div>
                         <div className="flex items-center space-x-4">
                             <div className="bg-blue-50 p-4 rounded-xl">
@@ -179,7 +179,7 @@ export default function StakeholderManagement() {
                             <CardTitle className="text-sm font-medium text-gray-500">Total Stakeholders</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-bold text-gray-900">{stakeholders.length}</div>
+                            <div className="text-3xl font-bold text-foreground">{stakeholders.length}</div>
                         </CardContent>
                     </Card>
                     {stakeholderTypes.map(type => (
@@ -188,7 +188,7 @@ export default function StakeholderManagement() {
                                 <CardTitle className="text-sm font-medium text-gray-500">{type.type_name}s</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-3xl font-bold text-gray-900">
+                                <div className="text-3xl font-bold text-foreground">
                                     {stakeholders.filter(s => s.type_id === type.type_id).length}
                                 </div>
                             </CardContent>
@@ -197,7 +197,7 @@ export default function StakeholderManagement() {
                 </div>
 
                 {/* Controls */}
-                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                     <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                         <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
                             <div className="relative">
@@ -232,8 +232,8 @@ export default function StakeholderManagement() {
 
                 {/* Add/Edit Form */}
                 {showForm && (
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h2 className="text-xl font-semibold text-foreground mb-4">
                             {editingStakeholder ? 'Edit Stakeholder' : 'Add New Stakeholder'}
                         </h2>
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -313,9 +313,9 @@ export default function StakeholderManagement() {
                 )}
 
                 {/* Stakeholders Table */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-gray-200">
-                        <h2 className="text-xl font-semibold text-gray-900">
+                <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-border">
+                        <h2 className="text-xl font-semibold text-foreground">
                             Stakeholders ({filteredStakeholders.length})
                         </h2>
                     </div>

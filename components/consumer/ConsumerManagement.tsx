@@ -189,15 +189,15 @@ export default function ConsumerManagement() {
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="bg-green-100 p-3 rounded-xl border border-green-200">
                                 <Users className="h-8 w-8 text-green-600"/>
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold text-gray-900">Consumer Management</h1>
-                                <p className="text-gray-600 mt-1">Manage consumer profiles and purchasing patterns</p>
+                                <h1 className="text-3xl font-bold text-foreground">Consumer Management</h1>
+                                <p className="text-muted-foreground mt-1">Manage consumer profiles and purchasing patterns</p>
                             </div>
                         </div>
                         <div className="flex gap-4">
@@ -221,60 +221,60 @@ export default function ConsumerManagement() {
 
                 {/* Statistics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-green-100 p-2 rounded-lg">
                                 <Users className="h-5 w-5 text-green-600"/>
                             </div>
-                            <span className="text-2xl font-bold text-gray-900">{totalConsumers}</span>
+                            <span className="text-2xl font-bold text-foreground">{totalConsumers}</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Total Consumers</h3>
+                        <h3 className="font-medium text-foreground">Total Consumers</h3>
                         <p className="text-sm text-gray-500">Registered profiles</p>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-blue-100 p-2 rounded-lg">
                                 <DollarSign className="h-5 w-5 text-blue-600"/>
                             </div>
-                            <span className="text-2xl font-bold text-gray-900">৳{avgIncome.toLocaleString()}</span>
+                            <span className="text-2xl font-bold text-foreground">৳{avgIncome.toLocaleString()}</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Avg Income</h3>
+                        <h3 className="font-medium text-foreground">Avg Income</h3>
                         <p className="text-sm text-gray-500">Per capita monthly</p>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-purple-100 p-2 rounded-lg">
                                 <Home className="h-5 w-5 text-purple-600"/>
                             </div>
-                            <span className="text-2xl font-bold text-gray-900">{avgHouseholdSize}</span>
+                            <span className="text-2xl font-bold text-foreground">{avgHouseholdSize}</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Avg Household Size</h3>
+                        <h3 className="font-medium text-foreground">Avg Household Size</h3>
                         <p className="text-sm text-gray-500">Family members</p>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-orange-100 p-2 rounded-lg">
                                 <MapPin className="h-5 w-5 text-orange-600"/>
                             </div>
                             <span
-                                className="text-2xl font-bold text-gray-900">৳{(totalFoodExpenditure / 1000).toFixed(0)}K</span>
+                                className="text-2xl font-bold text-foreground">৳{(totalFoodExpenditure / 1000).toFixed(0)}K</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Total Food Spending</h3>
+                        <h3 className="font-medium text-foreground">Total Food Spending</h3>
                         <p className="text-sm text-gray-500">Monthly combined</p>
                     </div>
                 </div>
 
                 {/* Data Entry Form */}
                 {showForm && (
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-6">Add New Consumer</h3>
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h3 className="text-xl font-semibold text-foreground mb-6">Add New Consumer</h3>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div>
-                                    <Label htmlFor="consumer_id" className="text-gray-700">Consumer ID</Label>
+                                    <Label htmlFor="consumer_id" className="text-foreground">Consumer ID</Label>
                                     <Input
                                         id="consumer_id"
                                         placeholder="e.g., C001"
@@ -286,7 +286,7 @@ export default function ConsumerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="consumer_name" className="text-gray-700">Consumer Name</Label>
+                                    <Label htmlFor="consumer_name" className="text-foreground">Consumer Name</Label>
                                     <Input
                                         id="consumer_name"
                                         placeholder="e.g., Rahman Family"
@@ -298,7 +298,7 @@ export default function ConsumerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="location" className="text-gray-700">Location</Label>
+                                    <Label htmlFor="location" className="text-foreground">Location</Label>
                                     <Input
                                         id="location"
                                         placeholder="e.g., Dhaka"
@@ -310,7 +310,7 @@ export default function ConsumerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="contact_info" className="text-gray-700">Contact Info</Label>
+                                    <Label htmlFor="contact_info" className="text-foreground">Contact Info</Label>
                                     <Input
                                         id="contact_info"
                                         placeholder="e.g., email@example.com"
@@ -322,7 +322,7 @@ export default function ConsumerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="demographic_group" className="text-gray-700">Demographic
+                                    <Label htmlFor="demographic_group" className="text-foreground">Demographic
                                         Group</Label>
                                     <Select value={formData.demographic_group}
                                             onValueChange={(value) => handleInputChange("demographic_group", value)}>
@@ -340,7 +340,7 @@ export default function ConsumerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="per_capita_income" className="text-gray-700">Per Capita
+                                    <Label htmlFor="per_capita_income" className="text-foreground">Per Capita
                                         Income</Label>
                                     <Input
                                         id="per_capita_income"
@@ -367,9 +367,9 @@ export default function ConsumerManagement() {
                 )}
 
                 {/* Table View */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm" id="consumer-table">
-                    <div className="p-6 border-b border-gray-200">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Consumer Directory</h3>
+                <div className="bg-card rounded-xl border border-border shadow-sm" id="consumer-table">
+                    <div className="p-6 border-b border-border">
+                        <h3 className="text-xl font-semibold text-foreground mb-4">Consumer Directory</h3>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <div className="relative flex-1">
                                 <Search
@@ -423,7 +423,7 @@ export default function ConsumerManagement() {
                                         <TableRow key={consumer.id} className="hover:bg-gray-50">
                                             <TableCell className="font-mono text-sm">{consumer.consumer_id}</TableCell>
                                             <TableCell className="font-medium">{consumer.consumer_name}</TableCell>
-                                            <TableCell className="text-gray-600">{consumer.location}</TableCell>
+                                            <TableCell className="text-muted-foreground">{consumer.location}</TableCell>
                                             <TableCell>
                                                 <span
                                                     className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
@@ -431,19 +431,19 @@ export default function ConsumerManagement() {
                                                 </span>
                                             </TableCell>
                                             <TableCell
-                                                className="text-gray-600">৳{consumer.per_capita_income.toLocaleString()}</TableCell>
+                                                className="text-muted-foreground">৳{consumer.per_capita_income.toLocaleString()}</TableCell>
                                             <TableCell
-                                                className="text-gray-600">{consumer.household_size} members</TableCell>
+                                                className="text-muted-foreground">{consumer.household_size} members</TableCell>
                                             <TableCell>
                                                 <div className="flex space-x-2">
                                                     <Button variant="ghost" size="sm"
-                                                            className="text-gray-600 hover:text-blue-600">
+                                                            className="text-muted-foreground hover:text-blue-600">
                                                         <Edit2 className="h-4 w-4"/>
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        className="text-gray-600 hover:text-red-600"
+                                                        className="text-muted-foreground hover:text-red-600"
                                                         onClick={() => handleDelete(consumer.id)}
                                                     >
                                                         <Trash2 className="h-4 w-4"/>
@@ -460,8 +460,8 @@ export default function ConsumerManagement() {
 
                 {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Location Distribution</h3>
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Location Distribution</h3>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -486,8 +486,8 @@ export default function ConsumerManagement() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Demographic Groups</h3>
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Demographic Groups</h3>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={demographicData}>

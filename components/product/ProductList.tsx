@@ -142,11 +142,11 @@ export default function ProductList() {
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Product Management</h1>
-                            <p className="text-gray-600">Manage agricultural products and their details</p>
+                            <h1 className="text-3xl font-bold text-foreground mb-2">Comprehensive Product Information</h1>
+                            <p className="text-muted-foreground">Complete database of agricultural products with sowing times, harvest times, and per acre seed requirements</p>
                         </div>
                         <div className="flex items-center space-x-4">
                             <div className="bg-green-50 p-4 rounded-xl">
@@ -158,17 +158,17 @@ export default function ProductList() {
 
                 {/* Statistics */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <h3 className="text-sm font-medium text-gray-500 mb-2">Total Products</h3>
-                        <p className="text-3xl font-bold text-gray-900">{products.length}</p>
+                    <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
+                        <h3 className="text-sm font-medium text-muted-foreground mb-2">Total Products</h3>
+                        <p className="text-3xl font-bold text-foreground">{products.length}</p>
                     </div>
-                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <h3 className="text-sm font-medium text-gray-500 mb-2">Product Types</h3>
-                        <p className="text-3xl font-bold text-gray-900">{uniqueTypes.length}</p>
+                    <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
+                        <h3 className="text-sm font-medium text-muted-foreground mb-2">Product Types</h3>
+                        <p className="text-3xl font-bold text-foreground">{uniqueTypes.length}</p>
                     </div>
-                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <h3 className="text-sm font-medium text-gray-500 mb-2">Avg Seed Req/Acre</h3>
-                        <p className="text-3xl font-bold text-gray-900">
+                    <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
+                        <h3 className="text-sm font-medium text-muted-foreground mb-2">Avg Seed Req/Acre</h3>
+                        <p className="text-3xl font-bold text-foreground">
                             {products.length > 0 ? 
                                 safeNumber(Math.round(products.reduce((sum, p) => sum + safeNumber(p.seed_requirement_per_acre), 0) / products.length))
                                 : 0}
@@ -177,7 +177,7 @@ export default function ProductList() {
                 </div>
 
                 {/* Controls */}
-                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                     <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                         <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
                             <div className="relative">
@@ -210,13 +210,13 @@ export default function ProductList() {
 
                 {/* Add Product Form */}
                 {showForm && (
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h2 className="text-xl font-semibold text-foreground mb-4">
                             {editingProduct ? 'Edit Product' : 'Add New Product'}
                         </h2>
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="product_id" className="text-gray-700">Product ID *</Label>
+                                <Label htmlFor="product_id" className="text-foreground">Product ID *</Label>
                                 <Input
                                     id="product_id"
                                     type="text"
@@ -227,7 +227,7 @@ export default function ProductList() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="name" className="text-gray-700">Product Name *</Label>
+                                <Label htmlFor="name" className="text-foreground">Product Name *</Label>
                                 <Input
                                     id="name"
                                     type="text"
@@ -238,7 +238,7 @@ export default function ProductList() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="type" className="text-gray-700">Product Type *</Label>
+                                <Label htmlFor="type" className="text-foreground">Product Type *</Label>
                                 <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select type" />
@@ -254,7 +254,7 @@ export default function ProductList() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="variety" className="text-gray-700">Variety</Label>
+                                <Label htmlFor="variety" className="text-foreground">Variety</Label>
                                 <Input
                                     id="variety"
                                     type="text"
@@ -264,7 +264,7 @@ export default function ProductList() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="sowing_time" className="text-gray-700">Sowing Time</Label>
+                                <Label htmlFor="sowing_time" className="text-foreground">Sowing Time</Label>
                                 <Input
                                     id="sowing_time"
                                     type="text"
@@ -274,7 +274,7 @@ export default function ProductList() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="harvest_time" className="text-gray-700">Harvest Time</Label>
+                                <Label htmlFor="harvest_time" className="text-foreground">Harvest Time</Label>
                                 <Input
                                     id="harvest_time"
                                     type="text"
@@ -284,7 +284,7 @@ export default function ProductList() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="seed_requirement_per_acre" className="text-gray-700">Seed Requirement (per acre)</Label>
+                                <Label htmlFor="seed_requirement_per_acre" className="text-foreground">Seed Requirement (per acre)</Label>
                                 <Input
                                     id="seed_requirement_per_acre"
                                     type="number"
@@ -307,22 +307,22 @@ export default function ProductList() {
                 )}
 
                 {/* Products Table */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-gray-200">
-                        <h2 className="text-xl font-semibold text-gray-900">Products ({filteredProducts.length})</h2>
+                <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-border">
+                        <h2 className="text-xl font-semibold text-foreground">Products ({filteredProducts.length})</h2>
                     </div>
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow className="bg-gray-50">
-                                    <TableHead className="font-semibold text-gray-900">Product ID</TableHead>
-                                    <TableHead className="font-semibold text-gray-900">Name</TableHead>
-                                    <TableHead className="font-semibold text-gray-900">Type</TableHead>
-                                    <TableHead className="font-semibold text-gray-900">Variety</TableHead>
-                                    <TableHead className="font-semibold text-gray-900">Sowing Time</TableHead>
-                                    <TableHead className="font-semibold text-gray-900">Harvest Time</TableHead>
-                                    <TableHead className="font-semibold text-gray-900">Seed Req/Acre</TableHead>
-                                    <TableHead className="font-semibold text-gray-900">Actions</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Product ID</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Name</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Type</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Variety</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Sowing Time</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Harvest Time</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Seed Req/Acre</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>

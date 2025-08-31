@@ -103,15 +103,15 @@ export default function ProductList() {
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Clean Header */}
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="bg-green-100 p-3 rounded-xl border border-green-200">
                                 <Package className="h-8 w-8 text-green-600"/>
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
-                                <p className="text-gray-600 mt-1">Manage agricultural products and their
+                                <h1 className="text-3xl font-bold text-foreground">Product Management</h1>
+                                <p className="text-muted-foreground mt-1">Manage agricultural products and their
                                     specifications</p>
                             </div>
                         </div>
@@ -136,53 +136,53 @@ export default function ProductList() {
 
                 {/* Statistics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-blue-100 p-2 rounded-lg">
                                 <Package className="h-5 w-5 text-blue-600"/>
                             </div>
-                            <span className="text-2xl font-bold text-gray-900">{products.length}</span>
+                            <span className="text-2xl font-bold text-foreground">{products.length}</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Total Products</h3>
+                        <h3 className="font-medium text-foreground">Total Products</h3>
                         <p className="text-sm text-gray-500">Across all categories</p>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-purple-100 p-2 rounded-lg">
                                 <BarChart3 className="h-5 w-5 text-purple-600"/>
                             </div>
-                            <span className="text-2xl font-bold text-gray-900">{uniqueTypes.length}</span>
+                            <span className="text-2xl font-bold text-foreground">{uniqueTypes.length}</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Product Types</h3>
+                        <h3 className="font-medium text-foreground">Product Types</h3>
                         <p className="text-sm text-gray-500">Different categories</p>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-orange-100 p-2 rounded-lg">
                                 <Leaf className="h-5 w-5 text-orange-600"/>
                             </div>
-                            <span className="text-2xl font-bold text-gray-900">
+                            <span className="text-2xl font-bold text-foreground">
                                 {Math.round(products.reduce((sum, p) => sum + p.nutritional_value_per_unit, 0) / products.length)}
                             </span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Avg Nutrition</h3>
+                        <h3 className="font-medium text-foreground">Avg Nutrition</h3>
                         <p className="text-sm text-gray-500">Calories per unit</p>
                     </div>
                 </div>
 
                 {/* Add Product Form */}
                 {showForm && (
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-6">Add New Product</h3>
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h3 className="text-xl font-semibold text-foreground mb-6">Add New Product</h3>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Basic Information */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Basic Information</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div>
-                                        <Label htmlFor="product_id" className="text-gray-700">Product ID *</Label>
+                                        <Label htmlFor="product_id" className="text-foreground">Product ID *</Label>
                                         <Input
                                             id="product_id"
                                             placeholder="e.g., P005"
@@ -194,7 +194,7 @@ export default function ProductList() {
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="product_name" className="text-gray-700">Product Name *</Label>
+                                        <Label htmlFor="product_name" className="text-foreground">Product Name *</Label>
                                         <Input
                                             id="product_name"
                                             placeholder="e.g., Wheat"
@@ -206,7 +206,7 @@ export default function ProductList() {
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="product_type" className="text-gray-700">Product Type *</Label>
+                                        <Label htmlFor="product_type" className="text-foreground">Product Type *</Label>
                                         <Select value={formData.product_type}
                                                 onValueChange={(value) => handleInputChange("product_type", value)}>
                                             <SelectTrigger className="mt-1">
@@ -223,7 +223,7 @@ export default function ProductList() {
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="product_type_alt" className="text-gray-700">Alternative
+                                        <Label htmlFor="product_type_alt" className="text-foreground">Alternative
                                             Type</Label>
                                         <Input
                                             id="product_type_alt"
@@ -235,7 +235,7 @@ export default function ProductList() {
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="variety" className="text-gray-700">Variety *</Label>
+                                        <Label htmlFor="variety" className="text-foreground">Variety *</Label>
                                         <Input
                                             id="variety"
                                             placeholder="e.g., Winter Wheat"
@@ -250,10 +250,10 @@ export default function ProductList() {
 
                             {/* Cultivation Timing */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Cultivation Timing</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Cultivation Timing</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <Label htmlFor="sowing_time" className="text-gray-700">Sowing Time *</Label>
+                                        <Label htmlFor="sowing_time" className="text-foreground">Sowing Time *</Label>
                                         <Input
                                             id="sowing_time"
                                             type="date"
@@ -265,7 +265,7 @@ export default function ProductList() {
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="transplanting_time" className="text-gray-700">Transplanting
+                                        <Label htmlFor="transplanting_time" className="text-foreground">Transplanting
                                             Time</Label>
                                         <Input
                                             id="transplanting_time"
@@ -278,7 +278,7 @@ export default function ProductList() {
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="harvest_time" className="text-gray-700">Harvest Time *</Label>
+                                        <Label htmlFor="harvest_time" className="text-foreground">Harvest Time *</Label>
                                         <Input
                                             id="harvest_time"
                                             type="date"
@@ -293,10 +293,10 @@ export default function ProductList() {
 
                             {/* Agricultural Details */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Agricultural Details</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Agricultural Details</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <Label htmlFor="seed_requirement_per_acre" className="text-gray-700">Seed
+                                        <Label htmlFor="seed_requirement_per_acre" className="text-foreground">Seed
                                             Requirement (kg/acre) *</Label>
                                         <Input
                                             id="seed_requirement_per_acre"
@@ -311,7 +311,7 @@ export default function ProductList() {
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="nutritional_value_per_unit" className="text-gray-700">Nutritional
+                                        <Label htmlFor="nutritional_value_per_unit" className="text-foreground">Nutritional
                                             Value (kcal/100g) *</Label>
                                         <Input
                                             id="nutritional_value_per_unit"
@@ -328,9 +328,9 @@ export default function ProductList() {
 
                             {/* Storage Requirements */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Storage Information</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Storage Information</h4>
                                 <div>
-                                    <Label htmlFor="storage_requirements" className="text-gray-700">Storage Requirements
+                                    <Label htmlFor="storage_requirements" className="text-foreground">Storage Requirements
                                         *</Label>
                                     <Input
                                         id="storage_requirements"
@@ -344,7 +344,7 @@ export default function ProductList() {
                                 </div>
                             </div>
 
-                            <div className="flex gap-4 pt-4 border-t border-gray-200">
+                            <div className="flex gap-4 pt-4 border-t border-border">
                                 <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
                                     <Plus className="h-4 w-4 mr-2"/>
                                     Add Product
@@ -358,9 +358,9 @@ export default function ProductList() {
                 )}
 
                 {/* Products Table */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                    <div className="p-6 border-b border-gray-200">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Product Directory</h3>
+                <div className="bg-card rounded-xl border border-border shadow-sm">
+                    <div className="p-6 border-b border-border">
+                        <h3 className="text-xl font-semibold text-foreground mb-4">Product Directory</h3>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <div className="relative flex-1">
                                 <Search
@@ -423,14 +423,14 @@ export default function ProductList() {
                                                     {product.product_type}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="text-gray-600">{product.variety}</TableCell>
-                                            <TableCell className="text-gray-600">{product.sowing_time}</TableCell>
-                                            <TableCell className="text-gray-600">
+                                            <TableCell className="text-muted-foreground">{product.variety}</TableCell>
+                                            <TableCell className="text-muted-foreground">{product.sowing_time}</TableCell>
+                                            <TableCell className="text-muted-foreground">
                                                 {product.transplanting_time || "N/A"}
                                             </TableCell>
-                                            <TableCell className="text-gray-600">{product.harvest_time}</TableCell>
+                                            <TableCell className="text-muted-foreground">{product.harvest_time}</TableCell>
                                             <TableCell
-                                                className="text-gray-600">{product.seed_requirement_per_acre} kg/acre</TableCell>
+                                                className="text-muted-foreground">{product.seed_requirement_per_acre} kg/acre</TableCell>
                                             <TableCell>
                                                 <span
                                                     className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
@@ -438,17 +438,17 @@ export default function ProductList() {
                                                 </span>
                                             </TableCell>
                                             <TableCell
-                                                className="text-gray-600">{product.seed_requirement_per_acre} kg/acre</TableCell>
+                                                className="text-muted-foreground">{product.seed_requirement_per_acre} kg/acre</TableCell>
                                             <TableCell>
                                                 <div className="flex space-x-2">
                                                     <Button variant="ghost" size="sm"
-                                                            className="text-gray-600 hover:text-blue-600">
+                                                            className="text-muted-foreground hover:text-blue-600">
                                                         <Edit2 className="h-4 w-4"/>
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        className="text-gray-600 hover:text-red-600"
+                                                        className="text-muted-foreground hover:text-red-600"
                                                         onClick={() => handleDelete(product.id)}
                                                     >
                                                         <Trash2 className="h-4 w-4"/>

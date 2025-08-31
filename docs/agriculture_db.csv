@@ -1,0 +1,65 @@
+record_id,stakeholder_id,product_id,DATE,quantity,,district_id,NAME
+1,S004,P001,15/08/2024,5,,1,Dhaka
+2,S004,P002,16/08/2024,3,,2,Chittagong
+3,S004,P003,17/08/2024,2,,3,Sylhet
+,,,,,,4,Rajshahi
+target_id,product_id,MONTH,YEAR,per_capita_requirement,,5,Khulna
+1,P001,8,2024,15.5,,6,Rangpur
+2,P002,8,2024,12,,7,Barisal
+3,P003,8,2024,8.5,,8,Mymensingh
+,,,,,,,
+price_id,product_id,district_id,DATE,price_per_unit,,type_id,type_name
+1,P001,1,15/08/2024,45.5,,1,Farmer
+2,P001,2,15/08/2024,46,,2,Wholesaler
+3,P002,1,15/08/2024,51,,3,Retailer
+4,P002,2,15/08/2024,52,,4,Consumer
+5,P003,1,15/08/2024,85,,,
+,,,,,,,
+product_id,NAME,TYPE,variety,sowing_time,harvest_time,seed_requirement_per_acre,
+P001,Rice,Cereal,BRRI dhan29,June-July,November-December,25,
+P002,Wheat,Cereal,BARI Gom-26,November-December,March-April,120,
+P003,Potato,Vegetable,Diamond,November-December,February-March,1500,
+,,,,,,,
+production_id,product_id,district_id,DATE,acreage,quantity_produced,,
+PR001,P001,1,1/08/2024,100,2500,,
+PR002,P002,2,1/08/2024,150,4500,,
+PR003,P003,3,1/08/2024,80,1200,,
+,,,,,,,
+transaction_id,buyer_id,seller_id,product_id,quantity,price_per_unit,total_amount,DATE
+T001,S002,S001,P001,100,45.5,4550,15/08/2024
+T002,S003,S002,P001,50,48,2400,16/08/2024
+T003,S004,S003,P002,25,52,1300,17/08/2024
+,,,,,,,
+stakeholder_id,NAME,type_id,district_id,contact_info,,,
+S001,Rahman Farm,1,1,rahman@email.com,,,
+S002,Dhaka Wholesale Market,2,1,1712345678,,,
+S003,City Retail Store,3,2,citystore@email.com,,,
+S004,Ahmed Consumer,4,1,1898765432,,,
+,,,,,,,
+weather_id,district_id,DATE,rainfall,temperature,,,
+W001,1,15/08/2024,15.5,32.5,,,
+W002,2,15/08/2024,8.2,31.8,,,
+W003,3,15/08/2024,22.1,30.9,,,
+W004,1,16/08/2024,5,33.2,,,
+W005,2,16/08/2024,12.8,32.1,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,

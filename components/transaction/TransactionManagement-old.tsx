@@ -112,8 +112,8 @@ export default function TransactionManagement() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Transaction Management</h1>
-                    <p className="mt-2 text-gray-600">Track all agricultural transactions</p>
+                    <h1 className="text-2xl font-bold text-foreground">Transaction Management</h1>
+                    <p className="mt-2 text-muted-foreground">Track all agricultural transactions</p>
                 </div>
                 <div className="flex gap-4 items-center">
                     <div className="relative">
@@ -147,7 +147,7 @@ export default function TransactionManagement() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{transactions.length}</div>
-                        <p className="text-xs text-gray-600">All transactions</p>
+                        <p className="text-xs text-muted-foreground">All transactions</p>
                     </CardContent>
                 </Card>
 
@@ -160,7 +160,7 @@ export default function TransactionManagement() {
                         <div className="text-2xl font-bold">
                             ${transactions.reduce((sum, t) => sum + t.total_amount, 0).toLocaleString()}
                         </div>
-                        <p className="text-xs text-gray-600">Transaction volume</p>
+                        <p className="text-xs text-muted-foreground">Transaction volume</p>
                     </CardContent>
                 </Card>
 
@@ -173,7 +173,7 @@ export default function TransactionManagement() {
                         <div className="text-2xl font-bold">
                             ${transactions.filter(t => t.transaction_type === "Sale").reduce((sum, t) => sum + t.total_amount, 0).toLocaleString()}
                         </div>
-                        <p className="text-xs text-gray-600">Total sales</p>
+                        <p className="text-xs text-muted-foreground">Total sales</p>
                     </CardContent>
                 </Card>
 
@@ -186,7 +186,7 @@ export default function TransactionManagement() {
                         <div className="text-2xl font-bold">
                             ${(transactions.reduce((sum, t) => sum + t.total_amount, 0) / transactions.length).toLocaleString()}
                         </div>
-                        <p className="text-xs text-gray-600">Per transaction</p>
+                        <p className="text-xs text-muted-foreground">Per transaction</p>
                     </CardContent>
                 </Card>
             </div>

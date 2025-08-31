@@ -326,43 +326,37 @@ export default function AgricultureManagementSystem() {
         },
         {
             id: "products",
-            label: "Product",
+            label: "Product Information",
             icon: Package,
             category: "main"
         },
         {
             id: "production",
-            label: "Production",
+            label: "Production History",
             icon: Factory,
             category: "main"
         },
         {
             id: "prices",
-            label: "Price History",
+            label: "Price History & Trends",
             icon: BarChart3,
             category: "main"
         },
         {
             id: "weather",
-            label: "Weather",
+            label: "Weather Data History",
             icon: CloudRain,
             category: "main"
         },
         {
-            id: "nutrition-intake",
-            label: "Nutrition",
-            icon: BarChart2,
-            category: "main"
-        },
-        {
             id: "consumption",
-            label: "Consumption Pattern",
+            label: "Consumption Patterns",
             icon: Utensils,
             category: "main"
         },
         {
             id: "supply-demand-analysis",
-            label: "Supply Demand",
+            label: "Supply vs Demand Analysis",
             icon: BarChart3,
             category: "main"
         },
@@ -436,10 +430,10 @@ export default function AgricultureManagementSystem() {
                 <div className="relative z-10">
                     <div className="flex items-start justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                            <h1 className="text-3xl font-bold text-foreground mb-2">
                                 Agriculture Management
                             </h1>
-                            <p className="text-gray-600 text-lg max-w-2xl">
+                            <p className="text-muted-foreground text-lg max-w-2xl">
                                 Monitor, analyze and optimize your agricultural operations with real-time insights and
                                 data-driven decisions.
                             </p>
@@ -456,52 +450,52 @@ export default function AgricultureManagementSystem() {
             {/* Modern Metrics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div
-                    className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    className="bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-4">
                         <div className="bg-green-100 p-2 rounded-lg">
                             <Package className="h-5 w-5 text-green-600"/>
                         </div>
-                        <span className="text-2xl font-bold text-gray-900">{products.length}</span>
+                        <span className="text-2xl font-bold text-foreground">{products.length}</span>
                     </div>
-                    <h3 className="font-medium text-gray-900">Active Products</h3>
+                    <h3 className="font-medium text-foreground">Active Products</h3>
                     <p className="text-sm text-gray-500">Currently managed</p>
                 </div>
 
                 <div
-                    className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    className="bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-4">
                         <div className="bg-blue-100 p-2 rounded-lg">
                             <Factory className="h-5 w-5 text-blue-600"/>
                         </div>
-                        <span className="text-2xl font-bold text-gray-900">
+                        <span className="text-2xl font-bold text-foreground">
                             {production.reduce((sum, p) => sum + p.quantity_produced, 0).toLocaleString()}
                         </span>
                     </div>
-                    <h3 className="font-medium text-gray-900">Production</h3>
+                    <h3 className="font-medium text-foreground">Production</h3>
                     <p className="text-sm text-gray-500">Tons this month</p>
                 </div>
 
                 <div
-                    className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    className="bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-4">
                         <div className="bg-purple-100 p-2 rounded-lg">
                             <ShoppingCart className="h-5 w-5 text-purple-600"/>
                         </div>
-                        <span className="text-2xl font-bold text-gray-900">{transactions.length}</span>
+                        <span className="text-2xl font-bold text-foreground">{transactions.length}</span>
                     </div>
-                    <h3 className="font-medium text-gray-900">Transactions</h3>
+                    <h3 className="font-medium text-foreground">Transactions</h3>
                     <p className="text-sm text-gray-500">Recent activities</p>
                 </div>
 
                 <div
-                    className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    className="bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-4">
                         <div className="bg-orange-100 p-2 rounded-lg">
                             <Users className="h-5 w-5 text-orange-600"/>
                         </div>
-                        <span className="text-2xl font-bold text-gray-900">{stakeholders.length}</span>
+                        <span className="text-2xl font-bold text-foreground">{stakeholders.length}</span>
                     </div>
-                    <h3 className="font-medium text-gray-900">Stakeholders</h3>
+                    <h3 className="font-medium text-foreground">Stakeholders</h3>
                     <p className="text-sm text-gray-500">Registered users</p>
                 </div>
             </div>
@@ -509,10 +503,10 @@ export default function AgricultureManagementSystem() {
             {/* Charts Section */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 {/* Demand Supply Chart */}
-                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                     <div className="mb-6">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Supply & Demand Trends</h3>
-                        <p className="text-gray-600">Monthly analysis of market dynamics</p>
+                        <h3 className="text-xl font-semibold text-foreground mb-2">Supply & Demand Trends</h3>
+                        <p className="text-muted-foreground">Monthly analysis of market dynamics</p>
                     </div>
                     <ChartContainer
                         config={{
@@ -569,10 +563,10 @@ export default function AgricultureManagementSystem() {
                 </div>
 
                 {/* Crop Distribution */}
-                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                     <div className="mb-6">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Crop Distribution</h3>
-                        <p className="text-gray-600">Market share breakdown</p>
+                        <h3 className="text-xl font-semibold text-foreground mb-2">Crop Distribution</h3>
+                        <p className="text-muted-foreground">Market share breakdown</p>
                     </div>
                     <ChartContainer config={{value: {label: "Percentage"}}} className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -613,10 +607,10 @@ export default function AgricultureManagementSystem() {
             {/* Activity Feed */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 {/* Recent Transactions */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                    <div className="p-6 border-b border-gray-200">
-                        <h3 className="text-xl font-semibold text-gray-900">Recent Transactions</h3>
-                        <p className="text-gray-600">Latest financial activities</p>
+                <div className="bg-card rounded-xl border border-border shadow-sm">
+                    <div className="p-6 border-b border-border">
+                        <h3 className="text-xl font-semibold text-foreground">Recent Transactions</h3>
+                        <p className="text-muted-foreground">Latest financial activities</p>
                     </div>
                     <div className="p-6">
                         <div className="space-y-4">
@@ -624,16 +618,16 @@ export default function AgricultureManagementSystem() {
                                 <div key={transaction.transaction_id}
                                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                     <div className="flex items-center space-x-3">
-                                        <div className="bg-white p-2 rounded-lg border border-gray-200">
-                                            <Package className="h-4 w-4 text-gray-600"/>
+                                        <div className="bg-card p-2 rounded-lg border border-border">
+                                            <Package className="h-4 w-4 text-muted-foreground"/>
                                         </div>
                                         <div>
-                                            <p className="font-medium text-gray-900">{transaction.product_name}</p>
+                                            <p className="font-medium text-foreground">{transaction.product_name}</p>
                                             <p className="text-sm text-gray-500">{transaction.stakeholder_name}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-semibold text-gray-900">${transaction.total_amount.toLocaleString()}</p>
+                                        <p className="font-semibold text-foreground">${transaction.total_amount.toLocaleString()}</p>
                                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                                             transaction.transaction_type === "Sale"
                                                 ? "bg-green-100 text-green-800"
@@ -657,10 +651,10 @@ export default function AgricultureManagementSystem() {
                 </div>
 
                 {/* Weather Overview */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                    <div className="p-6 border-b border-gray-200">
-                        <h3 className="text-xl font-semibold text-gray-900">Weather Overview</h3>
-                        <p className="text-gray-600">Current conditions</p>
+                <div className="bg-card rounded-xl border border-border shadow-sm">
+                    <div className="p-6 border-b border-border">
+                        <h3 className="text-xl font-semibold text-foreground">Weather Overview</h3>
+                        <p className="text-muted-foreground">Current conditions</p>
                     </div>
                     <div className="p-6">
                         <div className="space-y-4">
@@ -668,16 +662,16 @@ export default function AgricultureManagementSystem() {
                                 <div key={record.weather_id}
                                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                     <div className="flex items-center space-x-3">
-                                        <div className="bg-white p-2 rounded-lg border border-gray-200">
-                                            <CloudRain className="h-4 w-4 text-gray-600"/>
+                                        <div className="bg-card p-2 rounded-lg border border-border">
+                                            <CloudRain className="h-4 w-4 text-muted-foreground"/>
                                         </div>
                                         <div>
-                                            <p className="font-medium text-gray-900">{record.location}</p>
+                                            <p className="font-medium text-foreground">{record.location}</p>
                                             <p className="text-sm text-gray-500">{record.season} • {record.weather_conditions}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-lg font-semibold text-gray-900">{record.temperature}°C</p>
+                                        <p className="text-lg font-semibold text-foreground">{record.temperature}°C</p>
                                         <p className="text-sm text-gray-500">{record.rainfall}mm</p>
                                     </div>
                                 </div>
@@ -743,20 +737,20 @@ export default function AgricultureManagementSystem() {
     if (!mounted) return null
 
     return (
-        <div className="min-h-screen flex bg-gray-50">
+        <div className="min-h-screen flex bg-background">
             {/* Clean Left Sidebar */}
             <div
-                className={`${sidebarOpen ? 'w-72' : 'w-16'} bg-white shadow-sm transition-all duration-300 ease-in-out flex-shrink-0 border-r border-gray-200`}>
+                className={`${sidebarOpen ? 'w-72' : 'w-16'} bg-card shadow-sm transition-all duration-300 ease-in-out flex-shrink-0 border-r border-border`}>
                 {/* Clean Sidebar Header */}
                 <div
-                    className={`flex items-center ${sidebarOpen ? 'justify-between p-6' : 'justify-center p-4'} border-b border-gray-200`}>
+                    className={`flex items-center ${sidebarOpen ? 'justify-between p-6' : 'justify-center p-4'} border-b border-border`}>
                     <div className={`flex items-center ${sidebarOpen ? '' : 'justify-center'}`}>
                         <div className="p-2 bg-blue-600 rounded-lg border border-blue-700">
                             <Wheat className="h-8 w-8 flex-shrink-0 text-white"/>
                         </div>
                         {sidebarOpen && (
                             <div className="ml-3">
-                                <span className="text-xl font-bold text-gray-900">AgriManagement</span>
+                                <span className="text-xl font-bold text-foreground">AgriManagement</span>
                                 <p className="text-xs text-gray-500">Smart Agriculture Platform</p>
                             </div>
                         )}
@@ -765,10 +759,10 @@ export default function AgricultureManagementSystem() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setSidebarOpen(!sidebarOpen)}
-                        className="hover:bg-gray-100 transition-colors border border-gray-200"
+                        className="hover:bg-gray-100 transition-colors border border-border"
                     >
-                        {sidebarOpen ? <X className="h-5 w-5 text-gray-600"/> :
-                            <Menu className="h-5 w-5 text-gray-600"/>}
+                        {sidebarOpen ? <X className="h-5 w-5 text-muted-foreground"/> :
+                            <Menu className="h-5 w-5 text-muted-foreground"/>}
                     </Button>
                 </div>
 
@@ -786,7 +780,7 @@ export default function AgricultureManagementSystem() {
                                         } ${
                                             stakeholderExpanded
                                                 ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                                : 'text-muted-foreground hover:text-foreground hover:bg-gray-100'
                                         }`}
                                         title={!sidebarOpen ? "Stakeholder" : undefined}
                                     >
@@ -814,7 +808,7 @@ export default function AgricultureManagementSystem() {
                                                         } ${
                                                             isActiveChild
                                                                 ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                                                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                                                : 'text-muted-foreground hover:text-foreground hover:bg-gray-100'
                                                         }`}
                                                         title={!sidebarOpen ? child.label : undefined}
                                                     >
@@ -844,7 +838,7 @@ export default function AgricultureManagementSystem() {
                                     } ${
                                         isActive
                                             ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                            : 'text-muted-foreground hover:text-foreground hover:bg-gray-100'
                                     }`}
                                     title={!sidebarOpen ? item.label : undefined}
                                 >
@@ -860,10 +854,10 @@ export default function AgricultureManagementSystem() {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Clean Top Header */}
-                <header className="px-8 py-6 bg-white border-b border-gray-200">
+                <header className="px-8 py-6 bg-card border-b border-border">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
-                            <h1 className="text-2xl font-bold text-gray-900">
+                            <h1 className="text-2xl font-bold text-foreground">
                                 {activeSection === "farmer-management" ? "Farmer Management" :
                                     activeSection === "retailer-management" ? "Retailer Management" :
                                         activeSection === "wholesaler-management" ? "Wholesaler Management" :
@@ -880,13 +874,13 @@ export default function AgricultureManagementSystem() {
                                 <Input
                                     type="search"
                                     placeholder="Search everything..."
-                                    className="pl-12 w-80 h-11 text-sm border border-gray-300 bg-white text-gray-900"
+                                    className="pl-12 w-80 h-11 text-sm border border-border bg-input text-foreground"
                                 />
                             </div>
 
                             <Button
                                 onClick={() => setShowSettings(!showSettings)}
-                                className="p-3 transition-colors border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
+                                className="p-3 transition-colors border border-border bg-card text-muted-foreground hover:bg-muted"
                             >
                                 <Settings className="w-5 h-5"/>
                             </Button>
@@ -894,7 +888,7 @@ export default function AgricultureManagementSystem() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="p-3 transition-colors border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
+                                className="p-3 transition-colors border border-border bg-card text-muted-foreground hover:bg-muted"
                             >
                                 <Bell className="w-5 h-5"/>
                             </Button>
@@ -904,20 +898,20 @@ export default function AgricultureManagementSystem() {
 
                 {/* Clean Settings Panel */}
                 {showSettings && (
-                    <div className="p-6 bg-white border-b border-gray-200">
+                    <div className="p-6 bg-card border-b border-border">
                         <div className="max-w-md mx-auto space-y-6">
-                            <h2 className="text-xl font-bold text-gray-900">Settings & Preferences</h2>
+                            <h2 className="text-xl font-bold text-foreground">Settings & Preferences</h2>
 
                             <div className="space-y-4">
-                                <h3 className="text-lg font-semibold text-gray-900">Appearance</h3>
+                                <h3 className="text-lg font-semibold text-foreground">Appearance</h3>
                                 <div
                                     className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                     <div className="flex items-center space-x-3">
-                                        <div className="p-2 bg-white border border-gray-200 rounded-lg">
+                                        <div className="p-2 bg-card border border-border rounded-lg">
                                             {theme === "dark" ? "🌙" : "☀️"}
                                         </div>
                                         <div>
-                                            <Label className="text-base font-medium text-gray-900">
+                                            <Label className="text-base font-medium text-foreground">
                                                 {theme === "dark" ? "Dark Mode" : "Light Mode"}
                                             </Label>
                                             <p className="text-sm text-gray-500">Switch between themes</p>
@@ -937,13 +931,13 @@ export default function AgricultureManagementSystem() {
                                 </div>
                             </div>
 
-                            <div className="pt-4 border-t border-gray-200">
+                            <div className="pt-4 border-t border-border">
                                 <div className="space-y-4">
-                                    <h3 className="text-lg font-semibold text-gray-900">Typography</h3>
-                                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                                    <h3 className="text-lg font-semibold text-foreground">Typography</h3>
+                                    <div className="p-4 bg-gray-50 border border-border rounded-lg">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <Label className="text-base font-medium text-gray-900">Font Size</Label>
+                                                <Label className="text-base font-medium text-foreground">Font Size</Label>
                                                 <p className="text-sm text-gray-500">Current: {fontSize}px</p>
                                             </div>
                                             <Select

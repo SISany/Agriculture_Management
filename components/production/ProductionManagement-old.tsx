@@ -135,8 +135,8 @@ export default function ProductionManagement() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Production Management</h1>
-                    <p className="mt-2 text-gray-600">Track agricultural production across regions</p>
+                    <h1 className="text-2xl font-bold text-foreground">Production Management</h1>
+                    <p className="mt-2 text-muted-foreground">Track agricultural production across regions</p>
                 </div>
                 <div className="flex gap-4 items-center">
                     <div className="relative">
@@ -169,7 +169,7 @@ export default function ProductionManagement() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{productions.length}</div>
-                        <p className="text-xs text-gray-600">Production records</p>
+                        <p className="text-xs text-muted-foreground">Production records</p>
                     </CardContent>
                 </Card>
 
@@ -182,7 +182,7 @@ export default function ProductionManagement() {
                         <div className="text-2xl font-bold">
                             {productions.reduce((sum, p) => sum + p.quantity_produced, 0).toLocaleString()} tons
                         </div>
-                        <p className="text-xs text-gray-600">This month</p>
+                        <p className="text-xs text-muted-foreground">This month</p>
                     </CardContent>
                 </Card>
 
@@ -195,7 +195,7 @@ export default function ProductionManagement() {
                         <div className="text-2xl font-bold">
                             {productions.reduce((sum, p) => sum + p.acreage, 0).toLocaleString()} acres
                         </div>
-                        <p className="text-xs text-gray-600">Under cultivation</p>
+                        <p className="text-xs text-muted-foreground">Under cultivation</p>
                     </CardContent>
                 </Card>
 
@@ -208,7 +208,7 @@ export default function ProductionManagement() {
                         <div className="text-2xl font-bold">
                             {productions.reduce((sum, p) => sum + p.surplus_deficit, 0).toLocaleString()} tons
                         </div>
-                        <p className="text-xs text-gray-600">Surplus/Deficit</p>
+                        <p className="text-xs text-muted-foreground">Surplus/Deficit</p>
                     </CardContent>
                 </Card>
             </div>
@@ -224,7 +224,7 @@ export default function ProductionManagement() {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div className="space-y-2">
-                                    <label htmlFor="production_id" className="text-sm font-medium text-gray-700">Production
+                                    <label htmlFor="production_id" className="text-sm font-medium text-foreground">Production
                                         ID</label>
                                     <Input
                                         id="production_id"
@@ -237,7 +237,7 @@ export default function ProductionManagement() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="product_name" className="text-sm font-medium text-gray-700">Product
+                                    <label htmlFor="product_name" className="text-sm font-medium text-foreground">Product
                                         Name</label>
                                     <Select
                                         value={formData.product_name}
@@ -256,7 +256,7 @@ export default function ProductionManagement() {
 
                                 <div className="space-y-2">
                                     <label htmlFor="district_division"
-                                           className="text-sm font-medium text-gray-700">District/Division</label>
+                                           className="text-sm font-medium text-foreground">District/Division</label>
                                     <Select
                                         value={formData.district_division}
                                         onValueChange={(value) => handleInputChange("district_division", value)}
@@ -274,7 +274,7 @@ export default function ProductionManagement() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="date" className="text-sm font-medium text-gray-700">Production
+                                    <label htmlFor="date" className="text-sm font-medium text-foreground">Production
                                         Date</label>
                                     <Input
                                         id="date"
@@ -286,7 +286,7 @@ export default function ProductionManagement() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="acreage" className="text-sm font-medium text-gray-700">Acreage
+                                    <label htmlFor="acreage" className="text-sm font-medium text-foreground">Acreage
                                         (acres)</label>
                                     <Input
                                         id="acreage"
@@ -299,7 +299,7 @@ export default function ProductionManagement() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="quantity_produced" className="text-sm font-medium text-gray-700">Quantity
+                                    <label htmlFor="quantity_produced" className="text-sm font-medium text-foreground">Quantity
                                         Produced (tons)</label>
                                     <Input
                                         id="quantity_produced"
@@ -312,7 +312,7 @@ export default function ProductionManagement() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="surplus_deficit" className="text-sm font-medium text-gray-700">Surplus/Deficit
+                                    <label htmlFor="surplus_deficit" className="text-sm font-medium text-foreground">Surplus/Deficit
                                         (tons)</label>
                                     <Input
                                         id="surplus_deficit"
@@ -324,7 +324,7 @@ export default function ProductionManagement() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="weather_id" className="text-sm font-medium text-gray-700">Weather
+                                    <label htmlFor="weather_id" className="text-sm font-medium text-foreground">Weather
                                         ID</label>
                                     <Input
                                         id="weather_id"

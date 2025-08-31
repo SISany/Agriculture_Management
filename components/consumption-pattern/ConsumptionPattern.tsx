@@ -1,13 +1,13 @@
 "use client"
 
-import {useState} from "react"
+import React, {useState, useEffect} from "react"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Badge} from "@/components/ui/badge"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
-import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {
     LineChart,
     Line,
@@ -20,161 +20,368 @@ import {
     PieChart,
     Pie,
     Cell,
-    Legend
+    Legend,
+    Tooltip,
+    AreaChart,
+    Area,
+    ScatterChart,
+    Scatter
 } from "recharts"
-import {Search, Plus, Edit2, Trash2, TrendingUp, MapPin, DollarSign, Package, FileDown} from "lucide-react"
-import {exportConsumptionData} from "@/lib/pdfExport"
+import {Search, Plus, Edit2, Trash2, TrendingUp, TrendingDown, MapPin, DollarSign, Package, FileDown, Users, Activity, Calendar, BarChart3} from "lucide-react"
 import {Label} from "@/components/ui/label"
+import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
 
-// TypeScript interfaces
+// TypeScript interfaces based on requirement specifications
+interface Product {
+    product_id: string
+    name: string
+    type: string
+    variety: string
+    sowing_time: string
+    transplanting_time: string
+    harvest_time: string
+    per_acre_seed_requirement: number
+}
+
+interface ProductionData {
+    production_id: string
+    product_id: string
+    district_id: string
+    division: string
+    year: number
+    month: number
+    acreage: number
+    quantity_produced: number
+}
+
+interface PriceHistory {
+    price_id: string
+    product_id: string
+    district_id: string
+    date: string
+    harvest_price: number
+    wholesale_price: number
+    retail_price: number
+}
+
+interface WeatherData {
+    weather_id: string
+    district_id: string
+    date: string
+    rainfall: number
+    temperature: number
+    humidity: number
+}
+
 interface ConsumptionPattern {
     consumption_id: string
     stakeholder_id: string
-    stakeholder_name: string
     product_id: string
-    product_name: string
+    district_id: string
     consumption_date: string
     quantity_consumed: number
     amount_spent: number
-    purchase_location: string
-    season: string
     demographic_group: string
     household_size: number
+    per_capita_income: number
 }
 
-// Mock data
-const consumptionPatterns: ConsumptionPattern[] = [
-    {
-        consumption_id: "CP001",
-        stakeholder_id: "S004",
-        stakeholder_name: "Rahman Family",
-        product_id: "P001",
-        product_name: "Wheat",
-        consumption_date: "2024-01-15",
-        quantity_consumed: 25,
-        amount_spent: 1250,
-        purchase_location: "Local Market",
-        season: "Winter",
-        demographic_group: "Middle Class",
-        household_size: 5
-    },
-    {
-        consumption_id: "CP002",
-        stakeholder_id: "S005",
-        stakeholder_name: "Khan Household",
-        product_id: "P002",
-        product_name: "Rice",
-        consumption_date: "2024-01-14",
-        quantity_consumed: 30,
-        amount_spent: 1950,
-        purchase_location: "Supermarket",
-        season: "Winter",
-        demographic_group: "Upper Middle Class",
-        household_size: 4
-    },
-    {
-        consumption_id: "CP003",
-        stakeholder_id: "S006",
-        stakeholder_name: "Ali Family",
-        product_id: "P003",
-        product_name: "Corn",
-        consumption_date: "2024-01-13",
-        quantity_consumed: 15,
-        amount_spent: 300,
-        purchase_location: "Local Vendor",
-        season: "Winter",
-        demographic_group: "Lower Middle Class",
-        household_size: 6
-    },
-    {
-        consumption_id: "CP004",
-        stakeholder_id: "S007",
-        stakeholder_name: "Begum Household",
-        product_id: "P001",
-        product_name: "Wheat",
-        consumption_date: "2024-01-12",
-        quantity_consumed: 20,
-        amount_spent: 1000,
-        purchase_location: "Wholesale Market",
-        season: "Winter",
-        demographic_group: "Middle Class",
-        household_size: 3
-    },
-    {
-        consumption_id: "CP005",
-        stakeholder_id: "S008",
-        stakeholder_name: "Hasan Family",
-        product_id: "P002",
-        product_name: "Rice",
-        consumption_date: "2024-01-11",
-        quantity_consumed: 35,
-        amount_spent: 2275,
-        purchase_location: "Local Market",
-        season: "Winter",
-        demographic_group: "Upper Class",
-        household_size: 7
-    }
-]
+interface NutritionalAnalysis {
+    product_id: string
+    district_id: string
+    month: number
+    year: number
+    per_capita_requirement: number
+    actual_consumption: number
+    surplus_deficit: number
+    nutritional_status: string
+}
 
-// Chart data
-const monthlyConsumptionData = [
-    {month: "Jan", wheat: 2400, rice: 4000, corn: 1200},
-    {month: "Feb", wheat: 2200, rice: 3800, corn: 1100},
-    {month: "Mar", wheat: 2600, rice: 4200, corn: 1300},
-    {month: "Apr", wheat: 2800, rice: 4500, corn: 1400},
-    {month: "May", wheat: 3000, rice: 4800, corn: 1500},
-    {month: "Jun", wheat: 2700, rice: 4300, corn: 1350}
-]
+interface District {
+    district_id: string
+    name: string
+    division: string
+}
 
-const demographicConsumption = [
-    {name: "Upper Class", value: 35, color: "#8884d8"},
-    {name: "Upper Middle Class", value: 28, color: "#82ca9d"},
-    {name: "Middle Class", value: 25, color: "#ffc658"},
-    {name: "Lower Middle Class", value: 12, color: "#ff7300"}
-]
+interface SupplyDemandComparison {
+    product_id: string
+    district_id: string
+    period: string
+    producer_supply: number
+    wholesaler_demand: number
+    retailer_demand: number
+    consumer_demand: number
+    price_impact: number
+}
 
-const seasonalTrends = [
-    {season: "Spring", consumption: 3200, spending: 156000},
-    {season: "Summer", consumption: 2800, spending: 142000},
-    {season: "Monsoon", consumption: 3600, spending: 178000},
-    {season: "Winter", consumption: 4200, spending: 195000}
-]
+// No hardcoded data - all data will be fetched from database/APIs
 
 export default function ConsumptionPattern() {
     const [searchTerm, setSearchTerm] = useState("")
+    const [selectedProduct, setSelectedProduct] = useState("all")
+    const [selectedDistrict, setSelectedDistrict] = useState("all")
+    const [selectedDateRange, setSelectedDateRange] = useState({start: '', end: ''})
+    const [selectedYearRange, setSelectedYearRange] = useState({start: new Date().getFullYear() - 5, end: new Date().getFullYear()})
     const [selectedSeason, setSelectedSeason] = useState("all")
     const [selectedDemographic, setSelectedDemographic] = useState("all")
-    const [selectedProduct, setSelectedProduct] = useState("all")
+    const [activeTab, setActiveTab] = useState('overview')
     const [showAddForm, setShowAddForm] = useState(false)
+    const [loading, setLoading] = useState(false)
+    
+    // Data states - all fetched from database/APIs
+    const [products, setProducts] = useState<Product[]>([])
+    const [districts, setDistricts] = useState<District[]>([])
+    const [productionData, setProductionData] = useState<ProductionData[]>([])
+    const [priceHistory, setPriceHistory] = useState<PriceHistory[]>([])
+    const [weatherData, setWeatherData] = useState<WeatherData[]>([])
+    const [consumptionPatterns, setConsumptionPatterns] = useState<ConsumptionPattern[]>([])
+    const [nutritionalAnalysis, setNutritionalAnalysis] = useState<NutritionalAnalysis[]>([])
+    const [supplyDemandData, setSupplyDemandData] = useState<SupplyDemandComparison[]>([])
+    const [demographicGroups, setDemographicGroups] = useState<string[]>([])
+    
+    // Computed data for charts
+    const monthlyConsumptionData = React.useMemo(() => {
+        if (!consumptionPatterns.length) return []
+        
+        // Group consumption data by month and product
+        const monthlyData: { [key: string]: { month: string, wheat: number, rice: number, corn: number } } = {}
+        
+        consumptionPatterns.forEach(pattern => {
+            const monthKey = new Date(pattern.consumption_date).toLocaleDateString('en', { month: 'short' })
+            
+            if (!monthlyData[monthKey]) {
+                monthlyData[monthKey] = { month: monthKey, wheat: 0, rice: 0, corn: 0 }
+            }
+            
+            // Map product names to chart data keys
+            const productName = getProductName(pattern.product_id).toLowerCase()
+            if (productName.includes('wheat')) {
+                monthlyData[monthKey].wheat += pattern.quantity_consumed
+            } else if (productName.includes('rice')) {
+                monthlyData[monthKey].rice += pattern.quantity_consumed
+            } else if (productName.includes('corn')) {
+                monthlyData[monthKey].corn += pattern.quantity_consumed
+            }
+        })
+        
+        return Object.values(monthlyData).sort((a, b) => {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                           'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            return months.indexOf(a.month) - months.indexOf(b.month)
+        })
+    }, [consumptionPatterns])
+    
+    // Computed demographic consumption data for pie charts
+    const demographicConsumption = React.useMemo(() => {
+        if (!consumptionPatterns.length) return []
+        
+        // Group consumption by demographic groups
+        const demographicData: { [key: string]: number } = {}
+        
+        consumptionPatterns.forEach(pattern => {
+            const groupKey = pattern.demographic_group || 'General'
+            demographicData[groupKey] = (demographicData[groupKey] || 0) + pattern.quantity_consumed
+        })
+        
+        // Convert to array format expected by PieChart with colors
+        const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00', '#ff00ff']
+        return Object.entries(demographicData).map(([name, value], index) => ({
+            name,
+            value,
+            color: colors[index % colors.length]
+        }))
+    }, [consumptionPatterns])
+    
+    // Computed seasonal trends data for bar charts
+    const seasonalTrends = React.useMemo(() => {
+        if (!consumptionPatterns.length) return []
+        
+        // Group consumption by season
+        const seasonalData: { [key: string]: number } = {}
+        
+        consumptionPatterns.forEach(pattern => {
+            // Determine season from consumption date
+            const date = new Date(pattern.consumption_date)
+            const month = date.getMonth() + 1 // 1-12
+            
+            let season = 'Winter'
+            if (month >= 3 && month <= 5) season = 'Spring'
+            else if (month >= 6 && month <= 8) season = 'Summer'
+            else if (month >= 9 && month <= 11) season = 'Monsoon'
+            
+            seasonalData[season] = (seasonalData[season] || 0) + pattern.quantity_consumed
+        })
+        
+        // Convert to array format expected by BarChart
+        return ['Spring', 'Summer', 'Monsoon', 'Winter'].map(season => ({
+            season,
+            consumption: seasonalData[season] || 0,
+            average: Object.values(seasonalData).reduce((a, b) => a + b, 0) / 4
+        }))
+    }, [consumptionPatterns])
+    
+    useEffect(() => {
+        fetchInitialData()
+    }, [])
+    
+    useEffect(() => {
+        if (selectedProduct !== 'all' && selectedDistrict !== 'all') {
+            fetchAnalyticsData()
+        }
+    }, [activeTab, selectedProduct, selectedDistrict, selectedDateRange, selectedYearRange])
+    
+    useEffect(() => {
+        fetchWeatherData()
+    }, [selectedDistrict, selectedDateRange])
+    
+    const fetchInitialData = async () => {
+        setLoading(true)
+        try {
+            const [productsRes, districtsRes, demographicsRes] = await Promise.all([
+                fetch('/api/products?comprehensive=true'), // Fetch comprehensive product info
+                fetch('/api/districts'),
+                fetch('/api/demographics') // Fetch demographic groups from database
+            ])
+            
+            if (productsRes.ok) {
+                const productsData = await productsRes.json()
+                setProducts(productsData)
+            }
+            
+            if (districtsRes.ok) {
+                const districtsData = await districtsRes.json()
+                setDistricts(districtsData)
+            }
+            
+            if (demographicsRes.ok) {
+                const demographicsData = await demographicsRes.json()
+                setDemographicGroups(demographicsData.map((d: any) => d.name))
+            }
+            
+            // Fetch consumption patterns
+            const consumptionRes = await fetch('/api/consumption-patterns')
+            if (consumptionRes.ok) {
+                const consumptionData = await consumptionRes.json()
+                setConsumptionPatterns(consumptionData)
+            }
+        } catch (error) {
+            console.error('Error fetching initial data:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+    
+    const fetchAnalyticsData = async () => {
+        if (selectedProduct === 'all' || selectedDistrict === 'all') return
+        
+        setLoading(true)
+        try {
+            const params = new URLSearchParams({
+                product_id: selectedProduct,
+                district_id: selectedDistrict,
+                start_year: selectedYearRange.start.toString(),
+                end_year: selectedYearRange.end.toString()
+            })
+            
+            if (selectedDateRange.start && selectedDateRange.end) {
+                params.append('start_date', selectedDateRange.start)
+                params.append('end_date', selectedDateRange.end)
+            }
+            
+            // Fetch production history data
+            const productionRes = await fetch(`/api/production-data?${params}`)
+            if (productionRes.ok) {
+                const productionData = await productionRes.json()
+                setProductionData(productionData)
+            }
+            
+            // Fetch price history data
+            const priceRes = await fetch(`/api/price-history?${params}`)
+            if (priceRes.ok) {
+                const priceData = await priceRes.json()
+                setPriceHistory(priceData)
+            }
+            
+            // Fetch nutritional analysis with surplus/deficit calculations
+            const nutritionRes = await fetch(`/api/nutrition-analysis?${params}`)
+            if (nutritionRes.ok) {
+                const nutritionData = await nutritionRes.json()
+                setNutritionalAnalysis(nutritionData)
+            }
+            
+            // Fetch supply vs demand comparison
+            const supplyDemandRes = await fetch(`/api/supply-demand-comparison?${params}`)
+            if (supplyDemandRes.ok) {
+                const supplyDemandData = await supplyDemandRes.json()
+                setSupplyDemandData(supplyDemandData)
+            }
+        } catch (error) {
+            console.error('Error fetching analytics data:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+    
+    const fetchWeatherData = async () => {
+        if (selectedDistrict === 'all') return
+        
+        try {
+            const params = new URLSearchParams({
+                district_id: selectedDistrict
+            })
+            
+            if (selectedDateRange.start && selectedDateRange.end) {
+                params.append('start_date', selectedDateRange.start)
+                params.append('end_date', selectedDateRange.end)
+            }
+            
+            // Fetch weather data from external API or database
+            const weatherRes = await fetch(`/api/weather-impact?${params}`)
+            if (weatherRes.ok) {
+                const weatherData = await weatherRes.json()
+                setWeatherData(weatherData)
+            }
+        } catch (error) {
+            console.error('Error fetching weather data:', error)
+        }
+    }
 
-    // Form state
+    // Form state for adding new consumption patterns
     const [formData, setFormData] = useState({
-        pattern_id: "",
-        consumer_name: "",
-        product_name: "",
+        stakeholder_id: "",
+        product_id: "",
+        district_id: "",
         consumption_date: "",
         quantity_consumed: 0,
         amount_spent: 0,
-        location: "",
-        season: "",
         demographic_group: "",
-        household_size: 0
+        household_size: 0,
+        per_capita_income: 0
     })
 
+    // Filter consumption patterns based on selections
     const filteredData = consumptionPatterns.filter(pattern => {
-        const matchesSearch = pattern.stakeholder_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            pattern.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            pattern.purchase_location.toLowerCase().includes(searchTerm.toLowerCase())
-        const matchesSeason = selectedSeason === "all" || pattern.season === selectedSeason
-        const matchesDemographic = selectedDemographic === "all" || pattern.demographic_group === selectedDemographic
-        const matchesProduct = selectedProduct === "all" || pattern.product_name === selectedProduct
+        const matchesSearch = searchTerm === "" || 
+            products.find(p => p.product_id === pattern.product_id)?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            districts.find(d => d.district_id === pattern.district_id)?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        const matchesProduct = selectedProduct === "all" || pattern.product_id === selectedProduct
+        const matchesDistrict = selectedDistrict === "all" || pattern.district_id === selectedDistrict
+        
+        if (selectedDateRange.start && selectedDateRange.end) {
+            const patternDate = new Date(pattern.consumption_date)
+            const startDate = new Date(selectedDateRange.start)
+            const endDate = new Date(selectedDateRange.end)
+            if (patternDate < startDate || patternDate > endDate) return false
+        }
 
-        return matchesSearch && matchesSeason && matchesDemographic && matchesProduct
+        return matchesSearch && matchesProduct && matchesDistrict
     })
 
+    // Calculate derived metrics from real data
     const totalConsumption = filteredData.reduce((sum, pattern) => sum + pattern.quantity_consumed, 0)
     const totalSpending = filteredData.reduce((sum, pattern) => sum + pattern.amount_spent, 0)
-    const avgHouseholdSize = filteredData.reduce((sum, pattern) => sum + pattern.household_size, 0) / filteredData.length || 0
+    const avgHouseholdSize = filteredData.length > 0 ? filteredData.reduce((sum, pattern) => sum + pattern.household_size, 0) / filteredData.length : 0
+    const avgPerCapitaIncome = filteredData.length > 0 ? filteredData.reduce((sum, pattern) => sum + pattern.per_capita_income, 0) / filteredData.length : 0
 
     const handleInputChange = (field: string, value: string | number) => {
         setFormData(prev => ({
@@ -183,62 +390,88 @@ export default function ConsumptionPattern() {
         }))
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setLoading(true)
 
-        // Add the new record to the data
-        const newConsumptionPattern = {
-            consumption_id: `CP${String(consumptionPatterns.length + 1).padStart(3, '0')}`,
-            stakeholder_id: `S${String(consumptionPatterns.length + 1).padStart(3, '0')}`,
-            stakeholder_name: formData.consumer_name,
-            product_id: `P${String(consumptionPatterns.length + 1).padStart(3, '0')}`,
-            product_name: formData.product_name,
-            consumption_date: formData.consumption_date,
-            quantity_consumed: formData.quantity_consumed,
-            amount_spent: formData.amount_spent,
-            purchase_location: formData.location,
-            season: formData.season,
-            demographic_group: formData.demographic_group,
-            household_size: formData.household_size
+        try {
+            const response = await fetch('/api/consumption-patterns', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+
+            if (response.ok) {
+                // Refresh data after successful addition
+                await fetchInitialData()
+                
+                // Reset form and hide it
+                setFormData({
+                    stakeholder_id: "",
+                    product_id: "",
+                    district_id: "",
+                    consumption_date: "",
+                    quantity_consumed: 0,
+                    amount_spent: 0,
+                    demographic_group: "",
+                    household_size: 0,
+                    per_capita_income: 0
+                })
+                setShowAddForm(false)
+            } else {
+                console.error('Error adding consumption pattern:', await response.text())
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error)
+        } finally {
+            setLoading(false)
         }
-
-        console.log("New Consumption Pattern Record:", newConsumptionPattern)
-
-        // Reset form and hide it
-        setFormData({
-            pattern_id: "",
-            consumer_name: "",
-            product_name: "",
-            consumption_date: "",
-            quantity_consumed: 0,
-            amount_spent: 0,
-            location: "",
-            season: "",
-            demographic_group: "",
-            household_size: 0
-        })
-        setShowAddForm(false)
     }
 
-    // Dropdown options
-    const seasons = ["Winter", "Spring", "Summer", "Autumn"]
-    const demographicGroups = ["Upper Class", "Upper Middle Class", "Middle Class", "Lower Middle Class", "Lower Class"]
-    const products = ["Wheat", "Rice", "Corn", "Potato", "Tomato", "Fish", "Chicken", "Beef"]
-    const locations = ["Dhaka", "Chittagong", "Sylhet", "Rajshahi", "Khulna", "Barisal", "Rangpur", "Mymensingh"]
+    // Helper functions for data processing
+    const getProductName = (productId: string) => {
+        return products.find(p => p.product_id === productId)?.name || 'Unknown Product'
+    }
+    
+    const getDistrictName = (districtId: string) => {
+        return districts.find(d => d.district_id === districtId)?.name || 'Unknown District'
+    }
+    
+    // Calculate price elasticity based on real data
+    const calculatePriceElasticity = () => {
+        if (priceHistory.length === 0 || consumptionPatterns.length === 0) return []
+        
+        return priceHistory.map(price => {
+            const consumption = consumptionPatterns
+                .filter(c => c.product_id === price.product_id && c.district_id === price.district_id)
+                .reduce((sum, c) => sum + c.quantity_consumed, 0)
+            
+            return {
+                product_name: getProductName(price.product_id),
+                retail_price: price.retail_price,
+                consumption: consumption,
+                date: price.date
+            }
+        })
+    }
 
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Consumption Pattern Analysis</h1>
-                    <p className="text-sm text-gray-600">Track and analyze consumer consumption patterns and
-                        behaviors</p>
+                    <h1 className="text-2xl font-bold text-foreground">Consumption Pattern & Nutrition Analysis</h1>
+                    <p className="text-sm text-muted-foreground">Comprehensive consumption patterns, nutrition intake tracking, and demand forecasting</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm"
-                            onClick={() => exportConsumptionData(filteredData as unknown as Record<string, unknown>[])}>
+                    <Button variant="outline" size="sm" onClick={fetchAnalyticsData} disabled={loading}>
+                        <Activity className="w-4 h-4 mr-2" />
+                        {loading ? 'Loading...' : 'Refresh'}
+                    </Button>
+                    <Button variant="outline" size="sm">
                         <FileDown className="w-4 h-4 mr-2"/>
-                        Export Data
+                        Export Report
                     </Button>
                     <Button size="sm" onClick={() => setShowAddForm(true)}>
                         <Plus className="w-4 h-4 mr-2"/>
@@ -246,53 +479,377 @@ export default function ConsumptionPattern() {
                     </Button>
                 </div>
             </div>
+            
+            {/* Enhanced Filters */}
+            <Card>
+                <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div className="space-y-2">
+                            <Label>Product</Label>
+                            <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select product" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Products</SelectItem>
+                                    {products.map(product => (
+                                        <SelectItem key={product.product_id} value={product.product_id}>
+                                            {product.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <Label>District</Label>
+                            <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select district" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Districts</SelectItem>
+                                    {districts.map(district => (
+                                        <SelectItem key={district.district_id} value={district.district_id.toString()}>
+                                            {district.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <Label>Start Date</Label>
+                            <Input 
+                                type="date" 
+                                value={selectedDateRange.start}
+                                onChange={(e) => setSelectedDateRange(prev => ({...prev, start: e.target.value}))}
+                            />
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <Label>End Date</Label>
+                            <Input 
+                                type="date" 
+                                value={selectedDateRange.end}
+                                onChange={(e) => setSelectedDateRange(prev => ({...prev, end: e.target.value}))}
+                            />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
-            {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Key Metrics - Derived from Real Data */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Consumption</CardTitle>
+                        <CardTitle className="text-sm font-medium">Total Production</CardTitle>
                         <Package className="h-4 w-4 text-blue-600"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{totalConsumption.toLocaleString()} kg</div>
-                        <p className="text-xs text-green-600 mt-1">+12% from last month</p>
+                        <div className="text-2xl font-bold">
+                            {productionData.reduce((sum, p) => sum + p.quantity_produced, 0).toLocaleString()} kg
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Total acreage: {productionData.reduce((sum, p) => sum + p.acreage, 0).toLocaleString()}</p>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Spending</CardTitle>
+                        <CardTitle className="text-sm font-medium">Avg Per Capita Income</CardTitle>
                         <DollarSign className="h-4 w-4 text-green-600"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">৳{totalSpending.toLocaleString()}</div>
-                        <p className="text-xs text-blue-600 mt-1">Average per household</p>
+                        <div className="text-2xl font-bold">৳{avgPerCapitaIncome.toLocaleString()}</div>
+                        <p className="text-xs text-muted-foreground mt-1">Based on consumption data</p>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Avg Household Size</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-purple-600"/>
+                        <CardTitle className="text-sm font-medium">Surplus/Deficit</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-orange-600"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{avgHouseholdSize.toFixed(1)}</div>
-                        <p className="text-xs text-gray-600 mt-1">Members per household</p>
+                        <div className="text-2xl font-bold">
+                            {nutritionalAnalysis.reduce((sum, n) => sum + n.surplus_deficit, 0) > 0 ? '+' : ''}
+                            {nutritionalAnalysis.reduce((sum, n) => sum + n.surplus_deficit, 0).toFixed(1)} kg
+                        </div>
+                        <p className="text-xs text-orange-600 mt-1">
+                            {nutritionalAnalysis.reduce((sum, n) => sum + n.surplus_deficit, 0) > 0 ? 'Surplus' : 'Deficit'}
+                        </p>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Active Consumers</CardTitle>
-                        <MapPin className="h-4 w-4 text-orange-600"/>
+                        <CardTitle className="text-sm font-medium">Price Trends</CardTitle>
+                        <Activity className="h-4 w-4 text-purple-600"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{filteredData.length}</div>
-                        <p className="text-xs text-green-600 mt-1">Tracked patterns</p>
+                        <div className="text-2xl font-bold">
+                            ৳{priceHistory.length > 0 ? (priceHistory.reduce((sum, p) => sum + p.retail_price, 0) / priceHistory.length).toFixed(0) : 0}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Avg retail price</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Weather Impact</CardTitle>
+                        <MapPin className="h-4 w-4 text-indigo-600"/>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                            {weatherData.length > 0 ? (weatherData.reduce((sum, w) => sum + w.rainfall, 0) / weatherData.length).toFixed(1) : 0}mm
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Avg rainfall</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Supply vs Demand</CardTitle>
+                        <BarChart3 className="h-4 w-4 text-red-600"/>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                            {supplyDemandData.reduce((sum, s) => sum + s.producer_supply, 0) > supplyDemandData.reduce((sum, s) => sum + s.consumer_demand, 0) ? 'Surplus' : 'Shortage'}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Market status</p>
                     </CardContent>
                 </Card>
             </div>
+            
+            {/* Enhanced Analysis Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="nutrition">Nutrition Analysis</TabsTrigger>
+                    <TabsTrigger value="trends">Consumption Trends</TabsTrigger>
+                    <TabsTrigger value="demographics">Demographics</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="overview" className="mt-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Monthly Consumption Trends</CardTitle>
+                                <CardDescription>Product consumption patterns over time</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={monthlyConsumptionData}>
+                                        <CartesianGrid strokeDasharray="3 3"/>
+                                        <XAxis dataKey="month" />
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Legend/>
+                                        <Line type="monotone" dataKey="wheat" stroke="#8884d8" strokeWidth={2} name="Wheat"/>
+                                        <Line type="monotone" dataKey="rice" stroke="#82ca9d" strokeWidth={2} name="Rice"/>
+                                        <Line type="monotone" dataKey="corn" stroke="#ffc658" strokeWidth={2} name="Corn"/>
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                        
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Demographic Distribution</CardTitle>
+                                <CardDescription>Consumption by socioeconomic groups</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <PieChart>
+                                        <Pie
+                                            data={demographicConsumption}
+                                            cx="50%"
+                                            cy="50%"
+                                            labelLine={false}
+                                            label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                            outerRadius={80}
+                                            fill="#8884d8"
+                                            dataKey="value"
+                                        >
+                                            {demographicConsumption.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color}/>
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </TabsContent>
+                
+                <TabsContent value="nutrition" className="mt-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Nutritional Requirements vs Intake</CardTitle>
+                                <CardDescription>Per capita nutrition analysis with surplus/deficit tracking</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                {nutritionalAnalysis.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height={300}>
+                                        <BarChart data={nutritionalAnalysis.map(item => ({
+                                            ...item,
+                                            product_name: getProductName(item.product_id)
+                                        }))}>
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis dataKey="product_name" />
+                                            <YAxis />
+                                            <Tooltip />
+                                            <Bar dataKey="per_capita_requirement" fill="#fbbf24" name="Required" />
+                                            <Bar dataKey="actual_consumption" fill="#10b981" name="Actual" />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="flex items-center justify-center h-[300px] text-gray-500">
+                                        {selectedProduct === 'all' || selectedDistrict === 'all' ? 
+                                            'Please select specific product and district' : 'Loading nutrition data...'}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                        
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Monthly Surplus/Deficit Analysis</CardTitle>
+                                <CardDescription>Tracking surplus/deficit for selected year range</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {nutritionalAnalysis.slice(0, 5).map((item, index) => (
+                                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                            <div>
+                                                <p className="font-medium">{getProductName(item.product_id)}</p>
+                                                <p className="text-sm text-muted-foreground">{item.month}/{item.year} - {getDistrictName(item.district_id)}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <Badge variant={item.surplus_deficit > 0 ? "default" : "destructive"}>
+                                                    {item.surplus_deficit > 0 ? 'Surplus' : 'Deficit'}: {Math.abs(item.surplus_deficit).toFixed(1)}kg
+                                                </Badge>
+                                                <p className="text-sm text-muted-foreground mt-1">{item.nutritional_status}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </TabsContent>
+                
+                <TabsContent value="trends" className="mt-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Production History by District</CardTitle>
+                                <CardDescription>Acreage and quantity produced over time</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <BarChart data={productionData.map(item => ({
+                                        ...item,
+                                        district_name: getDistrictName(item.district_id),
+                                        product_name: getProductName(item.product_id)
+                                    }))}>
+                                        <CartesianGrid strokeDasharray="3 3"/>
+                                        <XAxis dataKey="year" />
+                                        <YAxis yAxisId="left" />
+                                        <YAxis yAxisId="right" orientation="right" />
+                                        <Tooltip />
+                                        <Legend/>
+                                        <Bar yAxisId="left" dataKey="acreage" fill="#8884d8" name="Acreage"/>
+                                        <Bar yAxisId="right" dataKey="quantity_produced" fill="#82ca9d" name="Production (kg)"/>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                        
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Price Trends & Weather Correlation</CardTitle>
+                                <CardDescription>Harvest, wholesale, retail prices with weather impact</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={priceHistory.map(price => {
+                                        const weather = weatherData.find(w => 
+                                            w.district_id === price.district_id && 
+                                            new Date(w.date).getMonth() === new Date(price.date).getMonth()
+                                        )
+                                        return {
+                                            ...price,
+                                            month: new Date(price.date).toLocaleDateString('en', { month: 'short' }),
+                                            rainfall: weather?.rainfall || 0
+                                        }
+                                    })}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="month" />
+                                        <YAxis yAxisId="left" />
+                                        <YAxis yAxisId="right" orientation="right" />
+                                        <Tooltip />
+                                        <Legend/>
+                                        <Line yAxisId="left" type="monotone" dataKey="harvest_price" stroke="#8884d8" name="Harvest Price" />
+                                        <Line yAxisId="left" type="monotone" dataKey="wholesale_price" stroke="#82ca9d" name="Wholesale Price" />
+                                        <Line yAxisId="left" type="monotone" dataKey="retail_price" stroke="#ffc658" name="Retail Price" />
+                                        <Line yAxisId="right" type="monotone" dataKey="rainfall" stroke="#ff7300" name="Rainfall (mm)" />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </TabsContent>
+                
+                <TabsContent value="demographics" className="mt-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Supply vs Demand Analysis</CardTitle>
+                            <CardDescription>Comparison for producers, wholesalers, and retailers based on price and production data</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Product</TableHead>
+                                            <TableHead>District</TableHead>
+                                            <TableHead>Period</TableHead>
+                                            <TableHead>Producer Supply (kg)</TableHead>
+                                            <TableHead>Wholesaler Demand (kg)</TableHead>
+                                            <TableHead>Retailer Demand (kg)</TableHead>
+                                            <TableHead>Consumer Demand (kg)</TableHead>
+                                            <TableHead>Price Impact (%)</TableHead>
+                                            <TableHead>Status</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {supplyDemandData.map((item, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="font-medium">{getProductName(item.product_id)}</TableCell>
+                                                <TableCell>{getDistrictName(item.district_id)}</TableCell>
+                                                <TableCell>{item.period}</TableCell>
+                                                <TableCell>{item.producer_supply?.toLocaleString()}</TableCell>
+                                                <TableCell>{item.wholesaler_demand?.toLocaleString()}</TableCell>
+                                                <TableCell>{item.retailer_demand?.toLocaleString()}</TableCell>
+                                                <TableCell>{item.consumer_demand?.toLocaleString()}</TableCell>
+                                                <TableCell>{item.price_impact?.toFixed(2)}%</TableCell>
+                                                <TableCell>
+                                                    <Badge variant={item.producer_supply > item.consumer_demand ? "default" : "destructive"}>
+                                                        {item.producer_supply > item.consumer_demand ? 'Surplus' : 'Shortage'}
+                                                    </Badge>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
 
             {/* Add Consumption Pattern Form - Positioned above table */}
             {showAddForm && (
@@ -305,10 +862,10 @@ export default function ConsumptionPattern() {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Basic Information Section */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Basic Information</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="consumer_name" className="text-gray-700">Consumer Name *</Label>
+                                        <Label htmlFor="consumer_name" className="text-foreground">Consumer Name *</Label>
                                         <Input
                                             id="consumer_name"
                                             type="text"
@@ -320,14 +877,14 @@ export default function ConsumptionPattern() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="product_name" className="text-gray-700">Product *</Label>
+                                        <Label htmlFor="product_name" className="text-foreground">Product *</Label>
                                         <Select value={formData.product_name}
                                                 onValueChange={(value) => handleInputChange("product_name", value)}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select Product"/>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {products.map((product) => (
+                                                {productOptions.map((product) => (
                                                     <SelectItem key={product} value={product}>
                                                         {product}
                                                     </SelectItem>
@@ -337,7 +894,7 @@ export default function ConsumptionPattern() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="consumption_date" className="text-gray-700">Consumption Date
+                                        <Label htmlFor="consumption_date" className="text-foreground">Consumption Date
                                             *</Label>
                                         <Input
                                             id="consumption_date"
@@ -349,7 +906,7 @@ export default function ConsumptionPattern() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="location" className="text-gray-700">Location *</Label>
+                                        <Label htmlFor="location" className="text-foreground">Location *</Label>
                                         <Select value={formData.location}
                                                 onValueChange={(value) => handleInputChange("location", value)}>
                                             <SelectTrigger>
@@ -366,7 +923,7 @@ export default function ConsumptionPattern() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="season" className="text-gray-700">Season *</Label>
+                                        <Label htmlFor="season" className="text-foreground">Season *</Label>
                                         <Select value={formData.season}
                                                 onValueChange={(value) => handleInputChange("season", value)}>
                                             <SelectTrigger>
@@ -383,7 +940,7 @@ export default function ConsumptionPattern() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="demographic_group" className="text-gray-700">Demographic Group
+                                        <Label htmlFor="demographic_group" className="text-foreground">Demographic Group
                                             *</Label>
                                         <Select value={formData.demographic_group}
                                                 onValueChange={(value) => handleInputChange("demographic_group", value)}>
@@ -404,10 +961,10 @@ export default function ConsumptionPattern() {
 
                             {/* Consumption Data Section */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Consumption Data</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Consumption Data</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="quantity_consumed" className="text-gray-700">Quantity Consumed
+                                        <Label htmlFor="quantity_consumed" className="text-foreground">Quantity Consumed
                                             (kg) *</Label>
                                         <Input
                                             id="quantity_consumed"
@@ -421,7 +978,7 @@ export default function ConsumptionPattern() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="amount_spent" className="text-gray-700">Amount Spent (৳)
+                                        <Label htmlFor="amount_spent" className="text-foreground">Amount Spent (৳)
                                             *</Label>
                                         <Input
                                             id="amount_spent"
@@ -435,7 +992,7 @@ export default function ConsumptionPattern() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="household_size" className="text-gray-700">Household Size
+                                        <Label htmlFor="household_size" className="text-foreground">Household Size
                                             *</Label>
                                         <Input
                                             id="household_size"
@@ -451,7 +1008,7 @@ export default function ConsumptionPattern() {
                             </div>
 
                             {/* Form Actions */}
-                            <div className="flex gap-4 pt-4 border-t border-gray-200">
+                            <div className="flex gap-4 pt-4 border-t border-border">
                                 <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
                                     <Plus className="h-4 w-4 mr-2"/>
                                     Add Consumption Pattern

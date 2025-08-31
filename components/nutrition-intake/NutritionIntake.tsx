@@ -246,11 +246,11 @@ export default function NutritionIntake() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                         <Apple className="h-8 w-8 text-green-600"/>
                         Nutrition Intake Analysis
                     </h1>
-                    <p className="text-gray-600 mt-1">Monitor and analyze nutritional intake patterns across
+                    <p className="text-muted-foreground mt-1">Monitor and analyze nutritional intake patterns across
                         demographics</p>
                 </div>
                 <div className="flex gap-2">
@@ -302,7 +302,7 @@ export default function NutritionIntake() {
                         <div className={`text-2xl font-bold ${nutritionGap > 0 ? 'text-red-600' : 'text-green-600'}`}>
                             {Math.abs(nutritionGap).toFixed(1)}g
                         </div>
-                        <p className="text-xs text-gray-600 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                             {nutritionGap > 0 ? 'Deficit' : 'Surplus'}
                         </p>
                     </CardContent>
@@ -452,10 +452,10 @@ export default function NutritionIntake() {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Basic Information Section */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Basic Information</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="nutrition_id" className="text-gray-700">Nutrition ID *</Label>
+                                        <Label htmlFor="nutrition_id" className="text-foreground">Nutrition ID *</Label>
                                         <Input
                                             id="nutrition_id"
                                             type="text"
@@ -467,7 +467,7 @@ export default function NutritionIntake() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="stakeholder_id" className="text-gray-700">Stakeholder ID
+                                        <Label htmlFor="stakeholder_id" className="text-foreground">Stakeholder ID
                                             *</Label>
                                         <Input
                                             id="stakeholder_id"
@@ -480,7 +480,7 @@ export default function NutritionIntake() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="stakeholder_name" className="text-gray-700">Stakeholder Name
+                                        <Label htmlFor="stakeholder_name" className="text-foreground">Stakeholder Name
                                             *</Label>
                                         <Input
                                             id="stakeholder_name"
@@ -493,7 +493,7 @@ export default function NutritionIntake() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="product_id" className="text-gray-700">Product *</Label>
+                                        <Label htmlFor="product_id" className="text-foreground">Product *</Label>
                                         <Select value={formData.product_id} onValueChange={handleProductSelect}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select Product"/>
@@ -509,7 +509,7 @@ export default function NutritionIntake() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="product_name" className="text-gray-700">Product Name</Label>
+                                        <Label htmlFor="product_name" className="text-foreground">Product Name</Label>
                                         <Input
                                             id="product_name"
                                             type="text"
@@ -521,7 +521,7 @@ export default function NutritionIntake() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="intake_date" className="text-gray-700">Intake Date *</Label>
+                                        <Label htmlFor="intake_date" className="text-foreground">Intake Date *</Label>
                                         <Input
                                             id="intake_date"
                                             type="date"
@@ -535,10 +535,10 @@ export default function NutritionIntake() {
 
                             {/* Nutrition Data Section */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Nutrition Data</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Nutrition Data</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="nutrition_type" className="text-gray-700">Nutrition Type
+                                        <Label htmlFor="nutrition_type" className="text-foreground">Nutrition Type
                                             *</Label>
                                         <Select value={formData.nutrition_type}
                                                 onValueChange={(value) => handleInputChange("nutrition_type", value)}>
@@ -554,7 +554,7 @@ export default function NutritionIntake() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="per_capita_nutrition_intake" className="text-gray-700">Actual
+                                        <Label htmlFor="per_capita_nutrition_intake" className="text-foreground">Actual
                                             Intake (g) *</Label>
                                         <Input
                                             id="per_capita_nutrition_intake"
@@ -568,7 +568,7 @@ export default function NutritionIntake() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="recommended_intake" className="text-gray-700">Recommended Intake
+                                        <Label htmlFor="recommended_intake" className="text-foreground">Recommended Intake
                                             (g) *</Label>
                                         <Input
                                             id="recommended_intake"
@@ -582,7 +582,7 @@ export default function NutritionIntake() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="per_capita_nutrition" className="text-gray-700">Per Capita
+                                        <Label htmlFor="per_capita_nutrition" className="text-foreground">Per Capita
                                             Nutrition *</Label>
                                         <Input
                                             id="per_capita_nutrition"
@@ -596,7 +596,7 @@ export default function NutritionIntake() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="surplus_deficit" className="text-gray-700">Surplus/Deficit
+                                        <Label htmlFor="surplus_deficit" className="text-foreground">Surplus/Deficit
                                             *</Label>
                                         <Input
                                             id="surplus_deficit"
@@ -613,10 +613,10 @@ export default function NutritionIntake() {
 
                             {/* Economic Information */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Economic Information</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Economic Information</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="per_capita_income" className="text-gray-700">Per Capita Income
+                                        <Label htmlFor="per_capita_income" className="text-foreground">Per Capita Income
                                             ($) *</Label>
                                         <Input
                                             id="per_capita_income"
@@ -633,7 +633,7 @@ export default function NutritionIntake() {
                             </div>
 
                             {/* Form Actions */}
-                            <div className="flex gap-4 pt-4 border-t border-gray-200">
+                            <div className="flex gap-4 pt-4 border-t border-border">
                                 <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
                                     <Plus className="h-4 w-4 mr-2"/>
                                     Add Nutrition Record

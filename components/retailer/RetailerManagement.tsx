@@ -194,15 +194,15 @@ export default function RetailerManagement() {
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="bg-blue-100 p-3 rounded-xl border border-blue-200">
                                 <Store className="h-8 w-8 text-blue-600"/>
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold text-gray-900">Retailer Management</h1>
-                                <p className="text-gray-600 mt-1">Manage retail partners and their business
+                                <h1 className="text-3xl font-bold text-foreground">Retailer Management</h1>
+                                <p className="text-muted-foreground mt-1">Manage retail partners and their business
                                     information</p>
                             </div>
                         </div>
@@ -227,61 +227,61 @@ export default function RetailerManagement() {
 
                 {/* Statistics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-blue-100 p-2 rounded-lg">
                                 <Store className="h-5 w-5 text-blue-600"/>
                             </div>
-                            <span className="text-2xl font-bold text-gray-900">{totalRetailers}</span>
+                            <span className="text-2xl font-bold text-foreground">{totalRetailers}</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Total Retailers</h3>
+                        <h3 className="font-medium text-foreground">Total Retailers</h3>
                         <p className="text-sm text-gray-500">Active partners</p>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-green-100 p-2 rounded-lg">
                                 <TrendingUp className="h-5 w-5 text-green-600"/>
                             </div>
                             <span
-                                className="text-2xl font-bold text-gray-900">${(totalRevenue / 1000000).toFixed(1)}M</span>
+                                className="text-2xl font-bold text-foreground">${(totalRevenue / 1000000).toFixed(1)}M</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Total Revenue</h3>
+                        <h3 className="font-medium text-foreground">Total Revenue</h3>
                         <p className="text-sm text-gray-500">Annual combined</p>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-purple-100 p-2 rounded-lg">
                                 <Users className="h-5 w-5 text-purple-600"/>
                             </div>
                             <span
-                                className="text-2xl font-bold text-gray-900">{totalCustomerBase.toLocaleString()}</span>
+                                className="text-2xl font-bold text-foreground">{totalCustomerBase.toLocaleString()}</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Customer Base</h3>
+                        <h3 className="font-medium text-foreground">Customer Base</h3>
                         <p className="text-sm text-gray-500">Total customers served</p>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="bg-orange-100 p-2 rounded-lg">
                                 <MapPin className="h-5 w-5 text-orange-600"/>
                             </div>
-                            <span className="text-2xl font-bold text-gray-900">{avgSalesVolume}</span>
+                            <span className="text-2xl font-bold text-foreground">{avgSalesVolume}</span>
                         </div>
-                        <h3 className="font-medium text-gray-900">Avg Monthly Sales</h3>
+                        <h3 className="font-medium text-foreground">Avg Monthly Sales</h3>
                         <p className="text-sm text-gray-500">Volume per retailer</p>
                     </div>
                 </div>
 
                 {/* Data Entry Form */}
                 {showForm && (
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-6">Add New Retailer</h3>
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h3 className="text-xl font-semibold text-foreground mb-6">Add New Retailer</h3>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div>
-                                    <Label htmlFor="retailer_id" className="text-gray-700">Retailer ID</Label>
+                                    <Label htmlFor="retailer_id" className="text-foreground">Retailer ID</Label>
                                     <Input
                                         id="retailer_id"
                                         placeholder="e.g., R001"
@@ -293,7 +293,7 @@ export default function RetailerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="retailer_name" className="text-gray-700">Retailer Name</Label>
+                                    <Label htmlFor="retailer_name" className="text-foreground">Retailer Name</Label>
                                     <Input
                                         id="retailer_name"
                                         placeholder="e.g., City Store"
@@ -305,7 +305,7 @@ export default function RetailerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="location" className="text-gray-700">Location</Label>
+                                    <Label htmlFor="location" className="text-foreground">Location</Label>
                                     <Input
                                         id="location"
                                         placeholder="e.g., Dhaka"
@@ -317,7 +317,7 @@ export default function RetailerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="contact_info" className="text-gray-700">Contact Info</Label>
+                                    <Label htmlFor="contact_info" className="text-foreground">Contact Info</Label>
                                     <Input
                                         id="contact_info"
                                         placeholder="e.g., email@store.com"
@@ -329,7 +329,7 @@ export default function RetailerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="shop_type" className="text-gray-700">Shop Type</Label>
+                                    <Label htmlFor="shop_type" className="text-foreground">Shop Type</Label>
                                     <Select value={formData.shop_type}
                                             onValueChange={(value) => handleInputChange("shop_type", value)}>
                                         <SelectTrigger className="mt-1">
@@ -345,7 +345,7 @@ export default function RetailerManagement() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="annual_revenue" className="text-gray-700">Annual Revenue</Label>
+                                    <Label htmlFor="annual_revenue" className="text-foreground">Annual Revenue</Label>
                                     <Input
                                         id="annual_revenue"
                                         type="number"
@@ -371,9 +371,9 @@ export default function RetailerManagement() {
                 )}
 
                 {/* Table View */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                    <div className="p-6 border-b border-gray-200">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Retailer Directory</h3>
+                <div className="bg-card rounded-xl border border-border shadow-sm">
+                    <div className="p-6 border-b border-border">
+                        <h3 className="text-xl font-semibold text-foreground mb-4">Retailer Directory</h3>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <div className="relative flex-1">
                                 <Search
@@ -427,7 +427,7 @@ export default function RetailerManagement() {
                                         <TableRow key={retailer.id} className="hover:bg-gray-50">
                                             <TableCell className="font-mono text-sm">{retailer.retailer_id}</TableCell>
                                             <TableCell className="font-medium">{retailer.retailer_name}</TableCell>
-                                            <TableCell className="text-gray-600">{retailer.location}</TableCell>
+                                            <TableCell className="text-muted-foreground">{retailer.location}</TableCell>
                                             <TableCell>
                                                 <span
                                                     className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
@@ -435,18 +435,18 @@ export default function RetailerManagement() {
                                                 </span>
                                             </TableCell>
                                             <TableCell
-                                                className="text-gray-600">${retailer.annual_revenue.toLocaleString()}</TableCell>
-                                            <TableCell className="text-gray-600">{retailer.customer_base}</TableCell>
+                                                className="text-muted-foreground">${retailer.annual_revenue.toLocaleString()}</TableCell>
+                                            <TableCell className="text-muted-foreground">{retailer.customer_base}</TableCell>
                                             <TableCell>
                                                 <div className="flex space-x-2">
                                                     <Button variant="ghost" size="sm"
-                                                            className="text-gray-600 hover:text-blue-600">
+                                                            className="text-muted-foreground hover:text-blue-600">
                                                         <Edit2 className="h-4 w-4"/>
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        className="text-gray-600 hover:text-red-600"
+                                                        className="text-muted-foreground hover:text-red-600"
                                                         onClick={() => handleDelete(retailer.id)}
                                                     >
                                                         <Trash2 className="h-4 w-4"/>
@@ -463,8 +463,8 @@ export default function RetailerManagement() {
 
                 {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Location Distribution</h3>
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Location Distribution</h3>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -489,8 +489,8 @@ export default function RetailerManagement() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Shop Type Distribution</h3>
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Shop Type Distribution</h3>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={shopTypeData}>

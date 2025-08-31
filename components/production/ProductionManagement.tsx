@@ -149,11 +149,11 @@ export default function ProductionManagement() {
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Production Management</h1>
-                            <p className="text-gray-600">Track agricultural production across districts</p>
+                            <h1 className="text-3xl font-bold text-foreground mb-2">Production History by District</h1>
+                            <p className="text-muted-foreground">Historical production data showing acreage and quantity produced by district/division</p>
                         </div>
                         <div className="flex items-center space-x-4">
                             <div className="bg-green-50 p-4 rounded-xl">
@@ -170,7 +170,7 @@ export default function ProductionManagement() {
                             <CardTitle className="text-sm font-medium text-gray-500">Total Records</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-bold text-gray-900">{productions.length}</div>
+                            <div className="text-3xl font-bold text-foreground">{productions.length}</div>
                         </CardContent>
                     </Card>
                     <Card>
@@ -178,7 +178,7 @@ export default function ProductionManagement() {
                             <CardTitle className="text-sm font-medium text-gray-500">Total Acreage</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-bold text-gray-900">
+                            <div className="text-3xl font-bold text-foreground">
                                 {productions.reduce((sum, p) => sum + (p.acreage || 0), 0).toLocaleString()}
                             </div>
                         </CardContent>
@@ -188,7 +188,7 @@ export default function ProductionManagement() {
                             <CardTitle className="text-sm font-medium text-gray-500">Total Production</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-bold text-gray-900">
+                            <div className="text-3xl font-bold text-foreground">
                                 {productions.reduce((sum, p) => sum + (p.quantity_produced || 0), 0).toLocaleString()} kg
                             </div>
                         </CardContent>
@@ -196,7 +196,7 @@ export default function ProductionManagement() {
                 </div>
 
                 {/* Controls */}
-                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                     <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -216,8 +216,8 @@ export default function ProductionManagement() {
 
                 {/* Add/Edit Form */}
                 {showForm && (
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h2 className="text-xl font-semibold text-foreground mb-4">
                             {editingProduction ? 'Edit Production' : 'Add New Production'}
                         </h2>
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -308,9 +308,9 @@ export default function ProductionManagement() {
                 )}
 
                 {/* Productions Table */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-gray-200">
-                        <h2 className="text-xl font-semibold text-gray-900">
+                <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-border">
+                        <h2 className="text-xl font-semibold text-foreground">
                             Production Records ({filteredProductions.length})
                         </h2>
                     </div>

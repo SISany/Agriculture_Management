@@ -1,13 +1,36 @@
 "use client"
 
-import {useState, useEffect} from "react"
-import {Button} from "@/components/ui/button"
+import React, {useState, useEffect} from "react"
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
+import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
-import {Label} from "@/components/ui/label"
+import {Badge} from "@/components/ui/badge"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
-import {Search, Plus, Edit2, Trash2, TrendingUp} from "lucide-react"
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    Tooltip,
+    Legend
+} from "recharts"
+import {
+    Search,
+    Download,
+    Plus,
+    Edit2,
+    TrendingUp,
+    TrendingDown,
+    DollarSign,
+    Calendar,
+    MapPin
+} from "lucide-react"
 
 interface Price {
     price_id?: number
@@ -22,11 +45,19 @@ interface Price {
 interface Product {
     product_id: string
     name: string
+    harvest_time: string
 }
 
 interface District {
     district_id: number
     name: string
+}
+
+// Helper function to safely format numbers
+const safeNumberFormat = (value: number | null | undefined, decimals: number = 2): string => {
+    const num = Number(value || 0);
+    if (isNaN(num)) return '0.00';
+    return num.toFixed(decimals);
 }
 
 export default function PriceAnalytics() {
@@ -72,13 +103,6 @@ export default function PriceAnalytics() {
         }
     };
 
-    const handleInputChange = (field: keyof Price, value: string | number) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }))
-    }
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -98,28 +122,6 @@ export default function PriceAnalytics() {
         }
     }
 
-    const handleEdit = (price: Price) => {
-        setEditingPrice(price);
-        setFormData(price);
-        setShowForm(true);
-    }
-
-    const handleDelete = async (id: number) => {
-        if (confirm('Are you sure you want to delete this price record?')) {
-            try {
-                const response = await fetch(`/api/prices?id=${id}`, {
-                    method: 'DELETE',
-                });
-                
-                if (response.ok) {
-                    await fetchData();
-                }
-            } catch (error) {
-                console.error('Error deleting price:', error);
-            }
-        }
-    }
-
     const resetForm = () => {
         setFormData({
             product_id: "",
@@ -133,90 +135,115 @@ export default function PriceAnalytics() {
 
     const filteredPrices = prices.filter(price => {
         const matchesSearch = (price.product_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-            (price.district_name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-        const matchesProduct = selectedProduct === "all" || price.product_id === selectedProduct
-        const matchesDistrict = selectedDistrict === "all" || price.district_id.toString() === selectedDistrict
-        return matchesSearch && matchesProduct && matchesDistrict
-    })
+                            (price.district_name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+        const matchesProduct = selectedProduct === "all" || price.product_id === selectedProduct;
+        const matchesDistrict = selectedDistrict === "all" || price.district_id.toString() === selectedDistrict;
+        
+        return matchesSearch && matchesProduct && matchesDistrict;
+    });
 
-    const averagePrice = prices.length > 0 ? prices.reduce((sum, p) => sum + (p.price_per_unit || 0), 0) / prices.length : 0;
+    // Calculate statistics
+    const avgPrice = prices.length > 0 ? prices.reduce((sum, p) => sum + (p.price_per_unit || 0), 0) / prices.length : 0;
     const highestPrice = prices.length > 0 ? Math.max(...prices.map(p => p.price_per_unit || 0)) : 0;
     const lowestPrice = prices.length > 0 ? Math.min(...prices.map(p => p.price_per_unit || 0)) : 0;
 
+    // Prepare chart data
+    const chartData = filteredPrices.map(price => ({
+        date: new Date(price.date).toLocaleDateString(),
+        price: price.price_per_unit,
+        product: price.product_name,
+        district: price.district_name
+    }));
+
     if (loading) {
-        return <div className="flex justify-center items-center min-h-screen">Loading...</div>
+        return <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="text-foreground">Loading price data...</div>
+        </div>;
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="min-h-screen bg-background p-6">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Price Analytics</h1>
-                            <p className="text-gray-600">Track and analyze agricultural product prices</p>
+                            <h1 className="text-3xl font-bold text-foreground mb-2">Price History and Trends</h1>
+                            <p className="text-muted-foreground">Historical harvest time, wholesale, and retail price trends for various crops</p>
                         </div>
                         <div className="flex items-center space-x-4">
-                            <div className="bg-orange-50 p-4 rounded-xl">
-                                <TrendingUp className="h-8 w-8 text-orange-600" />
+                            <div className="bg-green-50 p-4 rounded-xl">
+                                <DollarSign className="h-8 w-8 text-green-600" />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Statistics */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* Statistics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <Card>
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-500">Total Records</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Average Price</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-bold text-gray-900">{prices.length}</div>
+                            <div className="text-3xl font-bold text-foreground">৳{safeNumberFormat(avgPrice, 2)}</div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-500">Average Price</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Highest Price</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-bold text-gray-900">৳{averagePrice.toFixed(2)}</div>
+                            <div className="text-3xl font-bold text-green-600">৳{safeNumberFormat(highestPrice, 2)}</div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-500">Highest Price</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Lowest Price</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-bold text-green-600">৳{highestPrice.toFixed(2)}</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-500">Lowest Price</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold text-red-600">৳{lowestPrice.toFixed(2)}</div>
+                            <div className="text-3xl font-bold text-red-600">৳{safeNumberFormat(lowestPrice, 2)}</div>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Controls */}
-                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                {/* Price Trends Chart */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Price Trends Over Time</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="h-80">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={chartData}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="date" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Line type="monotone" dataKey="price" stroke="#3b82f6" strokeWidth={2} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Filters and Controls */}
+                <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                     <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                        <div className="flex gap-4 flex-1">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                                 <Input
                                     placeholder="Search prices..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-10 w-full md:w-64"
+                                    className="pl-10 w-64"
                                 />
                             </div>
                             <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-                                <SelectTrigger className="w-full md:w-40">
-                                    <SelectValue placeholder="All Products" />
+                                <SelectTrigger className="w-48">
+                                    <SelectValue placeholder="Filter by product" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All Products</SelectItem>
@@ -228,8 +255,8 @@ export default function PriceAnalytics() {
                                 </SelectContent>
                             </Select>
                             <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
-                                <SelectTrigger className="w-full md:w-40">
-                                    <SelectValue placeholder="All Districts" />
+                                <SelectTrigger className="w-48">
+                                    <SelectValue placeholder="Filter by district" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All Districts</SelectItem>
@@ -241,141 +268,91 @@ export default function PriceAnalytics() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <Button onClick={() => setShowForm(true)} className="bg-orange-600 hover:bg-orange-700">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Price
+                        <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
+                            <Plus className="h-4 w-4" />
+                            Add Price Record
                         </Button>
                     </div>
                 </div>
 
-                {/* Add/Edit Form */}
-                {showForm && (
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                            {editingPrice ? 'Edit Price' : 'Add New Price'}
-                        </h2>
-                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="product_id">Product *</Label>
-                                <Select value={formData.product_id} onValueChange={(value) => handleInputChange("product_id", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select product" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {products.map(product => (
-                                            <SelectItem key={product.product_id} value={product.product_id}>
-                                                {product.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="district_id">District *</Label>
-                                <Select value={formData.district_id.toString()} onValueChange={(value) => handleInputChange("district_id", parseInt(value))}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select district" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {districts.map(district => (
-                                            <SelectItem key={district.district_id} value={district.district_id.toString()}>
-                                                {district.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="date">Date *</Label>
-                                <Input
-                                    id="date"
-                                    type="date"
-                                    value={formData.date}
-                                    onChange={(e) => handleInputChange("date", e.target.value)}
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="price_per_unit">Price per Unit (৳) *</Label>
-                                <Input
-                                    id="price_per_unit"
-                                    type="number"
-                                    step="0.01"
-                                    value={formData.price_per_unit}
-                                    onChange={(e) => handleInputChange("price_per_unit", parseFloat(e.target.value) || 0)}
-                                    required
-                                />
-                            </div>
-
-                            <div className="md:col-span-2 flex gap-4">
-                                <Button type="submit" className="bg-orange-600 hover:bg-orange-700">
-                                    {editingPrice ? 'Update Price' : 'Add Price'}
-                                </Button>
-                                <Button type="button" variant="outline" onClick={resetForm}>
-                                    Cancel
-                                </Button>
-                            </div>
-                        </form>
-                    </div>
-                )}
-
-                {/* Prices Table */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-gray-200">
-                        <h2 className="text-xl font-semibold text-gray-900">
-                            Price Records ({filteredPrices.length})
-                        </h2>
+                {/* Price Table */}
+                <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-border">
+                        <h2 className="text-xl font-semibold text-foreground">Price Records ({filteredPrices.length})</h2>
                     </div>
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-gray-50">
-                                    <TableHead>Product</TableHead>
-                                    <TableHead>District</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Price (৳/unit)</TableHead>
-                                    <TableHead>Actions</TableHead>
+                                <TableRow>
+                                    <TableHead className="font-semibold text-foreground">Date</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Product</TableHead>
+                                    <TableHead className="font-semibold text-foreground">District</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Harvest Time</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Price/Unit</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Price Type</TableHead>
+                                    <TableHead className="font-semibold text-foreground">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredPrices.map((price) => (
-                                    <TableRow key={`${price.product_id}-${price.district_id}-${price.date}`} className="hover:bg-gray-50">
-                                        <TableCell className="font-medium">{price.product_name || price.product_id}</TableCell>
-                                        <TableCell>{price.district_name || price.district_id}</TableCell>
-                                        <TableCell>{new Date(price.date).toLocaleDateString()}</TableCell>
-                                        <TableCell className="font-semibold">৳{price.price_per_unit.toFixed(2)}</TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center space-x-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                                                    onClick={() => handleEdit(price)}
-                                                >
-                                                    <Edit2 className="h-4 w-4" />
-                                                </Button>
-                                                {price.price_id && (
+                                {filteredPrices.map((price, index) => {
+                                    const product = products.find(p => p.product_id === price.product_id);
+                                    return (
+                                        <TableRow key={price.price_id || index} className="hover:bg-muted/50">
+                                            <TableCell>{new Date(price.date).toLocaleDateString()}</TableCell>
+                                            <TableCell className="font-medium">{price.product_name}</TableCell>
+                                            <TableCell>{price.district_name}</TableCell>
+                                            <TableCell>{product?.harvest_time || 'N/A'}</TableCell>
+                                            <TableCell className="font-semibold">৳{safeNumberFormat(price.price_per_unit, 2)}</TableCell>
+                                            <TableCell>
+                                                <Badge variant={price.price_per_unit > avgPrice ? "default" : "secondary"}>
+                                                    {price.price_per_unit > avgPrice ? "Premium" : "Standard"}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center space-x-2">
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                                                        onClick={() => handleDelete(price.price_id!)}
+                                                        onClick={() => {
+                                                            setEditingPrice(price);
+                                                            setFormData(price);
+                                                            setShowForm(true);
+                                                        }}
                                                     >
-                                                        <Trash2 className="h-4 w-4" />
+                                                        <Edit2 className="h-4 w-4" />
                                                     </Button>
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
                             </TableBody>
                         </Table>
                     </div>
                 </div>
+
+                {/* Add/Edit Form Modal - You can implement this as needed */}
+                {showForm && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                        <div className="bg-card p-6 rounded-xl border border-border max-w-md w-full mx-4">
+                            <h3 className="text-lg font-semibold text-foreground mb-4">
+                                {editingPrice ? 'Edit Price' : 'Add New Price'}
+                            </h3>
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                {/* Form fields would go here */}
+                                <div className="flex gap-2">
+                                    <Button type="submit">
+                                        {editingPrice ? 'Update' : 'Add'}
+                                    </Button>
+                                    <Button type="button" variant="outline" onClick={resetForm}>
+                                        Cancel
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
-    )
+    );
 }

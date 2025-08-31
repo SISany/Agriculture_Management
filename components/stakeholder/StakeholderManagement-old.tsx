@@ -178,8 +178,8 @@ export default function StakeholderManagement() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Stakeholder Management</h1>
-                    <p className="mt-2 text-gray-600">Manage farmers, retailers, wholesalers, and consumers</p>
+                    <h1 className="text-2xl font-bold text-foreground">Stakeholder Management</h1>
+                    <p className="mt-2 text-muted-foreground">Manage farmers, retailers, wholesalers, and consumers</p>
                 </div>
                 <div className="flex gap-4 items-center">
                     <div className="relative">
@@ -228,7 +228,7 @@ export default function StakeholderManagement() {
                         <div className="text-2xl font-bold">
                             {stakeholders.filter(s => s.stakeholder_type === "Farmer").length}
                         </div>
-                        <p className="text-xs text-gray-600">Registered farmers</p>
+                        <p className="text-xs text-muted-foreground">Registered farmers</p>
                     </CardContent>
                 </Card>
 
@@ -241,7 +241,7 @@ export default function StakeholderManagement() {
                         <div className="text-2xl font-bold">
                             {stakeholders.filter(s => s.stakeholder_type === "Retailer").length}
                         </div>
-                        <p className="text-xs text-gray-600">Retail partners</p>
+                        <p className="text-xs text-muted-foreground">Retail partners</p>
                     </CardContent>
                 </Card>
 
@@ -254,7 +254,7 @@ export default function StakeholderManagement() {
                         <div className="text-2xl font-bold">
                             {stakeholders.filter(s => s.stakeholder_type === "Wholesaler").length}
                         </div>
-                        <p className="text-xs text-gray-600">Wholesale partners</p>
+                        <p className="text-xs text-muted-foreground">Wholesale partners</p>
                     </CardContent>
                 </Card>
 
@@ -267,7 +267,7 @@ export default function StakeholderManagement() {
                         <div className="text-2xl font-bold">
                             {stakeholders.filter(s => s.stakeholder_type === "Consumer").length}
                         </div>
-                        <p className="text-xs text-gray-600">Consumer base</p>
+                        <p className="text-xs text-muted-foreground">Consumer base</p>
                     </CardContent>
                 </Card>
             </div>
@@ -295,7 +295,7 @@ export default function StakeholderManagement() {
                                             <span className="text-sm font-medium">{type}s</span>
                                         </div>
                                         <div className="flex items-center space-x-2">
-                                            <span className="text-sm text-gray-600">{count} stakeholders</span>
+                                            <span className="text-sm text-muted-foreground">{count} stakeholders</span>
                                             <Badge variant="outline">{percentage.toFixed(0)}%</Badge>
                                         </div>
                                     </div>
@@ -322,7 +322,7 @@ export default function StakeholderManagement() {
                                             <span className="text-sm font-medium">{location}</span>
                                         </div>
                                         <div className="flex items-center space-x-2">
-                                            <span className="text-sm text-gray-600">{count} stakeholders</span>
+                                            <span className="text-sm text-muted-foreground">{count} stakeholders</span>
                                             <Badge variant="outline">{percentage.toFixed(0)}%</Badge>
                                         </div>
                                     </div>

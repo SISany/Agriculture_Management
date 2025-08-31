@@ -34,6 +34,12 @@ interface Product {
 }
 
 export default function TransactionManagement() {
+    // Helper function for safe number formatting
+    const safeNumberFormat = (value: any, decimals: number = 2): string => {
+        const num = parseFloat(value)
+        return isNaN(num) ? '0.00' : num.toFixed(decimals)
+    }
+    
     const [transactions, setTransactions] = useState<Transaction[]>([])
     const [stakeholders, setStakeholders] = useState<Stakeholder[]>([])
     const [products, setProducts] = useState<Product[]>([])
@@ -167,11 +173,11 @@ export default function TransactionManagement() {
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Transaction Management</h1>
-                            <p className="text-gray-600">Track all agricultural product transactions</p>
+                            <h1 className="text-3xl font-bold text-foreground mb-2">Transaction Management</h1>
+                            <p className="text-muted-foreground">Track all agricultural product transactions</p>
                         </div>
                         <div className="flex items-center space-x-4">
                             <div className="bg-purple-50 p-4 rounded-xl">
@@ -188,7 +194,7 @@ export default function TransactionManagement() {
                             <CardTitle className="text-sm font-medium text-gray-500">Total Transactions</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-bold text-gray-900">{transactions.length}</div>
+                            <div className="text-3xl font-bold text-foreground">{transactions.length}</div>
                         </CardContent>
                     </Card>
                     <Card>
@@ -196,7 +202,7 @@ export default function TransactionManagement() {
                             <CardTitle className="text-sm font-medium text-gray-500">Total Value</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-bold text-gray-900">৳{totalValue.toLocaleString()}</div>
+                            <div className="text-3xl font-bold text-foreground">৳{totalValue.toLocaleString()}</div>
                         </CardContent>
                     </Card>
                     <Card>
@@ -204,13 +210,13 @@ export default function TransactionManagement() {
                             <CardTitle className="text-sm font-medium text-gray-500">Total Quantity</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-bold text-gray-900">{totalQuantity.toLocaleString()} kg</div>
+                            <div className="text-3xl font-bold text-foreground">{totalQuantity.toLocaleString()} kg</div>
                         </CardContent>
                     </Card>
                 </div>
 
                 {/* Controls */}
-                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
                     <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -230,8 +236,8 @@ export default function TransactionManagement() {
 
                 {/* Add/Edit Form */}
                 {showForm && (
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                        <h2 className="text-xl font-semibold text-foreground mb-4">
                             {editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}
                         </h2>
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -353,9 +359,9 @@ export default function TransactionManagement() {
                 )}
 
                 {/* Transactions Table */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-gray-200">
-                        <h2 className="text-xl font-semibold text-gray-900">
+                <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-border">
+                        <h2 className="text-xl font-semibold text-foreground">
                             Transactions ({filteredTransactions.length})
                         </h2>
                     </div>
@@ -382,7 +388,7 @@ export default function TransactionManagement() {
                                         <TableCell>{transaction.buyer_name || transaction.buyer_id}</TableCell>
                                         <TableCell>{transaction.seller_name || transaction.seller_id}</TableCell>
                                         <TableCell>{(transaction.quantity || 0)} kg</TableCell>
-                                        <TableCell>৳{(transaction.price_per_unit || 0).toFixed(2)}</TableCell>
+                                        <TableCell>৳{safeNumberFormat(transaction.price_per_unit)}</TableCell>
                                         <TableCell>৳{(transaction.total_amount || 0).toLocaleString()}</TableCell>
                                         <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
                                         <TableCell>

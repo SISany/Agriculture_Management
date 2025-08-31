@@ -226,8 +226,8 @@ export default function InventoryManagement() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Inventory Management</h1>
-                    <p className="mt-2 text-gray-600">Track product inventory across warehouses</p>
+                    <h1 className="text-2xl font-bold text-foreground">Inventory Management</h1>
+                    <p className="mt-2 text-muted-foreground">Track product inventory across warehouses</p>
                 </div>
                 <div className="flex gap-4 items-center">
                     <div className="relative">
@@ -260,7 +260,7 @@ export default function InventoryManagement() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{inventoryData.length}</div>
-                        <p className="text-xs text-gray-600">Inventory items</p>
+                        <p className="text-xs text-muted-foreground">Inventory items</p>
                     </CardContent>
                 </Card>
 
@@ -273,7 +273,7 @@ export default function InventoryManagement() {
                         <div className="text-2xl font-bold">
                             {inventoryData.reduce((sum, inv) => sum + inv.quantity_available, 0).toLocaleString()} tons
                         </div>
-                        <p className="text-xs text-gray-600">Available stock</p>
+                        <p className="text-xs text-muted-foreground">Available stock</p>
                     </CardContent>
                 </Card>
 
@@ -286,7 +286,7 @@ export default function InventoryManagement() {
                         <div className="text-2xl font-bold">
                             {inventoryData.reduce((sum, inv) => sum + inv.quantity_reserved, 0).toLocaleString()} tons
                         </div>
-                        <p className="text-xs text-gray-600">Reserved items</p>
+                        <p className="text-xs text-muted-foreground">Reserved items</p>
                     </CardContent>
                 </Card>
 
@@ -299,7 +299,7 @@ export default function InventoryManagement() {
                         <div className="text-2xl font-bold">
                             ${inventoryData.reduce((sum, inv) => sum + (inv.quantity_available * inv.unit_cost), 0).toLocaleString()}
                         </div>
-                        <p className="text-xs text-gray-600">Inventory value</p>
+                        <p className="text-xs text-muted-foreground">Inventory value</p>
                     </CardContent>
                 </Card>
             </div>
@@ -318,7 +318,7 @@ export default function InventoryManagement() {
                                      className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
                                     <div>
                                         <p className="text-sm font-medium">{item.product_name}</p>
-                                        <p className="text-xs text-gray-600">{item.warehouse_name}</p>
+                                        <p className="text-xs text-muted-foreground">{item.warehouse_name}</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm font-bold text-red-700">{item.quantity_available} tons</p>
@@ -345,7 +345,7 @@ export default function InventoryManagement() {
                                      className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                     <div>
                                         <p className="text-sm font-medium">{item.product_name}</p>
-                                        <p className="text-xs text-gray-600">Batch: {item.batch_number}</p>
+                                        <p className="text-xs text-muted-foreground">Batch: {item.batch_number}</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm font-bold text-yellow-700">{item.expiry_date}</p>
@@ -377,7 +377,7 @@ export default function InventoryManagement() {
                                          className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
                                         <div>
                                             <p className="text-sm font-medium">{item.product_name}</p>
-                                            <p className="text-xs text-gray-600">{item.warehouse_name}</p>
+                                            <p className="text-xs text-muted-foreground">{item.warehouse_name}</p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-sm font-bold text-green-700">
@@ -415,21 +415,21 @@ export default function InventoryManagement() {
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                         <div className="text-center">
                                             <p className="text-2xl font-bold text-green-600">{totalAvailable.toLocaleString()}</p>
-                                            <p className="text-xs text-gray-600">Available (tons)</p>
+                                            <p className="text-xs text-muted-foreground">Available (tons)</p>
                                         </div>
                                         <div className="text-center">
                                             <p className="text-2xl font-bold text-orange-600">{totalReserved.toLocaleString()}</p>
-                                            <p className="text-xs text-gray-600">Reserved (tons)</p>
+                                            <p className="text-xs text-muted-foreground">Reserved (tons)</p>
                                         </div>
                                         <div className="text-center">
                                             <p className="text-2xl font-bold text-purple-600">${totalValue.toLocaleString()}</p>
-                                            <p className="text-xs text-gray-600">Total Value</p>
+                                            <p className="text-xs text-muted-foreground">Total Value</p>
                                         </div>
                                         <div className="text-center">
                                             <p className="text-2xl font-bold text-blue-600">
                                                 ${(totalValue / (totalAvailable || 1)).toFixed(2)}
                                             </p>
-                                            <p className="text-xs text-gray-600">Avg. Unit Cost</p>
+                                            <p className="text-xs text-muted-foreground">Avg. Unit Cost</p>
                                         </div>
                                     </div>
                                 </div>

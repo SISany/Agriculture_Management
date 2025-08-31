@@ -270,8 +270,8 @@ export default function ShipmentTracking() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Shipment Tracking</h1>
-                    <p className="mt-2 text-gray-600">Track product shipments and deliveries</p>
+                    <h1 className="text-2xl font-bold text-foreground">Shipment Tracking</h1>
+                    <p className="mt-2 text-muted-foreground">Track product shipments and deliveries</p>
                 </div>
                 <div className="flex gap-4 items-center">
                     <div className="relative">
@@ -304,7 +304,7 @@ export default function ShipmentTracking() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{shipmentData.length}</div>
-                        <p className="text-xs text-gray-600">All shipments</p>
+                        <p className="text-xs text-muted-foreground">All shipments</p>
                     </CardContent>
                 </Card>
 
@@ -317,7 +317,7 @@ export default function ShipmentTracking() {
                         <div className="text-2xl font-bold">
                             {shipmentData.filter(s => s.shipment_status === "In Transit").length}
                         </div>
-                        <p className="text-xs text-gray-600">Active shipments</p>
+                        <p className="text-xs text-muted-foreground">Active shipments</p>
                     </CardContent>
                 </Card>
 
@@ -330,7 +330,7 @@ export default function ShipmentTracking() {
                         <div className="text-2xl font-bold">
                             {shipmentData.filter(s => s.shipment_status === "Delivered").length}
                         </div>
-                        <p className="text-xs text-gray-600">Completed shipments</p>
+                        <p className="text-xs text-muted-foreground">Completed shipments</p>
                     </CardContent>
                 </Card>
 
@@ -343,7 +343,7 @@ export default function ShipmentTracking() {
                         <div className="text-2xl font-bold">
                             ${shipmentData.reduce((sum, s) => sum + s.shipping_cost, 0).toLocaleString()}
                         </div>
-                        <p className="text-xs text-gray-600">Shipping costs</p>
+                        <p className="text-xs text-muted-foreground">Shipping costs</p>
                     </CardContent>
                 </Card>
             </div>
@@ -371,7 +371,7 @@ export default function ShipmentTracking() {
                                             <span className="text-sm font-medium">{status}</span>
                                         </div>
                                         <div className="flex items-center space-x-2">
-                                            <span className="text-sm text-gray-600">{count} shipments</span>
+                                            <span className="text-sm text-muted-foreground">{count} shipments</span>
                                             <Badge variant="outline">{percentage.toFixed(0)}%</Badge>
                                         </div>
                                     </div>
@@ -401,9 +401,9 @@ export default function ShipmentTracking() {
                                                 <span className="text-sm font-medium">{mode}</span>
                                             </div>
                                             <div className="flex items-center space-x-4">
-                                                <span className="text-sm text-gray-600">{count} shipments</span>
+                                                <span className="text-sm text-muted-foreground">{count} shipments</span>
                                                 <span
-                                                    className="text-sm text-gray-600">Avg: ${avgCost.toFixed(0)}</span>
+                                                    className="text-sm text-muted-foreground">Avg: ${avgCost.toFixed(0)}</span>
                                                 <Badge variant="outline">{percentage.toFixed(0)}%</Badge>
                                             </div>
                                         </div>

@@ -292,8 +292,8 @@ export default function DemandForecast() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Demand Forecast Analytics</h1>
-                        <p className="text-gray-600 text-lg">AI-powered demand forecasting and supply gap analysis</p>
+                        <h1 className="text-3xl font-bold text-foreground">Demand Forecast Analytics</h1>
+                        <p className="text-muted-foreground text-lg">AI-powered demand forecasting and supply gap analysis</p>
                     </div>
                     <div className="flex items-center gap-4">
                         <Button variant="outline" size="sm" onClick={handleExport}>
@@ -313,7 +313,7 @@ export default function DemandForecast() {
 
                 {/* 1. STATISTICS CARDS */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <Card className="bg-white border border-blue-200 shadow-sm">
+                    <Card className="bg-card border border-blue-200 shadow-sm">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Projected Demand</CardTitle>
                             <Target className="h-4 w-4 text-blue-600"/>
@@ -324,7 +324,7 @@ export default function DemandForecast() {
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-white border border-green-200 shadow-sm">
+                    <Card className="bg-card border border-green-200 shadow-sm">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Current Supply</CardTitle>
                             <BarChart3 className="h-4 w-4 text-green-600"/>
@@ -335,7 +335,7 @@ export default function DemandForecast() {
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-white border border-red-200 shadow-sm">
+                    <Card className="bg-card border border-red-200 shadow-sm">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Supply Gap</CardTitle>
                             <AlertTriangle className="h-4 w-4 text-red-600"/>
@@ -347,7 +347,7 @@ export default function DemandForecast() {
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-white border border-purple-200 shadow-sm">
+                    <Card className="bg-card border border-purple-200 shadow-sm">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Avg Accuracy</CardTitle>
                             <TrendingUp className="h-4 w-4 text-purple-600"/>
@@ -715,11 +715,11 @@ export default function DemandForecast() {
                                             <TableCell>
                                                 <div className="flex space-x-2">
                                                     <Button variant="ghost" size="sm"
-                                                            className="text-gray-600 hover:text-blue-600">
+                                                            className="text-muted-foreground hover:text-blue-600">
                                                         <Edit2 className="w-4 h-4 text-blue-600"/>
                                                     </Button>
                                                     <Button variant="ghost" size="sm"
-                                                            className="text-gray-600 hover:text-red-600"
+                                                            className="text-muted-foreground hover:text-red-600"
                                                             onClick={() => handleDelete(forecast.demand_id)}>
                                                         <Trash2 className="w-4 h-4 text-red-600"/>
                                                     </Button>

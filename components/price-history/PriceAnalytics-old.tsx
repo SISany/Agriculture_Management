@@ -182,8 +182,8 @@ export default function PriceAnalytics() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Price History & Analytics</h1>
-                    <p className="mt-2 text-gray-600">Track price trends and market analytics</p>
+                    <h1 className="text-2xl font-bold text-foreground">Price History & Analytics</h1>
+                    <p className="mt-2 text-muted-foreground">Track price trends and market analytics</p>
                 </div>
                 <div className="flex gap-4 items-center">
                     <div className="relative">
@@ -216,7 +216,7 @@ export default function PriceAnalytics() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{priceHistoryData.length}</div>
-                        <p className="text-xs text-gray-600">Price records</p>
+                        <p className="text-xs text-muted-foreground">Price records</p>
                     </CardContent>
                 </Card>
 
@@ -229,7 +229,7 @@ export default function PriceAnalytics() {
                         <div className="text-2xl font-bold">
                             ${(priceHistoryData.reduce((sum, p) => sum + p.wholesale_price, 0) / priceHistoryData.length).toFixed(2)}
                         </div>
-                        <p className="text-xs text-gray-600">Per unit</p>
+                        <p className="text-xs text-muted-foreground">Per unit</p>
                     </CardContent>
                 </Card>
 
@@ -242,7 +242,7 @@ export default function PriceAnalytics() {
                         <div className="text-2xl font-bold">
                             ${(priceHistoryData.reduce((sum, p) => sum + p.retail_price, 0) / priceHistoryData.length).toFixed(2)}
                         </div>
-                        <p className="text-xs text-gray-600">Per unit</p>
+                        <p className="text-xs text-muted-foreground">Per unit</p>
                     </CardContent>
                 </Card>
 
@@ -255,7 +255,7 @@ export default function PriceAnalytics() {
                         <div className="text-2xl font-bold">
                             {(priceHistoryData.reduce((sum, p) => sum + ((p.retail_price - p.wholesale_price) / p.wholesale_price), 0) / priceHistoryData.length * 100).toFixed(1)}%
                         </div>
-                        <p className="text-xs text-gray-600">Retail markup</p>
+                        <p className="text-xs text-muted-foreground">Retail markup</p>
                     </CardContent>
                 </Card>
             </div>
@@ -271,10 +271,10 @@ export default function PriceAnalytics() {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Basic Information Section */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Basic Information</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="price_id" className="text-gray-700">Price ID *</Label>
+                                        <Label htmlFor="price_id" className="text-foreground">Price ID *</Label>
                                         <Input
                                             id="price_id"
                                             type="text"
@@ -286,7 +286,7 @@ export default function PriceAnalytics() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="product_id" className="text-gray-700">Product *</Label>
+                                        <Label htmlFor="product_id" className="text-foreground">Product *</Label>
                                         <Select value={formData.product_id}
                                                 onValueChange={(value) => {
                                                     handleInputChange("product_id", value)
@@ -309,7 +309,7 @@ export default function PriceAnalytics() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="product_name" className="text-gray-700">Product Name</Label>
+                                        <Label htmlFor="product_name" className="text-foreground">Product Name</Label>
                                         <Input
                                             id="product_name"
                                             type="text"
@@ -322,7 +322,7 @@ export default function PriceAnalytics() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="location" className="text-gray-700">Location *</Label>
+                                        <Label htmlFor="location" className="text-foreground">Location *</Label>
                                         <Input
                                             id="location"
                                             type="text"
@@ -334,7 +334,7 @@ export default function PriceAnalytics() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="date_recorded" className="text-gray-700">Date Recorded *</Label>
+                                        <Label htmlFor="date_recorded" className="text-foreground">Date Recorded *</Label>
                                         <Input
                                             id="date_recorded"
                                             type="date"
@@ -345,7 +345,7 @@ export default function PriceAnalytics() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="season" className="text-gray-700">Season *</Label>
+                                        <Label htmlFor="season" className="text-foreground">Season *</Label>
                                         <Select value={formData.season}
                                                 onValueChange={(value) => handleInputChange("season", value)}>
                                             <SelectTrigger>
@@ -365,10 +365,10 @@ export default function PriceAnalytics() {
 
                             {/* Price Information Section */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Price Information</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Price Information</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="wholesale_price" className="text-gray-700">Wholesale Price ($)
+                                        <Label htmlFor="wholesale_price" className="text-foreground">Wholesale Price ($)
                                             *</Label>
                                         <Input
                                             id="wholesale_price"
@@ -382,7 +382,7 @@ export default function PriceAnalytics() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="retail_price" className="text-gray-700">Retail Price ($)
+                                        <Label htmlFor="retail_price" className="text-foreground">Retail Price ($)
                                             *</Label>
                                         <Input
                                             id="retail_price"
@@ -396,7 +396,7 @@ export default function PriceAnalytics() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="harvest_season_price" className="text-gray-700">Harvest Season
+                                        <Label htmlFor="harvest_season_price" className="text-foreground">Harvest Season
                                             Price ($) *</Label>
                                         <Input
                                             id="harvest_season_price"
@@ -435,10 +435,10 @@ export default function PriceAnalytics() {
 
                             {/* Additional Information Section */}
                             <div>
-                                <h4 className="text-lg font-medium text-gray-900 mb-4">Additional Information</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4">Additional Information</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="weather_id" className="text-gray-700">Weather ID</Label>
+                                        <Label htmlFor="weather_id" className="text-foreground">Weather ID</Label>
                                         <Input
                                             id="weather_id"
                                             type="text"
@@ -451,7 +451,7 @@ export default function PriceAnalytics() {
                                 </div>
                             </div>
 
-                            <div className="flex gap-4 pt-4 border-t border-gray-200">
+                            <div className="flex gap-4 pt-4 border-t border-border">
                                 <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
                                     <Plus className="h-4 w-4 mr-2"/>
                                     Add Price Record

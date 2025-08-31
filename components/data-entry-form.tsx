@@ -109,8 +109,8 @@ export function DataEntryForm() {
       <div className="space-y-6">
           {/* Header */}
           <div>
-              <h1 className="text-2xl font-bold text-gray-900">Agriculture Data Entry Portal</h1>
-              <p className="mt-2 text-gray-600">Centralized data entry for all agriculture management needs</p>
+              <h1 className="text-2xl font-bold text-foreground">Agriculture Data Entry Portal</h1>
+              <p className="mt-2 text-muted-foreground">Centralized data entry for all agriculture management needs</p>
           </div>
 
         {/* Enhanced Tabs */}
@@ -393,7 +393,7 @@ export function DataEntryForm() {
 
                 <div className="bg-gray-50 p-4 rounded-lg mt-4">
                     <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Total Sale Value:</span>
+                        <span className="text-sm text-muted-foreground">Total Sale Value:</span>
                         <Badge variant="secondary" className="text-lg">
                             $
                             {formData.saleQuantity && formData.salePrice

@@ -263,8 +263,8 @@ export default function WarehouseManagement() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Warehouse Management System</h1>
-                    <p className="text-sm text-gray-600">Manage storage facilities and inventory tracking</p>
+                    <h1 className="text-2xl font-bold text-foreground">Warehouse Management System</h1>
+                    <p className="text-sm text-muted-foreground">Manage storage facilities and inventory tracking</p>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={handleExport}>

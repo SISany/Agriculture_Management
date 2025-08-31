@@ -266,10 +266,10 @@ export default function WeatherDashboard() {
                                 <form onSubmit={handleSubmit} className="space-y-6">
                                     {/* Basic Information Section */}
                                 <div>
-                                    <h4 className="text-lg font-medium text-gray-900 mb-4">Weather Information</h4>
+                                    <h4 className="text-lg font-medium text-foreground mb-4">Weather Information</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="location" className="text-gray-700">Location *</Label>
+                                            <Label htmlFor="location" className="text-foreground">Location *</Label>
                                             <Select value={formData.location}
                                                     onValueChange={(value) => handleInputChange("location", value)}>
                                                 <SelectTrigger>
@@ -286,7 +286,7 @@ export default function WeatherDashboard() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="date_recorded" className="text-gray-700">Date Recorded
+                                            <Label htmlFor="date_recorded" className="text-foreground">Date Recorded
                                                 *</Label>
                                             <Input
                                                 id="date_recorded"
@@ -298,7 +298,7 @@ export default function WeatherDashboard() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="season" className="text-gray-700">Season *</Label>
+                                            <Label htmlFor="season" className="text-foreground">Season *</Label>
                                             <Select value={formData.season}
                                                     onValueChange={(value) => handleInputChange("season", value)}>
                                                 <SelectTrigger>
@@ -318,10 +318,10 @@ export default function WeatherDashboard() {
 
                                 {/* Measurement Data Section */}
                                 <div>
-                                    <h4 className="text-lg font-medium text-gray-900 mb-4">Measurements</h4>
+                                    <h4 className="text-lg font-medium text-foreground mb-4">Measurements</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="rainfall" className="text-gray-700">Rainfall (mm) *</Label>
+                                            <Label htmlFor="rainfall" className="text-foreground">Rainfall (mm) *</Label>
                                             <Input
                                                 id="rainfall"
                                                 type="number"
@@ -334,7 +334,7 @@ export default function WeatherDashboard() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="temperature" className="text-gray-700">Temperature (°C)
+                                            <Label htmlFor="temperature" className="text-foreground">Temperature (°C)
                                                 *</Label>
                                             <Input
                                                 id="temperature"
@@ -348,7 +348,7 @@ export default function WeatherDashboard() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="humidity" className="text-gray-700">Humidity (%) *</Label>
+                                            <Label htmlFor="humidity" className="text-foreground">Humidity (%) *</Label>
                                             <Input
                                                 id="humidity"
                                                 type="number"
@@ -361,7 +361,7 @@ export default function WeatherDashboard() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="weather_conditions" className="text-gray-700">Weather
+                                            <Label htmlFor="weather_conditions" className="text-foreground">Weather
                                                 Conditions *</Label>
                                             <Select value={formData.weather_conditions}
                                                     onValueChange={(value) => handleInputChange("weather_conditions", value)}>
@@ -381,7 +381,7 @@ export default function WeatherDashboard() {
                                 </div>
 
                                 {/* Form Actions */}
-                                <div className="flex gap-4 pt-4 border-t border-gray-200">
+                                <div className="flex gap-4 pt-4 border-t border-border">
                                     <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
                                         <Plus className="h-4 w-4 mr-2"/>
                                         Add Weather Data
