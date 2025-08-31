@@ -21,13 +21,21 @@ import {
     Pie,
     Cell,
     Legend,
-    Tooltip,
-    AreaChart,
-    Area,
-    ScatterChart,
-    Scatter
+    Tooltip
 } from "recharts"
-import {Search, Plus, Edit2, Trash2, TrendingUp, TrendingDown, MapPin, DollarSign, Package, FileDown, Users, Activity, Calendar, BarChart3} from "lucide-react"
+import {
+    Search,
+    Plus,
+    Edit2,
+    Trash2,
+    TrendingUp,
+    MapPin,
+    DollarSign,
+    Package,
+    FileDown,
+    Activity,
+    BarChart3
+} from "lucide-react"
 import {Label} from "@/components/ui/label"
 import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
 
@@ -121,7 +129,6 @@ export default function ConsumptionPattern() {
     const [selectedProduct, setSelectedProduct] = useState("all")
     const [selectedDistrict, setSelectedDistrict] = useState("all")
     const [selectedDateRange, setSelectedDateRange] = useState({start: '', end: ''})
-    const [selectedYearRange, setSelectedYearRange] = useState({start: new Date().getFullYear() - 5, end: new Date().getFullYear()})
     const [selectedSeason, setSelectedSeason] = useState("all")
     const [selectedDemographic, setSelectedDemographic] = useState("all")
     const [activeTab, setActiveTab] = useState('overview')
@@ -237,7 +244,7 @@ export default function ConsumptionPattern() {
         if (selectedProduct !== 'all' && selectedDistrict !== 'all') {
             fetchAnalyticsData()
         }
-    }, [activeTab, selectedProduct, selectedDistrict, selectedDateRange, selectedYearRange])
+    }, [activeTab, selectedProduct, selectedDistrict, selectedDateRange])
     
     useEffect(() => {
         fetchWeatherData()
@@ -263,8 +270,8 @@ export default function ConsumptionPattern() {
             }
             
             if (demographicsRes.ok) {
-                const demographicsData = await demographicsRes.json()
-                setDemographicGroups(demographicsData.map((d: any) => d.name))
+                const demographicsData: { name: string }[] = await demographicsRes.json()
+                setDemographicGroups(demographicsData.map((d) => d.name))
             }
             
             // Fetch consumption patterns
@@ -287,9 +294,7 @@ export default function ConsumptionPattern() {
         try {
             const params = new URLSearchParams({
                 product_id: selectedProduct,
-                district_id: selectedDistrict,
-                start_year: selectedYearRange.start.toString(),
-                end_year: selectedYearRange.end.toString()
+                district_id: selectedDistrict
             })
             
             if (selectedDateRange.start && selectedDateRange.end) {
@@ -387,9 +392,6 @@ export default function ConsumptionPattern() {
     })
 
     // Calculate derived metrics from real data
-    const totalConsumption = filteredData.reduce((sum, pattern) => sum + pattern.quantity_consumed, 0)
-    const totalSpending = filteredData.reduce((sum, pattern) => sum + pattern.amount_spent, 0)
-    const avgHouseholdSize = filteredData.length > 0 ? filteredData.reduce((sum, pattern) => sum + pattern.household_size, 0) / filteredData.length : 0
     const avgPerCapitaIncome = filteredData.length > 0 ? filteredData.reduce((sum, pattern) => sum + pattern.per_capita_income, 0) / filteredData.length : 0
 
     const handleInputChange = (field: string, value: string | number) => {
@@ -440,202 +442,342 @@ export default function ConsumptionPattern() {
     }
 
     // Calculate price elasticity based on real data
-    const calculatePriceElasticity = () => {
-        if (priceHistory.length === 0 || consumptionPatterns.length === 0) return []
-        
-        return priceHistory.map(price => {
-            const consumption = consumptionPatterns
-                .filter(c => c.product_id === price.product_id && c.district_id === price.district_id)
-                .reduce((sum, c) => sum + c.quantity_consumed, 0)
-            
-            return {
-                product_name: getProductName(price.product_id),
-                retail_price: price.retail_price,
-                consumption: consumption,
-                date: price.date
-            }
-        })
-    }
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="agriculture-gradient p-8 min-h-screen" style={{
+            background: 'linear-gradient(135deg, #f0fdf4 0%, #dbeafe 25%, #fef3c7 50%, #fce7f3 75%, #f3e8ff 100%)',
+            minHeight: '100vh',
+            padding: '2rem'
+        }}>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-foreground">Consumption Pattern & Nutrition Analysis</h1>
-                    <p className="text-sm text-muted-foreground">Comprehensive consumption patterns, nutrition intake tracking, and demand forecasting</p>
+                    <h1 style={{
+                        fontSize: '2.5rem',
+                        fontWeight: '700',
+                        background: 'linear-gradient(45deg, #059669, #3b82f6, #8b5cf6)',
+                        WebkitBackgroundClip: 'text',
+                        backgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        color: 'transparent',
+                        marginBottom: '0.5rem'
+                    }}>Consumption Pattern & Nutrition Analysis</h1>
+                    <p style={{
+                        color: '#6b7280',
+                        fontSize: '1rem'
+                    }}>Comprehensive consumption patterns, nutrition intake tracking, and demand forecasting</p>
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={fetchAnalyticsData} disabled={loading}>
-                        <Activity className="w-4 h-4 mr-2" />
+                <div className="flex gap-3">
+                    <button
+                        onClick={fetchAnalyticsData}
+                        disabled={loading}
+                        className="btn-secondary"
+                        style={{
+                            background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)',
+                            color: 'white',
+                            border: 'none',
+                            padding: '12px 20px',
+                            borderRadius: '12px',
+                            fontWeight: '600',
+                            boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
+                    >
+                        <Activity className="w-4 h-4"/>
                         {loading ? 'Loading...' : 'Refresh'}
-                    </Button>
-                    <Button variant="outline" size="sm">
-                        <FileDown className="w-4 h-4 mr-2"/>
+                    </button>
+                    <button
+                        className="btn-secondary"
+                        style={{
+                            background: 'linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%)',
+                            color: 'white',
+                            border: 'none',
+                            padding: '12px 20px',
+                            borderRadius: '12px',
+                            fontWeight: '600',
+                            boxShadow: '0 8px 20px rgba(6, 182, 212, 0.3)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
+                    >
+                        <FileDown className="w-4 h-4"/>
                         Export Report
-                    </Button>
-                    <Button size="sm" onClick={() => setShowAddForm(true)}>
-                        <Plus className="w-4 h-4 mr-2"/>
+                    </button>
+                    <button
+                        onClick={() => setShowAddForm(true)}
+                        className="btn-primary"
+                        style={{
+                            background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                            color: 'white',
+                            border: 'none',
+                            padding: '12px 20px',
+                            borderRadius: '12px',
+                            fontWeight: '600',
+                            boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
+                    >
+                        <Plus className="w-4 h-4"/>
                         Add Pattern
-                    </Button>
+                    </button>
                 </div>
             </div>
             
             {/* Enhanced Filters */}
-            <Card>
-                <CardContent className="pt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <div className="space-y-2">
-                            <Label>Product</Label>
-                            <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select product" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Products</SelectItem>
-                                    {products.map(product => (
-                                        <SelectItem key={product.product_id} value={product.product_id}>
-                                            {product.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <Label>District</Label>
-                            <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select district" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Districts</SelectItem>
-                                    {districts.map(district => (
-                                        <SelectItem key={district.district_id} value={district.district_id.toString()}>
-                                            {district.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <Label>Start Date</Label>
-                            <Input 
-                                type="date" 
-                                value={selectedDateRange.start}
-                                onChange={(e) => setSelectedDateRange(prev => ({...prev, start: e.target.value}))}
-                            />
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <Label>End Date</Label>
-                            <Input 
-                                type="date" 
-                                value={selectedDateRange.end}
-                                onChange={(e) => setSelectedDateRange(prev => ({...prev, end: e.target.value}))}
-                            />
-                        </div>
+            <div style={{
+                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                border: '3px solid #10b981',
+                borderRadius: '16px',
+                padding: '24px',
+                boxShadow: '0 10px 25px rgba(16, 185, 129, 0.15)',
+                marginBottom: '2rem'
+            }}>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="space-y-2">
+                        <label style={{color: '#374151', fontWeight: '600', fontSize: '0.875rem'}}>Product</label>
+                        <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                            <SelectTrigger style={{
+                                background: 'white',
+                                border: '2px solid #10b981',
+                                borderRadius: '12px',
+                                padding: '12px 16px',
+                                color: '#374151'
+                            }}>
+                                <SelectValue placeholder="Select product"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Products</SelectItem>
+                                {products.map(product => (
+                                    <SelectItem key={product.product_id} value={product.product_id}>
+                                        {product.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
-                </CardContent>
-            </Card>
+
+                    <div className="space-y-2">
+                        <label style={{color: '#374151', fontWeight: '600', fontSize: '0.875rem'}}>District</label>
+                        <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+                            <SelectTrigger style={{
+                                background: 'white',
+                                border: '2px solid #10b981',
+                                borderRadius: '12px',
+                                padding: '12px 16px',
+                                color: '#374151'
+                            }}>
+                                <SelectValue placeholder="Select district"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Districts</SelectItem>
+                                {districts.map(district => (
+                                    <SelectItem key={district.district_id} value={district.district_id.toString()}>
+                                        {district.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label style={{color: '#374151', fontWeight: '600', fontSize: '0.875rem'}}>Start Date</label>
+                        <Input
+                            type="date"
+                            value={selectedDateRange.start}
+                            onChange={(e) => setSelectedDateRange(prev => ({...prev, start: e.target.value}))}
+                            style={{
+                                background: 'white',
+                                border: '2px solid #10b981',
+                                borderRadius: '12px',
+                                padding: '12px 16px',
+                                color: '#374151'
+                            }}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label style={{color: '#374151', fontWeight: '600', fontSize: '0.875rem'}}>End Date</label>
+                        <Input
+                            type="date"
+                            value={selectedDateRange.end}
+                            onChange={(e) => setSelectedDateRange(prev => ({...prev, end: e.target.value}))}
+                            style={{
+                                background: 'white',
+                                border: '2px solid #10b981',
+                                borderRadius: '12px',
+                                padding: '12px 16px',
+                                color: '#374151'
+                            }}
+                        />
+                    </div>
+                </div>
+            </div>
 
             {/* Key Metrics - Derived from Real Data */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Production</CardTitle>
-                        <Package className="h-4 w-4 text-blue-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
+                <div style={{
+                    background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+                    border: '3px solid #3b82f6',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    boxShadow: '0 10px 25px rgba(59, 130, 246, 0.2)',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                }}>
+                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 style={{fontSize: '0.875rem', fontWeight: '600', color: '#1e40af'}}>Total Production</h3>
+                        <Package className="h-6 w-6" style={{color: '#3b82f6'}}/>
+                    </div>
+                    <div>
+                        <div style={{fontSize: '1.875rem', fontWeight: '700', color: '#1d4ed8', marginBottom: '4px'}}>
                             {productionData.reduce((sum, p) => sum + p.quantity_produced, 0).toLocaleString()} kg
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">Total acreage: {productionData.reduce((sum, p) => sum + p.acreage, 0).toLocaleString()}</p>
-                    </CardContent>
-                </Card>
+                        <p style={{fontSize: '0.75rem', color: '#3730a3'}}>
+                            Total acreage: {productionData.reduce((sum, p) => sum + p.acreage, 0).toLocaleString()}
+                        </p>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Avg Per Capita Income</CardTitle>
-                        <DollarSign className="h-4 w-4 text-green-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">৳{avgPerCapitaIncome.toLocaleString()}</div>
-                        <p className="text-xs text-muted-foreground mt-1">Based on consumption data</p>
-                    </CardContent>
-                </Card>
+                <div style={{
+                    background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
+                    border: '3px solid #10b981',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    boxShadow: '0 10px 25px rgba(16, 185, 129, 0.2)',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                }}>
+                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 style={{fontSize: '0.875rem', fontWeight: '600', color: '#065f46'}}>Avg Per Capita
+                            Income</h3>
+                        <DollarSign className="h-6 w-6" style={{color: '#10b981'}}/>
+                    </div>
+                    <div>
+                        <div style={{fontSize: '1.875rem', fontWeight: '700', color: '#047857', marginBottom: '4px'}}>
+                            ৳{avgPerCapitaIncome.toLocaleString()}
+                        </div>
+                        <p style={{fontSize: '0.75rem', color: '#064e3b'}}>Based on consumption data</p>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Surplus/Deficit</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-orange-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
+                <div style={{
+                    background: 'linear-gradient(135deg, #fed7aa 0%, #fdba74 100%)',
+                    border: '3px solid #f97316',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    boxShadow: '0 10px 25px rgba(249, 115, 22, 0.2)',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                }}>
+                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 style={{fontSize: '0.875rem', fontWeight: '600', color: '#9a3412'}}>Surplus/Deficit</h3>
+                        <TrendingUp className="h-6 w-6" style={{color: '#f97316'}}/>
+                    </div>
+                    <div>
+                        <div style={{fontSize: '1.875rem', fontWeight: '700', color: '#c2410c', marginBottom: '4px'}}>
                             {nutritionalAnalysis.reduce((sum, n) => sum + n.surplus_deficit, 0) > 0 ? '+' : ''}
                             {nutritionalAnalysis.reduce((sum, n) => sum + n.surplus_deficit, 0).toFixed(1)} kg
                         </div>
-                        <p className="text-xs text-orange-600 mt-1">
+                        <p style={{fontSize: '0.75rem', color: '#92400e'}}>
                             {nutritionalAnalysis.reduce((sum, n) => sum + n.surplus_deficit, 0) > 0 ? 'Surplus' : 'Deficit'}
                         </p>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Price Trends</CardTitle>
-                        <Activity className="h-4 w-4 text-purple-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
+                <div style={{
+                    background: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)',
+                    border: '3px solid #8b5cf6',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    boxShadow: '0 10px 25px rgba(139, 92, 246, 0.2)',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                }}>
+                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 style={{fontSize: '0.875rem', fontWeight: '600', color: '#581c87'}}>Price Trends</h3>
+                        <Activity className="h-6 w-6" style={{color: '#8b5cf6'}}/>
+                    </div>
+                    <div>
+                        <div style={{fontSize: '1.875rem', fontWeight: '700', color: '#6b21a8', marginBottom: '4px'}}>
                             ৳{priceHistory.length > 0 ? (priceHistory.reduce((sum, p) => sum + p.retail_price, 0) / priceHistory.length).toFixed(0) : 0}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">Avg retail price</p>
-                    </CardContent>
-                </Card>
+                        <p style={{fontSize: '0.75rem', color: '#4c1d95'}}>Avg retail price</p>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Weather Impact</CardTitle>
-                        <MapPin className="h-4 w-4 text-indigo-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
+                <div style={{
+                    background: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)',
+                    border: '3px solid #6366f1',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    boxShadow: '0 10px 25px rgba(99, 102, 241, 0.2)',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                }}>
+                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 style={{fontSize: '0.875rem', fontWeight: '600', color: '#312e81'}}>Weather Impact</h3>
+                        <MapPin className="h-6 w-6" style={{color: '#6366f1'}}/>
+                    </div>
+                    <div>
+                        <div style={{fontSize: '1.875rem', fontWeight: '700', color: '#3730a3', marginBottom: '4px'}}>
                             {weatherData.length > 0 ? (weatherData.reduce((sum, w) => sum + w.rainfall, 0) / weatherData.length).toFixed(1) : 0}mm
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">Avg rainfall</p>
-                    </CardContent>
-                </Card>
+                        <p style={{fontSize: '0.75rem', color: '#312e81'}}>Avg rainfall</p>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Supply vs Demand</CardTitle>
-                        <BarChart3 className="h-4 w-4 text-red-600"/>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
+                <div style={{
+                    background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
+                    border: '3px solid #ef4444',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    boxShadow: '0 10px 25px rgba(239, 68, 68, 0.2)',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                }}>
+                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 style={{fontSize: '0.875rem', fontWeight: '600', color: '#991b1b'}}>Supply vs Demand</h3>
+                        <BarChart3 className="h-6 w-6" style={{color: '#ef4444'}}/>
+                    </div>
+                    <div>
+                        <div style={{fontSize: '1.875rem', fontWeight: '700', color: '#dc2626', marginBottom: '4px'}}>
                             {supplyDemandData.reduce((sum, s) => sum + s.producer_supply, 0) > supplyDemandData.reduce((sum, s) => sum + s.consumer_demand, 0) ? 'Surplus' : 'Shortage'}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">Market status</p>
-                    </CardContent>
-                </Card>
+                        <p style={{fontSize: '0.75rem', color: '#7f1d1d'}}>Market status</p>
+                    </div>
+                </div>
             </div>
             
             {/* Enhanced Analysis Tabs */}
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="nutrition">Nutrition Analysis</TabsTrigger>
-                    <TabsTrigger value="trends">Consumption Trends</TabsTrigger>
-                    <TabsTrigger value="demographics">Demographics</TabsTrigger>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-4 bg-white/80 border border-green-200 p-1 rounded-xl">
+                    <TabsTrigger value="overview"
+                                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white rounded-lg">Overview</TabsTrigger>
+                    <TabsTrigger value="nutrition"
+                                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-sky-500 data-[state=active]:text-white rounded-lg">Nutrition
+                        Analysis</TabsTrigger>
+                    <TabsTrigger value="trends"
+                                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-violet-500 data-[state=active]:text-white rounded-lg">Consumption
+                        Trends</TabsTrigger>
+                    <TabsTrigger value="demographics"
+                                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white rounded-lg">Demographics</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="overview" className="mt-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <Card>
+                        <Card
+                            className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 shadow-lg hover:shadow-xl transition-all duration-300">
                             <CardHeader>
-                                <CardTitle>Monthly Consumption Trends</CardTitle>
-                                <CardDescription>Product consumption patterns over time</CardDescription>
+                                <CardTitle className="text-green-800">Monthly Consumption Trends</CardTitle>
+                                <CardDescription className="text-green-600">Product consumption patterns over
+                                    time</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <ResponsiveContainer width="100%" height={300}>
@@ -652,11 +794,13 @@ export default function ConsumptionPattern() {
                                 </ResponsiveContainer>
                             </CardContent>
                         </Card>
-                        
-                        <Card>
+
+                        <Card
+                            className="bg-gradient-to-br from-blue-50 to-sky-50 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300">
                             <CardHeader>
-                                <CardTitle>Demographic Distribution</CardTitle>
-                                <CardDescription>Consumption by socioeconomic groups</CardDescription>
+                                <CardTitle className="text-blue-800">Demographic Distribution</CardTitle>
+                                <CardDescription className="text-blue-600">Consumption by socioeconomic
+                                    groups</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <ResponsiveContainer width="100%" height={300}>
@@ -865,40 +1009,27 @@ export default function ConsumptionPattern() {
                                 <h4 className="text-lg font-medium text-foreground mb-4">Basic Information</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="consumer_name" className="text-foreground">Consumer *</Label>
-                                        <Select value={formData.stakeholder_id}
-                                                onValueChange={(value) => handleInputChange("stakeholder_id", value)}>
-                                            <SelectTrigger className="bg-background text-foreground border-border">
-                                                <SelectValue placeholder="Select Consumer"/>
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-background border-border">
-                                                {stakeholders.map((stakeholder) => (
-                                                    <SelectItem 
-                                                        key={stakeholder.stakeholder_id} 
-                                                        value={stakeholder.stakeholder_id}
-                                                        className="text-foreground hover:bg-muted focus:bg-muted"
-                                                    >
-                                                        {stakeholder.NAME || stakeholder.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <Label htmlFor="consumer_name" className="text-foreground">Consumer Name *</Label>
+                                        <Input
+                                            id="stakeholder_id"
+                                            type="text"
+                                            placeholder="e.g., S001"
+                                            value={formData.stakeholder_id}
+                                            onChange={(e) => handleInputChange("stakeholder_id", e.target.value)}
+                                            required
+                                        />
                                     </div>
 
                                     <div className="space-y-2">
                                         <Label htmlFor="product_id" className="text-foreground">Product *</Label>
                                         <Select value={formData.product_id}
                                                 onValueChange={(value) => handleInputChange("product_id", value)}>
-                                            <SelectTrigger className="bg-background text-foreground border-border">
+                                            <SelectTrigger>
                                                 <SelectValue placeholder="Select Product"/>
                                             </SelectTrigger>
-                                            <SelectContent className="bg-background border-border">
+                                            <SelectContent>
                                                 {products.map((product) => (
-                                                    <SelectItem 
-                                                        key={product.product_id} 
-                                                        value={product.product_id}
-                                                        className="text-foreground hover:bg-muted focus:bg-muted"
-                                                    >
+                                                    <SelectItem key={product.product_id} value={product.product_id}>
                                                         {getProductName(product.product_id)}
                                                     </SelectItem>
                                                 ))}
@@ -915,7 +1046,6 @@ export default function ConsumptionPattern() {
                                             value={formData.consumption_date}
                                             onChange={(e) => handleInputChange("consumption_date", e.target.value)}
                                             required
-                                            className="bg-background text-foreground border-border"
                                         />
                                     </div>
 
@@ -923,17 +1053,13 @@ export default function ConsumptionPattern() {
                                         <Label htmlFor="district_id" className="text-foreground">District *</Label>
                                         <Select value={formData.district_id}
                                                 onValueChange={(value) => handleInputChange("district_id", value)}>
-                                            <SelectTrigger className="bg-background text-foreground border-border">
+                                            <SelectTrigger>
                                                 <SelectValue placeholder="Select District"/>
                                             </SelectTrigger>
-                                            <SelectContent className="bg-background border-border">
+                                            <SelectContent>
                                                 {districts.map((district) => (
-                                                    <SelectItem 
-                                                        key={district.district_id} 
-                                                        value={district.district_id.toString()}
-                                                        className="text-foreground hover:bg-muted focus:bg-muted"
-                                                    >
-                                                        {district.name}
+                                                    <SelectItem key={district.district_id} value={district.district_id}>
+                                                        {getDistrictName(district.district_id)}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
@@ -944,13 +1070,31 @@ export default function ConsumptionPattern() {
                                         <Label htmlFor="demographic_group" className="text-foreground">Demographic Group *</Label>
                                         <Select value={formData.demographic_group}
                                                 onValueChange={(value) => handleInputChange("demographic_group", value)}>
-                                            <SelectTrigger className="bg-background text-foreground border-border">
+                                            <SelectTrigger>
                                                 <SelectValue placeholder="Select Demographic"/>
                                             </SelectTrigger>
-                                            <SelectContent className="bg-background border-border">
-                                                <SelectItem value="Urban" className="text-foreground hover:bg-muted focus:bg-muted">Urban</SelectItem>
-                                                <SelectItem value="Rural" className="text-foreground hover:bg-muted focus:bg-muted">Rural</SelectItem>
-                                                <SelectItem value="Suburban" className="text-foreground hover:bg-muted focus:bg-muted">Suburban</SelectItem>
+                                            <SelectContent>
+                                                <SelectItem value="Urban">Urban</SelectItem>
+                                                <SelectItem value="Rural">Rural</SelectItem>
+                                                <SelectItem value="Suburban">Suburban</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="demographic_group" className="text-foreground">Demographic Group
+                                            *</Label>
+                                        <Select value={formData.demographic_group}
+                                                onValueChange={(value) => handleInputChange("demographic_group", value)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Group"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {demographicGroups.map((group) => (
+                                                    <SelectItem key={group} value={group}>
+                                                        {group}
+                                                    </SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -972,7 +1116,6 @@ export default function ConsumptionPattern() {
                                             value={formData.quantity_consumed}
                                             onChange={(e) => handleInputChange("quantity_consumed", parseFloat(e.target.value) || 0)}
                                             required
-                                            className="bg-background text-foreground border-border"
                                         />
                                     </div>
 
@@ -987,7 +1130,6 @@ export default function ConsumptionPattern() {
                                             value={formData.amount_spent}
                                             onChange={(e) => handleInputChange("amount_spent", parseFloat(e.target.value) || 0)}
                                             required
-                                            className="bg-background text-foreground border-border"
                                         />
                                     </div>
 
@@ -1002,7 +1144,6 @@ export default function ConsumptionPattern() {
                                             value={formData.household_size}
                                             onChange={(e) => handleInputChange("household_size", parseInt(e.target.value) || 0)}
                                             required
-                                            className="bg-background text-foreground border-border"
                                         />
                                     </div>
                                 </div>
@@ -1024,10 +1165,13 @@ export default function ConsumptionPattern() {
             )}
 
             {/* Filters and Table */}
-            <Card>
+            <Card className="bg-white/90 backdrop-blur-sm border-green-200 shadow-lg">
                 <CardHeader>
-                    <CardTitle>Consumption Pattern Data</CardTitle>
-                    <CardDescription>Filter and view detailed consumption patterns</CardDescription>
+                    <CardTitle
+                        className="text-gray-800 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">Consumption
+                        Pattern Data</CardTitle>
+                    <CardDescription className="text-gray-600">Filter and view detailed consumption
+                        patterns</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -1038,16 +1182,16 @@ export default function ConsumptionPattern() {
                                 placeholder="Search consumers, products, locations..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 bg-background text-foreground border-border"
+                                className="pl-10"
                             />
                         </div>
                         <Select value={selectedSeason} onValueChange={setSelectedSeason}>
-                            <SelectTrigger className="w-full md:w-48 bg-background text-foreground border-border">
+                            <SelectTrigger className="w-full md:w-48">
                                 <SelectValue placeholder="Select Season"/>
                             </SelectTrigger>
-                            <SelectContent className="bg-background border-border">
-                                <SelectItem value="all" className="text-foreground hover:bg-muted focus:bg-muted">All Seasons</SelectItem>
-                                <SelectItem value="Spring" className="text-foreground hover:bg-muted focus:bg-muted">Spring</SelectItem>
+                            <SelectContent>
+                                <SelectItem value="all">All Seasons</SelectItem>
+                                <SelectItem value="Spring">Spring</SelectItem>
                                 <SelectItem value="Summer">Summer</SelectItem>
                                 <SelectItem value="Monsoon">Monsoon</SelectItem>
                                 <SelectItem value="Winter">Winter</SelectItem>
@@ -1124,10 +1268,11 @@ export default function ConsumptionPattern() {
 
             {/* Charts */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <Card>
+                <Card
+                    className="bg-gradient-to-br from-cyan-50 to-teal-50 border-cyan-200 shadow-lg hover:shadow-xl transition-all duration-300">
                     <CardHeader>
-                        <CardTitle>Monthly Consumption Trends</CardTitle>
-                        <CardDescription>Product consumption over time</CardDescription>
+                        <CardTitle className="text-cyan-800">Monthly Consumption Trends</CardTitle>
+                        <CardDescription className="text-cyan-600">Product consumption over time</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={{}} className="h-[300px]">
@@ -1152,10 +1297,11 @@ export default function ConsumptionPattern() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card
+                    className="bg-gradient-to-br from-pink-50 to-rose-50 border-pink-200 shadow-lg hover:shadow-xl transition-all duration-300">
                     <CardHeader>
-                        <CardTitle>Demographic Distribution</CardTitle>
-                        <CardDescription>Consumption by demographic groups</CardDescription>
+                        <CardTitle className="text-pink-800">Demographic Distribution</CardTitle>
+                        <CardDescription className="text-pink-600">Consumption by demographic groups</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={{}} className="h-[300px]">
@@ -1183,10 +1329,12 @@ export default function ConsumptionPattern() {
                 </Card>
             </div>
 
-            <Card>
+            <Card
+                className="bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader>
-                    <CardTitle>Seasonal Consumption Analysis</CardTitle>
-                    <CardDescription>Consumption patterns across different seasons</CardDescription>
+                    <CardTitle className="text-amber-800">Seasonal Consumption Analysis</CardTitle>
+                    <CardDescription className="text-amber-600">Consumption patterns across different
+                        seasons</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ChartContainer config={{}} className="h-[300px]">

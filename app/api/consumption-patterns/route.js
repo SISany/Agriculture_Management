@@ -77,6 +77,31 @@ export async function GET() {
 export async function POST(request) {
   try {
     const data = await request.json();
+      console.log('Received consumption pattern data:', data);
+
+      // First, let's validate that the stakeholder exists
+      const stakeholderCheck = await query('SELECT stakeholder_id, name FROM stakeholder WHERE stakeholder_id = ?', [data.stakeholder_id]);
+      console.log('Stakeholder check result:', stakeholderCheck);
+
+      if (stakeholderCheck.length === 0) {
+          return NextResponse.json({
+              error: `Stakeholder with ID '${data.stakeholder_id}' does not exist. Please select a valid consumer from the dropdown.`
+          }, {status: 400});
+      }
+
+      // Also validate product exists
+      const productCheck = await query('SELECT product_id, name FROM product WHERE product_id = ?', [data.product_id]);
+      console.log('Product check result:', productCheck);
+
+      if (productCheck.length === 0) {
+          return NextResponse.json({
+              error: `Product with ID '${data.product_id}' does not exist. Please select a valid product.`
+          }, {status: 400});
+      }
+
+      // For now, we'll insert into the consumption_record table with the basic fields
+      // since the extended fields (demographic_group, household_size, per_capita_income, amount_spent, district_id)
+      // are computed in the GET query based on stakeholder data
     const sql = `
       INSERT INTO consumption_record (stakeholder_id, product_id, date, quantity)
       VALUES (?, ?, ?, ?)
@@ -88,10 +113,13 @@ export async function POST(request) {
       data.consumption_date, 
       data.quantity_consumed
     ]);
-    
-    return NextResponse.json({ success: true });
+
+      return NextResponse.json({success: true, message: 'Consumption pattern added successfully'});
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('Database error:', error);
+      return NextResponse.json({
+          error: `Database error: ${error.message}. Please check that all required fields are filled correctly.`
+      }, {status: 500});
   }
 }
 
